@@ -11,7 +11,7 @@ CXX    += $(WARN)
 AR      = libtool -static -o
 LIBSGCC = -lstdc++ -lm
 
-ALL_LIBS = $(LIBS) -Llib/lib -Llib/dll -lMalloc_osx_static
+ALL_LIBS = $(LIBS) -Llib/lib -Llib/dll
 
 all_libs: lib/dll/libUtils_osx.dylib lib/lib/libUtils_osx_static.a
 

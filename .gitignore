@@ -2,4 +2,8 @@
 build
 lib/include
 *.a
+*.o
+*.dylib
+*.dll
+*.obj
 *.bak

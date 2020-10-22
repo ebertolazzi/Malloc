@@ -23,8 +23,6 @@
 #ifndef TIC_TOC_dot_HH
 #define TIC_TOC_dot_HH
 
-#include "OS.hh"
-
 #ifdef UTILS_OS_WINDOWS
   #include <windows.h>
   class TicToc {

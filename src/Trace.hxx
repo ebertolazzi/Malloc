@@ -18,39 +18,13 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: Trace.hh
+/// file: Trace.hxx
 ///
 
 #pragma once
 
 #ifndef TRACE_dot_HH
 #define TRACE_dot_HH
-
-#include "OS.hh"
-
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
-#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
-#pragma clang diagnostic ignored "-Wnon-virtual-dtor"
-#pragma clang diagnostic ignored "-Wsigned-enum-bitfield"
-#pragma clang diagnostic ignored "-Wpadded"
-#endif
-
-#include "fmt/format.h"
-#include "fmt/printf.h"
-#include "fmt/chrono.h"
-#include "fmt/color.h"
-
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
-
-#include <mutex>    // std::mutex
-
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
-#endif
 
 #ifndef UTILS_ERROR0
   #define UTILS_ERROR0(MSG) \
@@ -160,15 +134,8 @@ namespace Utils {
 
 }
 
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
-
 #endif
 
 ///
-/// eof: lapack_wrapper_utils.hh
+/// eof: Trace.hxx
 ///

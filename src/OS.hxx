@@ -18,7 +18,7 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: OS.hh
+/// file: OS.hxx
 ///
 
 #ifndef OS_dot_HH
@@ -89,5 +89,5 @@ namespace Utils {
 #endif
 
 ///
-/// eof: OS.hh
+/// eof: OS.hxx
 ///

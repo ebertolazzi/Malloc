@@ -18,29 +18,13 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: Console.hh
+/// file: Console.hxx
 ///
 
 #pragma once
 
-#ifndef CONSOLE_dot_HH
-#define CONSOLE_dot_HH
-
-#include "OS.hh"
-
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wsigned-enum-bitfield"
-#pragma clang diagnostic ignored "-Wnon-virtual-dtor"
-#pragma clang diagnostic ignored "-Wc++98-compat"
-#pragma clang diagnostic ignored "-Wswitch-enum"
-#pragma clang diagnostic ignored "-Wunknown-warning-option"
-#pragma clang diagnostic ignored "-Wpadded"
-#endif
-
-#include "rang.hpp"
-#include <mutex>    // std::mutex
-#include <iostream>
+#ifndef CONSOLE_dot_HXX
+#define CONSOLE_dot_HXX
 
 namespace Utils {
 
@@ -187,12 +171,8 @@ namespace Utils {
   };
 }
 
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
-
 #endif
 
 ///
-/// eof: Console.hh
+/// eof: Console.hxx
 ///

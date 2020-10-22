@@ -18,24 +18,13 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: Malloc.hh
+/// file: Malloc.hxx
 ///
 
 #pragma once
 
-#ifndef MALLOC_dot_HH
-#define MALLOC_dot_HH
-
-#ifdef __GNUC__ 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpadded"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wpadded"
-#pragma clang diagnostic ignored "-Wc++98-compat"
-#pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
-#endif
+#ifndef MALLOC_dot_HXX
+#define MALLOC_dot_HXX
 
 /*\
 :|:    ____            _       _             __
@@ -44,9 +33,6 @@
 :|:  | |__|_   _|_   _| | | | | ||  __/ |  |  _| (_| | (_|  __/
 :|:   \____||_|   |_| |_|_| |_|\__\___|_|  |_|  \__,_|\___\___|
 \*/
-
-#include <cstdint>
-#include <string>
 
 namespace Utils {
 
@@ -136,15 +122,8 @@ namespace Utils {
 
 }
 
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
-
 #endif
 
 ///
-/// eof: Utils.hh
+/// eof: Utils.hxx
 ///

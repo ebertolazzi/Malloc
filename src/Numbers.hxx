@@ -18,20 +18,13 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: Numbers.hh
+/// file: Numbers.hxx
 ///
 
 #pragma once
 
-#ifndef NUMBERS_dot_HH
-#define NUMBERS_dot_HH
-
-#include <limits>
-#include <cmath>
-
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
-#endif
+#ifndef NUMBERS_dot_HXX
+#define NUMBERS_dot_HXX
 
 namespace Utils {
 
@@ -214,5 +207,5 @@ namespace Utils {
 #endif
 
 ///
-/// eof: lapack_wrapper_utils.hh
+/// eof: Number.hxx
 ///

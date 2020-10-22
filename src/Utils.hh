@@ -51,19 +51,22 @@
 #include "rang.hpp"
 #include "fmt/printf.h"
 
-#include "OS.hh"
-#include "Trace.hh"
-#include "TicToc.hh"
-#include "Console.hh"
-#include "Malloc.hh"
-#include "Numbers.hh"
-
 #include <string>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <cstdlib>
+#include <cmath>
+#include <cstdint>
 #include <stdexcept>
+#include <mutex>
+
+#include "OS.hxx"
+#include "Trace.hxx"
+#include "Console.hxx"
+#include "Malloc.hxx"
+#include "Numbers.hxx"
+#include "TicToc.hxx"
 
 #ifdef __clang__
 #pragma clang diagnostic pop

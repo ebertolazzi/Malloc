@@ -18,7 +18,7 @@ SRCS_TESTS = $(shell echo src_tests/*.cc)
 OBJS_TESTS = $(SRCS_TESTS:.cc=.o)
 
 #src/AlglinConfig.hh
-DEPS = $(shell echo src/*.hh)
+DEPS = $(shell echo src/*.h*)
 
 # check if the OS string contains 'Linux'
 ifneq (,$(findstring Linux, $(OS)))
@@ -92,21 +92,29 @@ depend:
 	makedepend -- $(INC) $(CXXFLAGS) $(DEFS) -- $(SRCS)
 # DO NOT DELETE
 
-src/Console.o: src/Console.hh src/OS.hh src/rang.hpp src/Trace.hh
-src/Console.o: src/fmt/format.h src/fmt/core.h src/fmt/printf.h
-src/Console.o: src/fmt/ostream.h src/fmt/format.h src/fmt/chrono.h
-src/Console.o: src/fmt/locale.h src/fmt/color.h
-src/Malloc.o: src/Malloc.hh src/Trace.hh src/OS.hh src/fmt/format.h
-src/Malloc.o: src/fmt/core.h src/fmt/printf.h src/fmt/ostream.h
+src/Console.o: src/Utils.hh src/rang.hpp src/fmt/printf.h src/fmt/ostream.h
+src/Console.o: src/fmt/format.h src/fmt/core.h src/OS.hxx src/Trace.hxx
+src/Console.o: src/fmt/format.h src/fmt/chrono.h src/fmt/locale.h
+src/Console.o: src/fmt/color.h src/Console.hxx src/Malloc.hxx src/Numbers.hxx
+src/Console.o: src/TicToc.hxx
+src/Malloc.o: src/Utils.hh src/rang.hpp src/fmt/printf.h src/fmt/ostream.h
+src/Malloc.o: src/fmt/format.h src/fmt/core.h src/OS.hxx src/Trace.hxx
 src/Malloc.o: src/fmt/format.h src/fmt/chrono.h src/fmt/locale.h
-src/Malloc.o: src/fmt/color.h
-src/Numbers.o: src/OS.hh src/Trace.hh src/fmt/format.h src/fmt/core.h
-src/Numbers.o: src/fmt/printf.h src/fmt/ostream.h src/fmt/format.h
-src/Numbers.o: src/fmt/chrono.h src/fmt/locale.h src/fmt/color.h
-src/Numbers.o: src/Numbers.hh
-src/OS.o: src/OS.hh
-src/Trace.o: src/Trace.hh src/OS.hh src/fmt/format.h src/fmt/core.h
-src/Trace.o: src/fmt/printf.h src/fmt/ostream.h src/fmt/format.h
-src/Trace.o: src/fmt/chrono.h src/fmt/locale.h src/fmt/color.h
-src/fmt/format.o: ./src/fmt/format-inl.h src/fmt/format.h
-src/fmt/os.o: ./src/fmt/os.h src/fmt/format.h
+src/Malloc.o: src/fmt/color.h src/Console.hxx src/Malloc.hxx src/Numbers.hxx
+src/Malloc.o: src/TicToc.hxx
+src/Numbers.o: src/Utils.hh src/rang.hpp src/fmt/printf.h src/fmt/ostream.h
+src/Numbers.o: src/fmt/format.h src/fmt/core.h src/OS.hxx src/Trace.hxx
+src/Numbers.o: src/fmt/format.h src/fmt/chrono.h src/fmt/locale.h
+src/Numbers.o: src/fmt/color.h src/Console.hxx src/Malloc.hxx src/Numbers.hxx
+src/Numbers.o: src/TicToc.hxx
+src/OS.o: src/Utils.hh src/rang.hpp src/fmt/printf.h src/fmt/ostream.h
+src/OS.o: src/fmt/format.h src/fmt/core.h src/OS.hxx src/Trace.hxx
+src/OS.o: src/fmt/format.h src/fmt/chrono.h src/fmt/locale.h src/fmt/color.h
+src/OS.o: src/Console.hxx src/Malloc.hxx src/Numbers.hxx src/TicToc.hxx
+src/Trace.o: src/Utils.hh src/rang.hpp src/fmt/printf.h src/fmt/ostream.h
+src/Trace.o: src/fmt/format.h src/fmt/core.h src/OS.hxx src/Trace.hxx
+src/Trace.o: src/fmt/format.h src/fmt/chrono.h src/fmt/locale.h
+src/Trace.o: src/fmt/color.h src/Console.hxx src/Malloc.hxx src/Numbers.hxx
+src/Trace.o: src/TicToc.hxx
+src/fmt/format.o: ./src/fmt/format-inl.h src/fmt/format.h src/fmt/core.h
+src/fmt/os.o: ./src/fmt/os.h src/fmt/format.h src/fmt/core.h

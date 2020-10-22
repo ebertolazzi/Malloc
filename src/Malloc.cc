@@ -43,6 +43,25 @@ namespace Utils {
   int64_t CountFreed            = 0;
   int64_t AllocatedBytes        = 0;
   int64_t MaximumAllocatedBytes = 0;
+  int64_t MallocDebug           = false;
+
+  string
+  outBytes( size_t nb ) {
+    size_t Kb = nb>>10;
+    size_t Mb = Kb>>10;
+    size_t Gb = Mb>>10;
+    if ( Gb > 0 ) {
+      size_t mb = (100*(Mb & 0x3FF))/1024;
+      return fmt::format( "{}Gb (+{}Mb)", Gb, mb );
+    } else if ( Mb > 0 ) {
+      size_t kb = (100*(Kb & 0x3FF))/1024;
+      return fmt::format( "{}Mb (+{}Kb)", Mb, kb );
+    } else if ( Kb > 0 ) {
+      size_t b = (100*(nb & 0x3FF))/1024;
+      return fmt::format( "{}Kb (+{}bytes)", Kb, b );
+    }
+    return fmt::format( "{} bytes", nb );
+  }
 
   template <typename T>
   void
@@ -50,8 +69,9 @@ namespace Utils {
     try {
       if ( n > m_numTotReserved ) {
 
-        ++CountFreed;
-        AllocatedBytes -= m_numTotReserved*sizeof(T);
+        size_t nb = m_numTotReserved*sizeof(T);
+
+        ++CountFreed; AllocatedBytes -= nb;
 
         delete [] m_pMalloc;
         m_numTotValues   = n;
@@ -62,6 +82,10 @@ namespace Utils {
         AllocatedBytes += m_numTotReserved*sizeof(T);
         if ( MaximumAllocatedBytes < AllocatedBytes )
           MaximumAllocatedBytes = AllocatedBytes;
+
+        if ( MallocDebug ) {
+          fmt::print( "Allocating {} for {}\n", outBytes( nb ), m_name );
+        }
       }
     }
     catch ( std::exception const & exc ) {
@@ -95,8 +119,11 @@ namespace Utils {
       m_numTotReserved = 0;
       m_numAllocated   = 0;
 
-      ++CountFreed;
-      AllocatedBytes -= m_numTotReserved*sizeof(T);
+      size_t nb = m_numTotReserved*sizeof(T);
+      ++CountFreed; AllocatedBytes -= nb;
+      if ( MallocDebug ) {
+        fmt::print( "Freeing {} for {}\n", outBytes( nb ), m_name );
+      }
 
     }
   }
