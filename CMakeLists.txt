@@ -92,16 +92,9 @@ IF ( BUILD_SHARED )
   ADD_LIBRARY( ${TARGET} SHARED ${SOURCES} ${HEADERS} )
 ENDIF()
 
+# no test for the moment
 SET(
   EXELISTCPP
-  test1-small-factorization
-  test2-Timing
-  test3-BandedMatrix
-  test4-BFGS
-  test5-BLOCKTRID
-  test6-EIGS
-  #test7-SparseTool
-  #test6-SparseToolComplex
 )
 
 MESSAGE( STATUS "YEAR = ${YEAR}" )
