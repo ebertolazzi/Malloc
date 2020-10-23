@@ -67,6 +67,7 @@
 #include "Malloc.hxx"
 #include "Numbers.hxx"
 #include "TicToc.hxx"
+#include "ThreadPool.hxx"
 
 #ifdef __clang__
 #pragma clang diagnostic pop
