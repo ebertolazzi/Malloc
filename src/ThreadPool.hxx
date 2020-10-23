@@ -17,7 +17,7 @@
   #include <pthread.h>
 #endif
 
-namespace alglin {
+namespace Utils {
 
   class SpinLock {
     #ifdef UTILS_OS_WINDOWS
