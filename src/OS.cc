@@ -43,7 +43,7 @@ namespace Utils {
         fname, 256,
         ext,   128
       );
-      LW_ASSERT0( e == 0, "lapack_wrapper, basename failed!\n" );
+      UTILS_ASSERT0( e == 0, "lapack_wrapper, basename failed!\n" );
       return fname;
     }
   #else
