@@ -43,6 +43,9 @@ namespace Utils {
   extern int64_t CountFreed;
   extern int64_t AllocatedBytes;
   extern int64_t MaximumAllocatedBytes;
+  extern int64_t MallocDebug;
+
+  string outBytes( size_t nb );
 
   /*\
   :|:   __  __       _ _
