@@ -116,6 +116,7 @@
 #include <cstdint>
 #include <stdexcept>
 #include <mutex>
+#include <atomic>
 
 #include "Trace.hxx"
 #include "Console.hxx"

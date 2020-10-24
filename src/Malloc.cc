@@ -39,11 +39,13 @@
 
 namespace Utils {
 
+  std::mutex MallocMutex;
+
   int64_t CountAlloc            = 0;
   int64_t CountFreed            = 0;
   int64_t AllocatedBytes        = 0;
   int64_t MaximumAllocatedBytes = 0;
-  int64_t MallocDebug           = false;
+  bool    MallocDebug           = false;
 
   string
   outBytes( size_t nb ) {
@@ -85,20 +87,26 @@ namespace Utils {
   Malloc<T>::allocate( size_t n ) {
     try {
       if ( n > m_numTotReserved ) {
-
-        size_t nb = m_numTotReserved*sizeof(T);
-
-        ++CountFreed; AllocatedBytes -= nb;
+        size_t nb;
+        {
+          std::lock_guard<std::mutex> lock(Utils::MallocMutex);
+          nb = m_numTotReserved*sizeof(T);
+          ++CountFreed; AllocatedBytes -= nb;
+        }
 
         delete [] m_pMalloc;
         m_numTotValues   = n;
         m_numTotReserved = n + (n>>3); // 12% more values
         m_pMalloc        = new T[m_numTotReserved];
 
-        ++CountAlloc;
-        AllocatedBytes += m_numTotReserved*sizeof(T);
-        if ( MaximumAllocatedBytes < AllocatedBytes )
-          MaximumAllocatedBytes = AllocatedBytes;
+        {
+          std::lock_guard<std::mutex> lock(Utils::MallocMutex);
+          ++CountAlloc;
+          nb = m_numTotReserved*sizeof(T);
+          AllocatedBytes += nb;
+          if ( MaximumAllocatedBytes < AllocatedBytes )
+            MaximumAllocatedBytes = AllocatedBytes;
+        }
 
         if ( MallocDebug )
           fmt::print( "Allocating {} for {}\n", outBytes( nb ), m_name );
@@ -131,9 +139,12 @@ namespace Utils {
   Malloc<T>::free(void) {
     std::cout << "Malloc<T>::~free() A\n"; 
     if ( m_pMalloc != nullptr ) {
-
-      size_t nb = m_numTotReserved*sizeof(T);
-      ++CountFreed; AllocatedBytes -= nb;
+      size_t nb;
+      {
+        std::lock_guard<std::mutex> lock(Utils::MallocMutex);
+        nb = m_numTotReserved*sizeof(T);
+        ++CountFreed; AllocatedBytes -= nb;
+      }
 
       if ( MallocDebug )
         fmt::print( "Freeing {} for {}\n", outBytes( nb ), m_name );

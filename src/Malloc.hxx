@@ -39,11 +39,13 @@ namespace Utils {
   using std::int64_t;
   using std::string;
 
-  extern int64_t CountAlloc;
-  extern int64_t CountFreed;
-  extern int64_t AllocatedBytes;
-  extern int64_t MaximumAllocatedBytes;
-  extern int64_t MallocDebug;
+  extern std::mutex MallocMutex;
+
+  extern int64_t    CountAlloc;
+  extern int64_t    CountFreed;
+  extern int64_t    AllocatedBytes;
+  extern int64_t    MaximumAllocatedBytes;
+  extern bool       MallocDebug;
 
   string outBytes( size_t nb );
 
