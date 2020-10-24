@@ -64,6 +64,7 @@ namespace Utils {
       "---------------------------------------------------------\n",
       file, line, msg
     );
+    #ifndef __MINGW32__
     ULONG const framesToSkip = 0;
     ULONG const framesToCapture = 64;
     void* backTrace[framesToCapture] {};
@@ -74,6 +75,7 @@ namespace Utils {
     for ( USHORT iFrame = 0; iFrame < nFrame; ++iFrame )
       fmt::print( stream, "[{}] = {}\n", iFrame, backTrace[iFrame] );
     fmt::print( stream, "backTraceHash = {0:x}\n", backTraceHash );
+    #endif
   }
 
   std::string
