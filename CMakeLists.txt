@@ -97,7 +97,7 @@ INCLUDE_DIRECTORIES( src ${LLPATH}/include )
 
 IF( BUILD_EXECUTABLE )
 
-  SET( EXELISTCPP test_trace )
+  SET( EXELISTCPP test_trace test_Malloc )
 
   ADD_CUSTOM_TARGET( all_tests ALL )
 

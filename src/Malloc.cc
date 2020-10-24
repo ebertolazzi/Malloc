@@ -64,6 +64,23 @@ namespace Utils {
   }
 
   template <typename T>
+  Malloc<T>::Malloc( std::string const & name )
+  : m_name(name)
+  , m_numTotValues(0)
+  , m_numTotReserved(0)
+  , m_numAllocated(0)
+  , m_pMalloc(nullptr)
+  { }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  Malloc<T>::~Malloc()
+  { free(); }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
   void
   Malloc<T>::allocate( size_t n ) {
     try {
@@ -83,9 +100,9 @@ namespace Utils {
         if ( MaximumAllocatedBytes < AllocatedBytes )
           MaximumAllocatedBytes = AllocatedBytes;
 
-        if ( MallocDebug ) {
+        if ( MallocDebug )
           fmt::print( "Allocating {} for {}\n", outBytes( nb ), m_name );
-        }
+
       }
     }
     catch ( std::exception const & exc ) {
@@ -112,18 +129,19 @@ namespace Utils {
   template <typename T>
   void
   Malloc<T>::free(void) {
+    std::cout << "Malloc<T>::~free() A\n"; 
     if ( m_pMalloc != nullptr ) {
+
+      size_t nb = m_numTotReserved*sizeof(T);
+      ++CountFreed; AllocatedBytes -= nb;
+
+      if ( MallocDebug )
+        fmt::print( "Freeing {} for {}\n", outBytes( nb ), m_name );
 
       delete [] m_pMalloc; m_pMalloc = nullptr;
       m_numTotValues   = 0;
       m_numTotReserved = 0;
       m_numAllocated   = 0;
-
-      size_t nb = m_numTotReserved*sizeof(T);
-      ++CountFreed; AllocatedBytes -= nb;
-      if ( MallocDebug ) {
-        fmt::print( "Freeing {} for {}\n", outBytes( nb ), m_name );
-      }
 
     }
   }
@@ -166,6 +184,7 @@ namespace Utils {
     }
   }
 
+  template class Malloc<char>;
   template class Malloc<uint16_t>;
   template class Malloc<int16_t>;
   template class Malloc<uint32_t>;
@@ -175,6 +194,7 @@ namespace Utils {
   template class Malloc<float>;
   template class Malloc<double>;
 
+  template class Malloc<char*>;
   template class Malloc<uint16_t*>;
   template class Malloc<int16_t*>;
   template class Malloc<uint32_t*>;

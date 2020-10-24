@@ -76,16 +76,10 @@ namespace Utils {
 
     //! malloc object constructor
     explicit
-    Malloc( std::string const & name )
-    : m_name(name)
-    , m_numTotValues(0)
-    , m_numTotReserved(0)
-    , m_numAllocated(0)
-    , m_pMalloc(nullptr)
-    { }
+    Malloc( std::string const & name );
 
     //! malloc object destructor
-    ~Malloc() { free(); }
+    ~Malloc();
 
     //! allocate memory for `n` objects
     void allocate( size_t n );
@@ -105,6 +99,7 @@ namespace Utils {
 
   };
 
+  extern template class Malloc<char>;
   extern template class Malloc<uint16_t>;
   extern template class Malloc<int16_t>;
   extern template class Malloc<uint32_t>;
@@ -114,6 +109,7 @@ namespace Utils {
   extern template class Malloc<float>;
   extern template class Malloc<double>;
 
+  extern template class Malloc<char*>;
   extern template class Malloc<uint16_t*>;
   extern template class Malloc<int16_t*>;
   extern template class Malloc<uint32_t*>;
