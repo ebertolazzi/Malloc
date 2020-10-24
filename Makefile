@@ -80,6 +80,9 @@ clean:
 	rm -rf lib/* src/*.o src/*/*.o src/*/*/*.o src_tests/*.o src/*.obj src/*/*.obj src/*/*/*.obj src_tests/*.obj
 	rm -rf bin
 
+travis: all_libs tests
+	make run
+
 depend:
 	makedepend -- $(INC) $(CXXFLAGS) $(DEFS) -- $(SRCS)
 # DO NOT DELETE
