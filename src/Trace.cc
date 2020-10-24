@@ -93,6 +93,7 @@ namespace Utils {
   inline
   std::string
   demang( char const mangled_name[] ) {
+    if ( mangled_name == nullptr ) return std::string("");
     int status = 0 ;
     std::string retval = mangled_name;
     char * name = abi::__cxa_demangle( mangled_name, nullptr, nullptr, &status );

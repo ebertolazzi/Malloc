@@ -76,9 +76,15 @@ fun4( int i ) {
 
 int
 main() {
-  int i = 6;
-  std::cout << "call fun1\n";
-  fun1( i );
+  try {
+    int i = 6;
+    std::cout << "call fun1\n";
+    fun1( i );
+  } catch ( std::exception const & exc ) {
+    std::cout << "Error: " << exc.what() << '\n';
+  } catch ( ... ) {
+    std::cout << "Unknown error\n";
+  }
   std::cout << "DONE\n";
   return 0;
 }
