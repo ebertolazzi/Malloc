@@ -12,7 +12,7 @@ LIBSGCC = -static-libgcc -static-libstdc++ -lm -ldl
 
 override CXXFLAGS += -floop-interchange -floop-block
 
-ALL_LIBS = $(LIBS) -Llib/lib -Llib/dll -lUtils_linux
+ALL_LIBS = $(LIBS) -Llib/lib -Llib/dll -lUtils_linux_static
 
 all_libs: lib/dll/libUtils_linux.so lib/lib/libUtils_linux_static.a
 
