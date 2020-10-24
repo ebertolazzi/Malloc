@@ -137,7 +137,6 @@ namespace Utils {
   template <typename T>
   void
   Malloc<T>::free(void) {
-    std::cout << "Malloc<T>::~free() A\n"; 
     if ( m_pMalloc != nullptr ) {
       size_t nb;
       {
