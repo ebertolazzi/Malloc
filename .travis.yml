@@ -21,10 +21,10 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-10
-            - gcc-10
+            - g++-9
+            - gcc-9
       env:
-         - COMPILER="CC=gcc-10 && CXX=g++-10"
+         - COMPILER="CC=gcc-9 && CXX=g++-9"
       before_install: eval "${COMPILER}"
       script: make travis
     - os: linux
