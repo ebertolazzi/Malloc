@@ -5,7 +5,7 @@ CXX     = g++ -std=c++11 -pthread $(WARN)
 AR      = ar rcs
 LIBSGCC = -lstdc++ -lm -pthread
 
-ALL_LIBS = $(LIBS) -Llib/lib  -Llib/dll -lMalloc_mingw_$(BITS).dll
+ALL_LIBS = $(LIBS) -Llib/lib  -Llib/dll -lUtils_mingw_$(BITS).dll
 # -lHSL_mingw_$(BITS)
 
 override DEFS += -DMINGW

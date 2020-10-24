@@ -32,6 +32,11 @@
 #pragma clang diagnostic ignored "-Wc++98-compat"
 #endif
 
+#ifdef UTILS_OS_OSX
+  //#define UNW_LOCAL_ONLY
+  #include <libunwind.h>
+#endif
+
 namespace Utils {
 
   const char*
@@ -51,7 +56,7 @@ namespace Utils {
     int                 line,
     char        const   file[],
     std::string const & msg,
-    ostream_type & stream
+    ostream_type      & stream
   ) {
     fmt::print( stream,
       "---------------------------------------------------------\n"
@@ -59,19 +64,18 @@ namespace Utils {
       "---------------------------------------------------------\n",
       file, line, msg
     );
+    ULONG const framesToSkip = 0;
+    ULONG const framesToCapture = 64;
+    void* backTrace[framesToCapture] {};
+    ULONG backTraceHash = 0;
+    USHORT const nFrame = CaptureStackBackTrace(
+      framesToSkip, framesToCapture, backTrace, &backTraceHash
+    );
+    for ( USHORT iFrame = 0; iFrame < nFrame; ++iFrame )
+      fmt::print( stream, "[{}] = {}\n", iFrame, backTrace[iFrame] );
+    fmt::print( stream, "backTraceHash = {0:x}\n", backTraceHash );
   }
 
-  /*
-    #include "StackWalker.h"
-    static
-    inline
-    void
-    printStackTrace( FILE *out = stderr ) {
-      fprintf( out, "stack trace:\n" );
-      StackWalker sw;
-      sw.ShowCallstack();
-    }
-  */
   std::string
   Runtime_TraceError::grab_backtrace(
     std::string const & reason,
@@ -90,10 +94,16 @@ namespace Utils {
     int status = 0 ;
     std::string retval = mangled_name;
     char * name = abi::__cxa_demangle( mangled_name, nullptr, nullptr, &status );
-    if ( status == 0 ) retval = name;
+    if ( status == 0 ) {
+      retval = name;
+      // extract only name
+      char const * p = strchr(name,'(');
+      if ( p != nullptr ) retval = retval.substr(0,p-name);
+    }
     if ( name != nullptr ) std::free(name) ;
     return retval;
   }
+
   //! print a trace stack used in debug
   void
   printTrace(
@@ -108,40 +118,44 @@ namespace Utils {
       reason, basename(file), line, getpid(), getppid()
     );
 
-    //  record stack trace upto 128 frames
+    #ifdef UTILS_OS_OSX
+    unw_cursor_t cursor;
+    unw_context_t context;
+
+    // Initialize cursor to current frame for local unwinding.
+    unw_getcontext(&context);
+    unw_init_local(&cursor, &context);
+
+    // Unwind frames one by one, going up the frame stack.
+    while ( unw_step(&cursor) > 0 ) {
+      unw_word_t offset, pc;
+      unw_get_reg(&cursor, UNW_REG_IP, &pc);
+      if ( pc == 0 ) break;
+      stream << "0x" << std::hex << pc << ":" << std::dec;
+      char sym[256];
+      if ( unw_get_proc_name(&cursor, sym, sizeof(sym), &offset) == 0 ) {
+        stream << " (" << demang( sym ) << "+0x" << std::hex << offset << ")\n" << std::dec;
+      } else {
+        stream << " -- error: unable to obtain symbol name for this frame\n";
+      }
+    }
+    #else
+    // record stack trace upto 128 frames
     void *callstack[128] = {};
 
     // collect stack frames
-    int frames = backtrace( callstack, 128);
+    int frames = backtrace( callstack, 128 );
 
     // get the human-readable symbols (mangled)
     char** strs = backtrace_symbols( callstack, frames );
 
     for ( int i = 1; i < frames; ++i) {
-      #ifdef UTILS_OS_LINUX
         Dl_info dlinfo;
         if( !dladdr(callstack[i], &dlinfo) ) continue;
         fmt::print( stream, "{:2} {}\n", i, demang( dlinfo.dli_sname ) );
-      #else
-        char functionSymbol[1024] = {};
-        char moduleName[1024]     = {};
-        int  offset               = 0;
-        char addr[48]             = {};
-        // split the string, take out chunks out of stack trace
-        // we are primarily interested in module, function and address
-        sscanf(
-          strs[i], "%*s %s %s %s %*s %d",
-          moduleName, addr, functionSymbol, &offset
-        );
-        //  if this is a C++ library, symbol will be demangled
-        //  on success function returns 0
-        //
-        fmt::print( stream, "{:2} {:30}  [{}] {} + {}\n",
-          i, moduleName, addr, demang( functionSymbol ), offset
-        );
-      #endif
     }
     free(strs);
+    #endif
   }
 
   std::string

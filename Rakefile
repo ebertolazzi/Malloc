@@ -11,12 +11,8 @@ require_relative "./Rakefile_common.rb"
 
 task :default => [:build]
 
-task :mkl, [:year, :bits] do |t, args|
-  args.with_defaults(:year => "2017", :bits => "x64" )
-  sh "'C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/bin/compilervars.bat' -arch #{args.bits} vs#{args.year}shell"
-end
-
 TESTS = [
+  "test_trace"
 ]
 
 desc "run tests on linux/osx"
@@ -53,6 +49,9 @@ end
 
 desc "compile for Visual Studio [default year=2017, bits=x64]"
 task :build_win, [:year, :bits] do |t, args|
+
+  FileUtils.rm_rf 'lib'
+
   args.with_defaults( :year => "2017", :bits => "x64" )
 
   dir = "vs_#{args.year}_#{args.bits}"
@@ -88,6 +87,8 @@ end
 desc 'compile for OSX'
 task :build_osx do |t, args|
 
+  FileUtils.rm_rf 'lib'
+
   dir = "build"
 
   FileUtils.rm_rf   dir
@@ -114,6 +115,8 @@ end
 desc 'compile for LINUX'
 task :build_linux do |t, args|
 
+  FileUtils.rm_rf 'lib'
+
   dir = "build"
 
   FileUtils.rm_rf   dir
@@ -139,15 +142,18 @@ end
 
 desc "clean for OSX"
 task :clean_osx do
+  FileUtils.rm_rf 'lib'
   sh "make clean"
 end
 
 desc "clean for LINUX"
 task :clean_linux do
+  FileUtils.rm_rf 'lib'
   sh "make clean"
 end
 
 desc "clean for WINDOWS"
 task :clean_win do
+  FileUtils.rm_rf 'lib'
   FileUtils.rm_rf 'vs_*'
 end

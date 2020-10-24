@@ -35,6 +35,10 @@
   #define UTILS_ASSERT0(COND,MSG) if ( !(COND) ) UTILS_ERROR0( MSG )
 #endif
 
+#ifndef UTILS_WARNING0
+  #define UTILS_WARNING0(COND,MSG) if ( !(COND) ) std::cerr << MSG
+#endif
+
 #ifndef UTILS_ERROR
   #define UTILS_ERROR(...) \
   throw Utils::Runtime_Error( fmt::format(__VA_ARGS__), __FILE__, __LINE__ )
@@ -42,6 +46,10 @@
 
 #ifndef UTILS_ASSERT
   #define UTILS_ASSERT(COND,...) if ( !(COND) ) UTILS_ERROR( __VA_ARGS__ )
+#endif
+
+#ifndef UTILS_WARNING
+  #define UTILS_WARNING(COND,...) if ( !(COND) ) fmt::print( __VA_ARGS__ )
 #endif
 
 #ifndef UTILS_ERROR_TRACE0

@@ -1,0 +1,84 @@
+/*--------------------------------------------------------------------------*\
+ |                                                                          |
+ |  Copyright (C) 2017                                                      |
+ |                                                                          |
+ |         , __                 , __                                        |
+ |        /|/  \               /|/  \                                       |
+ |         | __/ _   ,_         | __/ _   ,_                                | 
+ |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
+ |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
+ |                           /|                   /|                        |
+ |                           \|                   \|                        |
+ |                                                                          |
+ |      Enrico Bertolazzi                                                   |
+ |      Dipartimento di Ingegneria Industriale                              |
+ |      Universita` degli Studi di Trento                                   |
+ |      email: enrico.bertolazzi@unitn.it                                   |
+ |                                                                          |
+\*--------------------------------------------------------------------------*/
+
+#include "Utils.hh"
+
+void fun1( int i );
+void fun2( int i );
+void fun3( int i );
+void fun4( int i );
+
+void
+fun5( char const str[] ) {
+  std::cout << "fun3: " << str << '\n';
+  Utils::printTrace(__LINE__,__FILE__,"in fun3",std::cerr);
+}
+
+void
+fun1( int i ) {
+  std::cout << "in fun1\n";
+  if ( i > 0 ) {
+    fun2( i-1 );
+  } else {
+    std::string str = fmt::format("format {}",i);
+    fun5( str.c_str() );
+  }
+}
+
+void
+fun2( int i ) {
+  std::cout << "in fun2\n";
+  if ( i > 0 ) {
+    fun3( i-1 );
+  } else {
+    std::string str = fmt::format("format {}",i);
+    fun5( str.c_str() );
+  }
+}
+
+void
+fun3( int i ) {
+  std::cout << "in fun3\n";
+  if ( i > 0 ) {
+    fun4( i-1 );
+  } else {
+    std::string str = fmt::format("format {}",i);
+    fun5( str.c_str() );
+  }
+}
+
+void
+fun4( int i ) {
+  std::cout << "in fun4\n";
+  if ( i > 0 ) {
+    fun1( i-1 );
+  } else {
+    std::string str = fmt::format("format {}",i);
+    fun5( str.c_str() );
+  }
+}
+
+int
+main() {
+  int i = 6;
+  std::cout << "call fun1\n";
+  fun1( i );
+  std::cout << "DONE\n";
+  return 0;
+}
