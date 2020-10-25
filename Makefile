@@ -5,14 +5,14 @@ PWD=$(shell pwd)
 CC    = gcc
 CXX   = g++
 F90   = gfortran
-INC   = -I./src
+INC   = -Isrc -Isrc/Utils
 LIBS  =
 CLIBS = -lc++
 DEFS  =
 
 CXXFLAGS = -O2 -funroll-loops -fPIC
 
-SRCS       = $(shell echo src/*.cc) $(shell echo src/fmt/*.cc)
+SRCS       = $(shell echo src/*.cc) $(shell echo src/Utils/fmt/*.cc)
 OBJS       = $(SRCS:.cc=.o)
 SRCS_TESTS = $(shell echo src_tests/*.cc)
 OBJS_TESTS = $(SRCS_TESTS:.cc=.o)
@@ -60,9 +60,10 @@ install_local: all_libs
 	$(MKDIR) ./lib/include
 	$(MKDIR) ./lib/include/fmt
 	$(MKDIR) ./lib/include/zstream
-	cp -f -P src/*.h*         ./lib/include
-	cp -f -P src/fmt/*.h*     ./lib/include/fmt
-	cp -f -P src/zstream/*.h* ./lib/include/zstream
+	cp -f -P src/*.h*               ./lib/include
+	cp -f -P src/Utils/*.h*         ./lib/include/Utils
+	cp -f -P src/Utils/fmt/*.h*     ./lib/include/Utils/fmt
+	cp -f -P src/Utils/zstream/*.h* ./lib/include/Utils/zstream
 
 install: all_libs
 	$(MKDIR) $(PREFIX)/include
@@ -87,23 +88,45 @@ depend:
 	makedepend -- $(INC) $(CXXFLAGS) $(DEFS) -- $(SRCS)
 # DO NOT DELETE
 
-src/Console.o: src/Utils.hh src/rang.hpp src/fmt/printf.h src/fmt/ostream.h
-src/Console.o: src/fmt/format.h src/fmt/core.h src/Trace.hxx src/Console.hxx
-src/Console.o: src/Malloc.hxx src/Numbers.hxx src/TicToc.hxx
-src/Console.o: src/ThreadPool.hxx
-src/Malloc.o: src/Utils.hh src/rang.hpp src/fmt/printf.h src/fmt/ostream.h
-src/Malloc.o: src/fmt/format.h src/fmt/core.h src/Trace.hxx src/Console.hxx
-src/Malloc.o: src/Malloc.hxx src/Numbers.hxx src/TicToc.hxx
-src/Malloc.o: src/ThreadPool.hxx
-src/Numbers.o: src/Utils.hh src/rang.hpp src/fmt/printf.h src/fmt/ostream.h
-src/Numbers.o: src/fmt/format.h src/fmt/core.h src/Trace.hxx src/Console.hxx
-src/Numbers.o: src/Malloc.hxx src/Numbers.hxx src/TicToc.hxx
-src/Numbers.o: src/ThreadPool.hxx
-src/Trace.o: src/Utils.hh src/rang.hpp src/fmt/printf.h src/fmt/ostream.h
-src/Trace.o: src/fmt/format.h src/fmt/core.h src/Trace.hxx src/Console.hxx
-src/Trace.o: src/Malloc.hxx src/Numbers.hxx src/TicToc.hxx src/ThreadPool.hxx
-src/Utils.o: src/Utils.hh src/rang.hpp src/fmt/printf.h src/fmt/ostream.h
-src/Utils.o: src/fmt/format.h src/fmt/core.h src/Trace.hxx src/Console.hxx
-src/Utils.o: src/Malloc.hxx src/Numbers.hxx src/TicToc.hxx src/ThreadPool.hxx
-src/fmt/format.o: ./src/fmt/format-inl.h src/fmt/format.h src/fmt/core.h
-src/fmt/os.o: ./src/fmt/os.h src/fmt/format.h src/fmt/core.h
+src/Console.o: src/Utils.hh src/Utils/Utils.hxx src/Utils/rang.hpp
+src/Console.o: src/Utils/fmt/printf.h src/Utils/fmt/ostream.h
+src/Console.o: src/Utils/fmt/format.h src/Utils/fmt/core.h
+src/Console.o: src/Utils/fmt/chrono.h src/Utils/fmt/locale.h
+src/Console.o: src/Utils/fmt/ostream.h src/Utils/Trace.hxx
+src/Console.o: src/Utils/Console.hxx src/Utils/Malloc.hxx
+src/Console.o: src/Utils/Numbers.hxx src/Utils/TicToc.hxx
+src/Console.o: src/Utils/ThreadPool.hxx
+src/Malloc.o: src/Utils.hh src/Utils/Utils.hxx src/Utils/rang.hpp
+src/Malloc.o: src/Utils/fmt/printf.h src/Utils/fmt/ostream.h
+src/Malloc.o: src/Utils/fmt/format.h src/Utils/fmt/core.h
+src/Malloc.o: src/Utils/fmt/chrono.h src/Utils/fmt/locale.h
+src/Malloc.o: src/Utils/fmt/ostream.h src/Utils/Trace.hxx
+src/Malloc.o: src/Utils/Console.hxx src/Utils/Malloc.hxx
+src/Malloc.o: src/Utils/Numbers.hxx src/Utils/TicToc.hxx
+src/Malloc.o: src/Utils/ThreadPool.hxx
+src/Numbers.o: src/Utils.hh src/Utils/Utils.hxx src/Utils/rang.hpp
+src/Numbers.o: src/Utils/fmt/printf.h src/Utils/fmt/ostream.h
+src/Numbers.o: src/Utils/fmt/format.h src/Utils/fmt/core.h
+src/Numbers.o: src/Utils/fmt/chrono.h src/Utils/fmt/locale.h
+src/Numbers.o: src/Utils/fmt/ostream.h src/Utils/Trace.hxx
+src/Numbers.o: src/Utils/Console.hxx src/Utils/Malloc.hxx
+src/Numbers.o: src/Utils/Numbers.hxx src/Utils/TicToc.hxx
+src/Numbers.o: src/Utils/ThreadPool.hxx
+src/Trace.o: src/Utils.hh src/Utils/Utils.hxx src/Utils/rang.hpp
+src/Trace.o: src/Utils/fmt/printf.h src/Utils/fmt/ostream.h
+src/Trace.o: src/Utils/fmt/format.h src/Utils/fmt/core.h
+src/Trace.o: src/Utils/fmt/chrono.h src/Utils/fmt/locale.h
+src/Trace.o: src/Utils/fmt/ostream.h src/Utils/Trace.hxx
+src/Trace.o: src/Utils/Console.hxx src/Utils/Malloc.hxx src/Utils/Numbers.hxx
+src/Trace.o: src/Utils/TicToc.hxx src/Utils/ThreadPool.hxx
+src/Utils.o: src/Utils.hh src/Utils/Utils.hxx src/Utils/rang.hpp
+src/Utils.o: src/Utils/fmt/printf.h src/Utils/fmt/ostream.h
+src/Utils.o: src/Utils/fmt/format.h src/Utils/fmt/core.h
+src/Utils.o: src/Utils/fmt/chrono.h src/Utils/fmt/locale.h
+src/Utils.o: src/Utils/fmt/ostream.h src/Utils/Trace.hxx
+src/Utils.o: src/Utils/Console.hxx src/Utils/Malloc.hxx src/Utils/Numbers.hxx
+src/Utils.o: src/Utils/TicToc.hxx src/Utils/ThreadPool.hxx
+src/Utils/fmt/format.o: src/Utils/fmt/format-inl.h src/Utils/fmt/format.h
+src/Utils/fmt/format.o: src/Utils/fmt/core.h
+src/Utils/fmt/os.o: src/Utils/fmt/os.h src/Utils/fmt/format.h
+src/Utils/fmt/os.o: src/Utils/fmt/core.h

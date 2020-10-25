@@ -21,50 +21,27 @@
 #ifndef INPUT_ZIP_STREAM_IMPL_HPP
 #define INPUT_ZIP_STREAM_IMPL_HPP
 
-#include "izstream.hh"
+#include "izstream.hpp"
 #include <sstream>
 #include <cstring>
 
 namespace zstream {
 
-namespace detail {
-const int gz_magic[2] = { 0x1f, 0x8b }; /* gzip magic header */
-
-/* gzip flag byte */
-const int gz_ascii_flag  = 0x01; /* bit 0 set: file probably ascii text */
-const int gz_head_crc    = 0x02; /* bit 1 set: header CRC present */
-const int gz_extra_field = 0x04; /* bit 2 set: extra field present */
-const int gz_orig_name   = 0x08; /* bit 3 set: original file name present */
-const int gz_comment     = 0x10; /* bit 4 set: file comment present */
-const int gz_reserved    = 0xE0; /* bits 5..7: reserved */
-}
-
-template<
-  typename Elem,
-  typename Tr,
-  typename ElemA,
-  typename ByteT,
-  typename ByteAT
->
+template<typename Elem, typename Tr, typename ElemA, typename ByteT,
+		typename ByteAT>
 basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::basic_unzip_streambuf(
-  istream_reference istream_,
-  size_t            window_size_,
-  size_t            read_buffer_size_,
-  size_t            input_buffer_size_
-)
-: m_istream(istream_)
-, m_input_buffer(input_buffer_size_)
-, m_buffer(read_buffer_size_)
-, m_crc(0)
-{
+		istream_reference istream_, size_t window_size_,
+		size_t read_buffer_size_, size_t input_buffer_size_) :
+		m_istream(istream_), m_input_buffer(input_buffer_size_), m_buffer(
+				read_buffer_size_), m_crc(0) {
 	// setting zalloc, zfree and opaque
 	m_zip_stream.zalloc = (alloc_func) 0;
 	m_zip_stream.zfree = (free_func) 0;
 
-	m_zip_stream.next_in   = nullptr;
-	m_zip_stream.avail_in  = 0;
+	m_zip_stream.next_in = NULL;
+	m_zip_stream.avail_in = 0;
 	m_zip_stream.avail_out = 0;
-	m_zip_stream.next_out  = nullptr;
+	m_zip_stream.next_out = NULL;
 
 	m_err = inflateInit2(&m_zip_stream, -static_cast<int>(window_size_));
 
@@ -73,58 +50,38 @@ basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::basic_unzip_streambuf(
 	&(m_buffer[0]) + 4);    // end position
 }
 
-template<
-  typename Elem,
-  typename Tr,
-  typename ElemA,
-  typename ByteT,
-  typename ByteAT
->
-size_t
-basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::fill_input_buffer() {
+template<typename Elem, typename Tr, typename ElemA, typename ByteT,
+		typename ByteAT>
+size_t basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::fill_input_buffer() {
 	m_zip_stream.next_in = &(m_input_buffer[0]);
-	m_istream.read(
-    (char_type*) (&(m_input_buffer[0])),
-    static_cast<std::streamsize>(m_input_buffer.size()/sizeof(char_type))
-  );
+	m_istream.read((char_type*) (&(m_input_buffer[0])),
+			static_cast<std::streamsize>(m_input_buffer.size()
+					/ sizeof(char_type)));
 	return m_zip_stream.avail_in = m_istream.gcount() * sizeof(char_type);
 }
 
-template<
-  typename Elem,
-  typename Tr,
-  typename ElemA,
-  typename ByteT,
-  typename ByteAT
->
+template<typename Elem, typename Tr, typename ElemA, typename ByteT,
+		typename ByteAT>
 basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::~basic_unzip_streambuf() {
 	inflateEnd(&m_zip_stream);
 }
 
-template<
-  typename Elem,
-  typename Tr,
-  typename ElemA,
-  typename ByteT,
-  typename ByteAT
->
-typename basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::int_type
-basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::underflow() {
+template<typename Elem, typename Tr, typename ElemA, typename ByteT,
+		typename ByteAT>
+typename basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::int_type basic_unzip_streambuf<
+		Elem, Tr, ElemA, ByteT, ByteAT>::underflow() {
 	if (this->gptr() && (this->gptr() < this->egptr()))
 		return *reinterpret_cast<unsigned char *>(this->gptr());
 
 	int n_putback = static_cast<int>(this->gptr() - this->eback());
-	if (n_putback > 4) n_putback = 4;
-	memcpy(
-    &(m_buffer[0]) + (4 - n_putback),
-    this->gptr() - n_putback,
-    n_putback * sizeof(char_type)
-  );
+	if (n_putback > 4)
+		n_putback = 4;
+	memcpy(&(m_buffer[0]) + (4 - n_putback), this->gptr() - n_putback,
+			n_putback * sizeof(char_type));
 
-	int num = unzip_from_stream(
-    &(m_buffer[0]) + 4,
-    static_cast<std::streamsize>((m_buffer.size() - 4) * sizeof(char_type))
-  );
+	int num = unzip_from_stream(&(m_buffer[0]) + 4,
+			static_cast<std::streamsize>((m_buffer.size() - 4)
+					* sizeof(char_type)));
 	if (num <= 0) // ERROR or EOF
 		return EOF;
 
@@ -137,20 +94,13 @@ basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::underflow() {
 	return *reinterpret_cast<unsigned char *>(this->gptr());
 }
 
-template<
-  typename Elem,
-  typename Tr,
-  typename ElemA,
-  typename ByteT,
-  typename ByteAT
->
-std::streamsize
-basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::unzip_from_stream(
-  char_type*      buffer_,
-  std::streamsize buffer_size_
-) {
+template<typename Elem, typename Tr, typename ElemA, typename ByteT,
+		typename ByteAT>
+std::streamsize basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::unzip_from_stream(
+		char_type* buffer_, std::streamsize buffer_size_) {
 	m_zip_stream.next_out = (byte_buffer_type) buffer_;
-	m_zip_stream.avail_out = static_cast<uInt>(buffer_size_ * sizeof(char_type));
+	m_zip_stream.avail_out =
+			static_cast<uInt>(buffer_size_ * sizeof(char_type));
 	size_t count = m_zip_stream.avail_in;
 
 	do {
@@ -163,12 +113,10 @@ basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::unzip_from_stream(
 	} while (m_err == Z_OK && m_zip_stream.avail_out != 0 && count != 0);
 
 	// updating crc
-	m_crc = crc32(
-    m_crc,
-    (byte_buffer_type) buffer_,
-    buffer_size_ - m_zip_stream.avail_out / sizeof(char_type)
-  );
-	std::streamsize n_read = buffer_size_	- m_zip_stream.avail_out / sizeof(char_type);
+	m_crc = crc32(m_crc, (byte_buffer_type) buffer_,
+			buffer_size_ - m_zip_stream.avail_out / sizeof(char_type));
+	std::streamsize n_read = buffer_size_
+			- m_zip_stream.avail_out / sizeof(char_type);
 
 	// check if it is the end
 	if (m_err == Z_STREAM_END)
@@ -177,15 +125,9 @@ basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::unzip_from_stream(
 	return n_read;
 }
 
-template<
-  typename Elem,
-  typename Tr,
-  typename ElemA,
-  typename ByteT,
-  typename ByteAT
->
-void
-basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::put_back_from_zip_stream() {
+template<typename Elem, typename Tr, typename ElemA, typename ByteT,
+		typename ByteAT>
+void basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::put_back_from_zip_stream() {
 	if (m_zip_stream.avail_in == 0)
 		return;
 
@@ -196,15 +138,9 @@ basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::put_back_from_zip_stream(
 	m_zip_stream.avail_in = 0;
 }
 
-template<
-  typename Elem,
-  typename Tr,
-  typename ElemA,
-  typename ByteT,
-  typename ByteAT
->
-int
-basic_gzip_istream<Elem, Tr, ElemA, ByteT, ByteAT>::check_header() {
+template<typename Elem, typename Tr, typename ElemA, typename ByteT,
+		typename ByteAT>
+int basic_gzip_istream<Elem, Tr, ElemA, ByteT, ByteAT>::check_header() {
 	int method; /* method byte */
 	int flags; /* flags byte */
 	uInt len;
@@ -265,31 +201,17 @@ basic_gzip_istream<Elem, Tr, ElemA, ByteT, ByteAT>::check_header() {
 	return err;
 }
 
-template<
-  typename Elem,
-  typename Tr,
-  typename ElemA,
-  typename ByteT,
-  typename ByteAT
->
-void
-basic_gzip_istream<Elem, Tr, ElemA, ByteT, ByteAT>::read_footer() {
+template<typename Elem, typename Tr, typename ElemA, typename ByteT,
+		typename ByteAT>
+void basic_gzip_istream<Elem, Tr, ElemA, ByteT, ByteAT>::read_footer() {
 	read_long(this->rdbuf()->get_istream(), m_gzip_crc);
 	read_long(this->rdbuf()->get_istream(), m_gzip_data_size);
 }
 
-template<
-  typename Elem,
-  typename Tr,
-  typename ElemA,
-  typename ByteT,
-  typename ByteAT
->
-void
-basic_gzip_istream<Elem, Tr, ElemA, ByteT, ByteAT>::read_long(
-  istream_reference in_,
-  unsigned int    & x_
-) {
+template<typename Elem, typename Tr, typename ElemA, typename ByteT,
+		typename ByteAT>
+void basic_gzip_istream<Elem, Tr, ElemA, ByteT, ByteAT>::read_long(
+		istream_reference in_, unsigned int& x_) {
 	static const int size_ul = sizeof(unsigned int);
 	static const int size_c = sizeof(char_type);
 	static const int n_end = size_ul / size_c;

@@ -27,11 +27,9 @@
 
 #include <zlib.h>
 
-namespace zstream {
+#include "zstream_common.hpp"
 
-/// default gzip buffer size,
-/// change this to suite your needs
-const size_t default_buffer_size = 4096;
+namespace zstream {
 
 /** \brief A stream decorator that takes compressed input and unzips it to a istream.
 
@@ -78,17 +76,17 @@ public:
 	}
 
 	/// returns the crc of the uncompressed data so far 
-	long get_crc() const {
+	unsigned int get_crc() const {
 		return m_crc;
 	}
 
 	/// returns the number of uncompressed bytes
-	long get_out_size() const {
+	unsigned int get_out_size() const {
 		return m_zip_stream.total_out;
 	}
 
 	/// returns the number of read compressed bytes
-	long get_in_size() const {
+	unsigned long get_in_size() const {
 		return m_zip_stream.total_in;
 	}
 
@@ -145,7 +143,7 @@ public:
 	}
 
 	/// returns the compressed data size
-	long get_in_size() const {
+	unsigned long get_in_size() const {
 		return m_buf.get_in_size();
 	}
 
@@ -184,28 +182,19 @@ public:
 
 	/** Construct a unzipper stream
 	 *
-	 * \param istream_           input buffer
-	 * \param window_size_       window size
-	 * \param read_buffer_size_  read buffer size
-	 * \param input_buffer_size_ input buffer size
+	 * \param istream_ input buffer
+	 * \param window_size_ 
+	 * \param read_buffer_size_ 
+	 * \param input_buffer_size_ 
 	 */
-	basic_gzip_istream(
-    istream_reference istream_,
-    size_t            window_size_ = 15,
-    size_t            read_buffer_size_ = default_buffer_size,
-    size_t            input_buffer_size_ = default_buffer_size
-  )
-  : zip_istreambase_type(
-      istream_,
-      window_size_,
-      read_buffer_size_,
-      input_buffer_size_
-    )
-  , istream_type(this->rdbuf())
-  , m_gzip_crc(0)
-  , m_gzip_data_size(0)
-  {
-		if ( this->rdbuf()->get_zerr() == Z_OK ) check_header();
+	basic_gzip_istream(istream_reference istream_, size_t window_size_ = 15,
+			size_t read_buffer_size_ = detail::default_buffer_size,
+			size_t input_buffer_size_ = detail::default_buffer_size) :
+			zip_istreambase_type(istream_, window_size_, read_buffer_size_,
+					input_buffer_size_), istream_type(this->rdbuf()), m_gzip_crc(
+					0), m_gzip_data_size(0) {
+		if (this->rdbuf()->get_zerr() == Z_OK)
+			check_header();
 	}
 
 	/// reads the gzip header
@@ -227,20 +216,20 @@ public:
 	}
 
 	/// return the crc value in the file
-	long get_gzip_crc() const {
+	unsigned int get_gzip_crc() const {
 		return m_gzip_crc;
 	}
 
 	/// return the data size in the file 
-	long get_gzip_data_size() const {
+	unsigned int get_gzip_data_size() const {
 		return m_gzip_data_size;
 	}
 
 protected:
 	static void read_long(istream_reference in_, unsigned int& x_);
 	int check_header();
-	unsigned long m_gzip_crc;
-	unsigned long m_gzip_data_size;
+	unsigned int m_gzip_crc;
+	unsigned int m_gzip_data_size;
 };
 
 template<typename Elem, typename Tr = std::char_traits<Elem>,
@@ -257,25 +246,17 @@ public:
 
 	/** Construct a unzipper stream
 	 *
-	 * \param istream_           input buffer
-	 * \param window_size_       window size
-	 * \param read_buffer_size_  read buffer size
-	 * \param input_buffer_size_ input buffer size
+	 * \param istream_ input buffer
+	 * \param window_size_
+	 * \param read_buffer_size_
+	 * \param input_buffer_size_
 	 */
-	basic_zip_istream(
-    istream_reference istream_,
-    size_t window_size_       = 15,
-    size_t read_buffer_size_  = default_buffer_size,
-    size_t input_buffer_size_ = default_buffer_size
-  )
-  : zip_istreambase_type(
-      istream_,
-      window_size_,
-      read_buffer_size_,
-      input_buffer_size_
-    )
-  , istream_type(this->rdbuf())
-  { }
+	basic_zip_istream(istream_reference istream_, size_t window_size_ = 15,
+			size_t read_buffer_size_ = detail::default_buffer_size,
+			size_t input_buffer_size_ = detail::default_buffer_size) :
+			zip_istreambase_type(istream_, window_size_, read_buffer_size_,
+					input_buffer_size_), istream_type(this->rdbuf()) {
+	}
 };
 
 /// A typedef for basic_zip_istream<char>
@@ -290,7 +271,7 @@ typedef basic_zip_istream<wchar_t> wizstream;
 
 } // zstream
 
-#include "izstream_impl.hh"
+#include "izstream_impl.hpp"
 
 #endif
 

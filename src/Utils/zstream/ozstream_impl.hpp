@@ -32,54 +32,26 @@
 
 namespace zstream {
 
-namespace detail {
-const int gz_magic[2] = { 0x1f, 0x8b }; /* gzip magic header */
-
-/* gzip flag byte */
-const int gz_ascii_flag = 0x01; /* bit 0 set: file probably ascii text */
-const int gz_head_crc = 0x02; /* bit 1 set: header CRC present */
-const int gz_extra_field = 0x04; /* bit 2 set: extra field present */
-const int gz_orig_name = 0x08; /* bit 3 set: original file name present */
-const int gz_comment = 0x10; /* bit 4 set: file comment present */
-const int gz_reserved = 0xE0; /* bits 5..7: reserved */
-}
-
-template<
-  typename Elem,
-  typename Tr,
-  typename ElemA,
-  typename ByteT,
-  typename ByteAT
->
+template<typename Elem, typename Tr, typename ElemA, typename ByteT,
+		typename ByteAT>
 basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::basic_zip_streambuf(
-  ostream_reference ostream_,
-  size_t            level_,
-  EStrategy         strategy_,
-  size_t            window_size_,
-  size_t            memory_level_,
-  size_t            buffer_size_
-)
-:	m_ostream(ostream_)
-, m_output_buffer(buffer_size_, 0)
-, m_buffer(buffer_size_, 0)
-, m_crc(0)
-{
+		ostream_reference ostream_, size_t level_, EStrategy strategy_,
+		size_t window_size_, size_t memory_level_, size_t buffer_size_) :
+		m_ostream(ostream_), m_output_buffer(buffer_size_, 0), m_buffer(
+				buffer_size_, 0), m_crc(0) {
 	m_zip_stream.zalloc = (alloc_func) 0;
-	m_zip_stream.zfree  = (free_func) 0;
+	m_zip_stream.zfree = (free_func) 0;
 
-	m_zip_stream.next_in   = nullptr;
-	m_zip_stream.avail_in  = 0;
+	m_zip_stream.next_in = NULL;
+	m_zip_stream.avail_in = 0;
 	m_zip_stream.avail_out = 0;
-	m_zip_stream.next_out  = nullptr;
+	m_zip_stream.next_out = NULL;
 
-	m_err = deflateInit2(
-    &m_zip_stream,
-    std::min(9, static_cast<int>(level_)),
-    Z_DEFLATED,
-    -static_cast<int>(window_size_), // <-- changed
-    std::min(9, static_cast<int>(memory_level_)),
-    static_cast<int>(strategy_)
-  );
+	m_err = deflateInit2(&m_zip_stream, std::min(9, static_cast<int>(level_)),
+			Z_DEFLATED,
+			-static_cast<int>(window_size_), // <-- changed
+			std::min(9, static_cast<int>(memory_level_)),
+			static_cast<int>(strategy_));
 
 	m_zip_stream.avail_out = static_cast<uInt>(m_output_buffer.size());
 	m_zip_stream.next_out = &(m_output_buffer[0]);
@@ -88,40 +60,26 @@ basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::basic_zip_streambuf(
 	this->setp(p, p + buffer_size_);
 }
 
-template<
-  typename Elem,
-  typename Tr,
-  typename ElemA,
-  typename ByteT,
-  typename ByteAT
->
+template<typename Elem, typename Tr, typename ElemA, typename ByteT,
+		typename ByteAT>
 basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::~basic_zip_streambuf() {
 }
 
-template<
-  typename Elem,
-  typename Tr,
-  typename ElemA,
-  typename ByteT,
-  typename ByteAT
->
-int
-basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::sync() {
+template<typename Elem, typename Tr, typename ElemA, typename ByteT,
+		typename ByteAT>
+int basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::sync() {
 	int c = overflow(EOF);
-	return c == EOF ? -1 : 0;
+	if (c == EOF)
+		return -1;
+	else
+		return 0;
 }
 
-template<
-  typename Elem,
-  typename Tr,
-  typename ElemA,
-  typename ByteT,
-  typename ByteAT
->
-typename basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::int_type
-basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::overflow(
-  typename basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::int_type c
-) {
+template<typename Elem, typename Tr, typename ElemA, typename ByteT,
+		typename ByteAT>
+typename basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::int_type basic_zip_streambuf<
+		Elem, Tr, ElemA, ByteT, ByteAT>::overflow(
+		typename basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::int_type c) {
 	// buffer full, zip it..
 	int w = static_cast<int>(this->pptr() - this->pbase());
 	if (w > 0) {
@@ -143,15 +101,10 @@ basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::overflow(
 
 }
 
-template<
-  typename Elem,
-  typename Tr,
-  typename ElemA,
-  typename ByteT,
-  typename ByteAT
->
-std::streamsize
-basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::zip_write( int flag ) {
+template<typename Elem, typename Tr, typename ElemA, typename ByteT,
+		typename ByteAT>
+std::streamsize basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::zip_write(
+		int flag) {
 	std::streamsize total_written_byte_size = 0;
 
 	m_err = ::deflate(&m_zip_stream, flag);
@@ -177,28 +130,22 @@ basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::zip_write( int flag ) {
 
 			}
 
-			m_zip_stream.avail_out = static_cast<uInt>(m_output_buffer.size() - remainder);
-			m_zip_stream.next_out  = &m_output_buffer[remainder];
+			m_zip_stream.avail_out = static_cast<uInt>(m_output_buffer.size()
+					- remainder);
+			m_zip_stream.next_out = &m_output_buffer[remainder];
 		}
 	}
 
 	return total_written_byte_size;
 }
 
-template<
-  typename Elem,
-  typename Tr,
-  typename ElemA,
-  typename ByteT,
-  typename ByteAT
->
-bool
-basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::zip_to_stream(
-  typename basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::char_type * buffer_,
-  std::streamsize buffer_size_
-) {
+template<typename Elem, typename Tr, typename ElemA, typename ByteT,
+		typename ByteAT>
+bool basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::zip_to_stream(
+		typename basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::char_type* buffer_,
+		std::streamsize buffer_size_) {
 
-	m_zip_stream.next_in  = (byte_buffer_type) buffer_;
+	m_zip_stream.next_in = (byte_buffer_type) buffer_;
 	m_zip_stream.avail_in = static_cast<uInt>(buffer_size_ * sizeof(char_type));
 
 	// updating crc
@@ -211,15 +158,9 @@ basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::zip_to_stream(
 	return m_err == Z_OK;
 }
 
-template<
-  typename Elem,
-  typename Tr,
-  typename ElemA,
-  typename ByteT,
-  typename ByteAT
->
-std::streamsize
-basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::zfinish() {
+template<typename Elem, typename Tr, typename ElemA, typename ByteT,
+		typename ByteAT>
+std::streamsize basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::zfinish() {
 	std::streamsize total_written_byte_size = 0;
 
 	this->sync();
@@ -238,33 +179,20 @@ basic_zip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::zfinish() {
 	return total_written_byte_size;
 }
 
-template<
-  typename Elem,
-  typename Tr,
-  typename ElemA,
-  typename ByteT,
-  typename ByteAT
->
-void
-basic_gzip_ostream<Elem, Tr, ElemA, ByteT, ByteAT>::put_long(
-  typename basic_gzip_ostream<Elem, Tr, ElemA, ByteT, ByteAT>::ostream_reference out_,
-  unsigned int x_
-) {
+template<typename Elem, typename Tr, typename ElemA, typename ByteT,
+		typename ByteAT>
+void basic_gzip_ostream<Elem, Tr, ElemA, ByteT, ByteAT>::put_long(
+		typename basic_gzip_ostream<Elem, Tr, ElemA, ByteT, ByteAT>::ostream_reference out_,
+		unsigned int x_) {
 	static const int size_ul = sizeof(unsigned int);
 	static const int size_c = sizeof(char_type);
 	static const int n_end = size_ul / size_c;
 	out_.write(reinterpret_cast<char_type const*>(&x_), n_end);
 }
 
-template<
-  typename Elem,
-  typename Tr,
-  typename ElemA,
-  typename ByteT,
-  typename ByteAT
->
-void
-basic_gzip_ostream<Elem, Tr, ElemA, ByteT, ByteAT>::add_header() {
+template<typename Elem, typename Tr, typename ElemA, typename ByteT,
+		typename ByteAT>
+void basic_gzip_ostream<Elem, Tr, ElemA, ByteT, ByteAT>::add_header() {
 	char_type zero = 0;
 
 	this->rdbuf()->get_ostream().put(
@@ -276,15 +204,9 @@ basic_gzip_ostream<Elem, Tr, ElemA, ByteT, ByteAT>::add_header() {
 	.put(static_cast<char_type>(OS_CODE));
 }
 
-template<
-  typename Elem,
-  typename Tr,
-  typename ElemA,
-  typename ByteT,
-  typename ByteAT
->
-void
-basic_gzip_ostream<Elem, Tr, ElemA, ByteT, ByteAT>::add_footer() {
+template<typename Elem, typename Tr, typename ElemA, typename ByteT,
+		typename ByteAT>
+void basic_gzip_ostream<Elem, Tr, ElemA, ByteT, ByteAT>::add_footer() {
 	put_long(this->rdbuf()->get_ostream(), this->rdbuf()->get_crc());
 	put_long(this->rdbuf()->get_ostream(), this->rdbuf()->get_in_size());
 }

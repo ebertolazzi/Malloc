@@ -37,6 +37,7 @@ do_test1() {
   Utils::Malloc<double> mem("test1");
   mem.allocate(100);
   double * ptr = mem(100);
+  fmt::print( "ptr = {}\n", static_cast<void*>(ptr) );
   mem.free();
   mem_info("do_test1 OUT");
 }
@@ -48,6 +49,7 @@ do_test2() {
   Utils::Malloc<double> mem("test1");
   mem.allocate(100);
   double * ptr = mem(100);
+  fmt::print( "ptr = {}\n", static_cast<void*>(ptr) );
   mem_info("do_test2 OUT");
 }
 

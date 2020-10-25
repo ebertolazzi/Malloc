@@ -7,7 +7,7 @@ To give you an idea, consider following snippet that prints "Hello World":
 
     ostringstream output_buffer;
     // writing data
-    output_buffer << "Hello world" << endl;
+    output_buffer << "Hello world" << endl ;
 
 Now, the same snippet but with zipped output using zlib:
 
