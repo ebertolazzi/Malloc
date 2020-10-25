@@ -88,8 +88,10 @@
 #include "fmt/chrono.h"
 #include "fmt/ostream.h"
 
+#ifndef UTILS_OS_WINDOWS
 #include "zstream/izstream.hpp"
 #include "zstream/ozstream.hpp"
+#endif
 
 #include <string>
 #include <iostream>
