@@ -71,9 +71,128 @@ namespace Utils {
     }
   #endif
 
+  /*\
+   |                           _     ___       _                       _
+   |   ___  ___  __ _ _ __ ___| |__ |_ _|_ __ | |_ ___ _ ____   ____ _| |
+   |  / __|/ _ \/ _` | '__/ __| '_ \ | || '_ \| __/ _ \ '__\ \ / / _` | |
+   |  \__ \  __/ (_| | | | (__| | | || || | | | ||  __/ |   \ V / (_| | |
+   |  |___/\___|\__,_|_|  \___|_| |_|___|_| |_|\__\___|_|    \_/ \__,_|_|
+  \*/
+
+  template <typename T_int, typename T_real>
+  void
+  searchInterval(
+    T_int        npts,
+    T_real const X[],
+    T_real     & x,
+    T_int      & lastInterval,
+    bool         closed,
+    bool         can_extend
+  ) {
+
+    // check points
+    T_int n  = npts-1;
+    UTILS_ASSERT(
+      npts > 1 && lastInterval >= 0 && lastInterval < n,
+      "In searchInterval( npts={}, X, x={}, lastInterval={}, closed={}, can_extend={})\n"
+      "npts musrt be >= 2 and lastInterval must be in [0,npts-2]\n",
+      npts, lastInterval, closed, can_extend
+    );
+
+    // checl range
+    T_real xl = X[0];
+    T_real xr = X[n];
+    if ( closed ) { // put x in range (change also its value)
+      T_real L = xr-xl;
+      x -= xl;
+      x  = fmod( x, L );
+      if ( x < 0 ) x += L;
+      x += xl;
+    } else {
+      UTILS_ASSERT(
+        can_extend || (x >= xl && x <= xr),
+        "In searchInterval( npts={}, X, x={}, lastInterval={}, closed={}, can_extend={})\n"
+        "out of range: [{},{}]\n",
+        npts, lastInterval, closed, can_extend, xl, xr
+      );
+    }
+
+    // find the interval of the support of the B-spline
+    T_real const * XL = X+lastInterval;
+    if ( XL[1] < x ) { // x on the right
+      if ( x >= X[n-1] ) {
+        lastInterval = n-1; // last interval
+      } else if ( x < XL[2] ) { // x in (XL[1],XL[2])
+        ++lastInterval;
+      } else { // x >= XL[2] search the right interval
+        T_real const * XE = X+n;
+        lastInterval += T_int(std::lower_bound( XL, XE, x )-XL);
+        T_real const * XX = X+lastInterval;
+        if ( x < XX[0] || Utils::isZero(XX[0]-XX[1]) ) --lastInterval;
+      }
+    } else if ( x < XL[0] ) { // on the left
+      if ( x <= X[1] ) { // x in [X[0],X[1]]
+        lastInterval = 0; // first interval
+      } else if ( XL[-1] <= x ) { // x in [XL[-1],XL[0])
+        --lastInterval;
+      } else {
+        lastInterval = T_int(std::lower_bound( X+1, XL, x )-X);
+        T_real const * XX = X+lastInterval;
+        if ( x < XX[0] || Utils::isZero(XX[0]-XX[1]) ) --lastInterval;
+      }
+    } else {
+      // x in the interval [ XL[0], XL[1] ] nothing to do
+    }
+    // check computed interval
+    UTILS_ASSERT(
+      lastInterval >= 0 && lastInterval < n,
+      "In searchInterval( npts={}, X, x={}, lastInterval={}, closed={}, can_extend={})\n"
+      "computed lastInterval of range: [{},{}]\n",
+      npts, lastInterval, closed, can_extend, xl, xr
+    );
+
+  }
+
+
+  extern template void searchInterval(
+    int32_t     npts,
+    float const X[],
+    float     & x,
+    int32_t   & lastInterval,
+    bool        closed,
+    bool        can_extend
+  );
+
+  template void searchInterval(
+    int32_t      npts,
+    double const X[],
+    double     & x,
+    int32_t    & lastInterval,
+    bool         closed,
+    bool         can_extend
+  );
+
+  template void searchInterval(
+    int64_t     npts,
+    float const X[],
+    float     & x,
+    int64_t   & lastInterval,
+    bool        closed,
+    bool        can_extend
+  );
+
+  template void searchInterval(
+    int64_t      npts,
+    double const X[],
+    double     & x,
+    int64_t    & lastInterval,
+    bool         closed,
+    bool         can_extend
+  );
+
 }
 
 ///
-/// eof: OS.cc
+/// eof: Utils.cc
 ///
 

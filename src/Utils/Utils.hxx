@@ -112,7 +112,56 @@
 #include "ThreadPool.hxx"
 
 namespace Utils {
+
   std::string basename( char const filename[] );
+
+  template <typename T_int, typename T_real>
+  void
+  searchInterval(
+    T_int        npts,
+    T_real const X[],
+    T_real     & x,
+    T_int      & lastInterval,
+    bool         closed,
+    bool         can_extend
+  );
+
+  extern template void searchInterval(
+    int32_t     npts,
+    float const X[],
+    float     & x,
+    int32_t   & lastInterval,
+    bool        closed,
+    bool        can_extend
+  );
+
+  extern template void searchInterval(
+    int32_t      npts,
+    double const X[],
+    double     & x,
+    int32_t    & lastInterval,
+    bool         closed,
+    bool         can_extend
+  );
+
+  extern template void searchInterval(
+    int64_t     npts,
+    float const X[],
+    float     & x,
+    int64_t   & lastInterval,
+    bool        closed,
+    bool        can_extend
+  );
+
+  extern template void searchInterval(
+    int64_t      npts,
+    double const X[],
+    double     & x,
+    int64_t    & lastInterval,
+    bool         closed,
+    bool         can_extend
+  );
+
 }
 
 #endif
