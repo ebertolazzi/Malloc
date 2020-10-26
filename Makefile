@@ -49,6 +49,7 @@ tests: all_libs $(OBJS_TESTS)
 	mkdir -p bin
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_trace src_tests/test_trace.cc $(ALL_LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_Malloc src_tests/test_Malloc.cc $(ALL_LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_Thread src_tests/test_Thread.cc $(ALL_LIBS) $(LIBSGCC)
 
 .cc.o:
 	$(CXX) $(INC) $(CXXFLAGS) $(DEFS) -c $< -o $@
@@ -74,6 +75,7 @@ install: all_libs
 run: tests
 	./bin/test_trace
 	./bin/test_Malloc
+	./bin/test_Thread
 
 doc:
 	doxygen

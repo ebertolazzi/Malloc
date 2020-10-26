@@ -29,6 +29,14 @@
 
 #ifdef UTILS_OS_WINDOWS
   #include <windows.h>
+#else
+  #include <chrono>
+  #include <thread>
+#endif
+
+namespace Utils {
+
+#ifdef UTILS_OS_WINDOWS
   class TicToc {
 
     typedef double real_type;
@@ -78,9 +86,6 @@
   { Sleep(DWORD(ms)); }
 
 #else
-
-  #include <chrono>
-  #include <thread>
 
   class TicToc {
 
@@ -139,6 +144,8 @@
   { std::this_thread::sleep_for(std::chrono::milliseconds(ms)); }
 
 #endif
+
+}
 
 #endif
 

@@ -109,7 +109,7 @@ INCLUDE_DIRECTORIES( src src/Utils )
 
 IF( BUILD_EXECUTABLE )
 
-  SET( EXELISTCPP test_trace test_Malloc )
+  SET( EXELISTCPP test_trace test_Malloc test_Thread )
 
   ADD_CUSTOM_TARGET( all_tests ALL )
 

@@ -42,30 +42,112 @@
 
 namespace Utils {
 
-  class SpinLock {
-    #ifdef UTILS_OS_WINDOWS
-    std::atomic_flag locked;
-    #else
-    std::atomic_flag locked = ATOMIC_FLAG_INIT;
-    #endif
+  /*\
+   |   _____ _                        _
+   |  |_   _| |__  _ __ ___  __ _  __| |___
+   |    | | | '_ \| '__/ _ \/ _` |/ _` / __|
+   |    | | | | | | | |  __/ (_| | (_| \__ \
+   |    |_| |_| |_|_|  \___|\__,_|\__,_|___/
+  \*/
+
+  template <typename DATA>
+  class BinarySearch {
+  private:
+    typedef std::pair<std::thread::id,DATA*> DATA_TYPE;
+    mutable std::vector<DATA_TYPE>           m_data;
   public:
 
+    BinarySearch() {
+      m_data.reserve(64);
+    }
+
+    ~BinarySearch() {
+      for ( auto & a : m_data ) delete a.second;
+      m_data.clear();
+    }
+
+    void
+    clear() {
+      for ( auto & a : m_data ) delete a.second;
+      m_data.clear(); m_data.reserve(64);
+    }
+
+    DATA *
+    search( std::thread::id const & id , bool & ok ) const {
+      ok = true;
+      size_t U = m_data.size();
+      size_t L = 0;
+      while ( U-L > 1 ) {
+        size_t pos = (L+U)>>1;
+        std::thread::id const & id_pos = m_data[pos].first;
+        if ( id_pos < id ) L = pos; else U = pos;
+      }
+      DATA_TYPE & dL = m_data[L]; if ( dL.first == id ) return dL.second;
+      DATA_TYPE & dU = m_data[U]; if ( dU.first == id ) return dU.second;
+      // not found must insert
+      ok = false;
+      U  = m_data.size();
+      m_data.resize(U+1);
+      while ( U > L ) { m_data[U+1] = m_data[U]; --U; }
+      DATA_TYPE & dL1 = m_data[L+1];
+      dL1.first = id;
+      return (dL1.second = new DATA());
+    }
+
+  };
+
+  class SpinLock {
+    // see https://geidav.wordpress.com/2016/03/23/test-and-set-spinlocks/
+  private:
     #ifdef UTILS_OS_WINDOWS
-    SpinLock() { locked.clear(); }
+    std::atomic<bool> m_locked;
+    #else
+    std::atomic<bool> m_locked = {false};
+    #endif
+  public:
+    #ifdef UTILS_OS_WINDOWS
+    SpinLock() { m_locked.clear(); }
     #else
     SpinLock() {}
     #endif
 
     void
+    wait() {
+      while (m_locked.load(std::memory_order_relaxed) == true);
+    }
+
+    void
     lock() {
-      while (locked.test_and_set(std::memory_order_acquire)) { ; }
+      do { wait(); } while (m_locked.exchange(true, std::memory_order_acquire) == true);
     }
 
     void
     unlock() {
-      locked.clear(std::memory_order_release);
+      m_locked.store(false, std::memory_order_release);
+    }
+  };
+
+  class WaitWorker {
+  private:
+    #ifdef UTILS_OS_WINDOWS
+    std::atomic<int> n_worker;
+    #else
+    std::atomic<int> n_worker = {0};
+    #endif
+  public:
+    #ifdef UTILS_OS_WINDOWS
+    WaitWorker() { n_worker = 0; }
+    #else
+    WaitWorker() {}
+    #endif
+
+    void
+    wait() {
+      while (n_worker.load(std::memory_order_relaxed) != 0 );
     }
 
+    void enter() { ++n_worker; }
+    void leave() { --n_worker; }
   };
 
   class SpinLock_barrier {
