@@ -107,6 +107,7 @@ namespace Utils {
   public:
 
     BinarySearch() {
+      m_data.clear();
       m_data.reserve(64);
     }
 
@@ -126,7 +127,7 @@ namespace Utils {
     }
 
     DATA *
-    search( std::thread::id const & id , bool & ok ) const {
+    search( std::thread::id const & id, bool & ok ) const {
       m_spin_write.wait(); // wait writing finished
       m_worker_read.enter();
       ok = true;
@@ -148,7 +149,11 @@ namespace Utils {
       ok = false;
       U  = m_data.size();
       m_data.resize(U+1);
-      while ( U > L ) { m_data[U+1] = m_data[U]; --U; }
+      while ( U > L ) {
+        --U;
+        m_data[U+1].first  = m_data[U].first;
+        m_data[U+1].second = m_data[U].second;
+      }
       DATA_TYPE & dL1 = m_data[L+1];
       dL1.first = id;
       DATA * res = dL1.second = new DATA();
