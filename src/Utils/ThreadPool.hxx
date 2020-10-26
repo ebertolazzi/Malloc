@@ -131,7 +131,23 @@ namespace Utils {
       m_spin_write.wait(); // wait writing finished
       m_worker_read.enter();
       ok = true;
+
       size_t U = m_data.size();
+
+      if ( U == 0 ) {
+        m_worker_read.leave();
+        m_spin_write.lock();
+        m_worker_read.wait(); // wait all read finished
+        ok = false;
+        U  = m_data.size();
+        m_data.resize(1);
+        DATA_TYPE & dL = m_data[0];
+        dL.first = id;
+        DATA * res = dL.second = new DATA();
+        m_spin_write.unlock();
+        return res;
+      }
+
       size_t L = 0;
       while ( U-L > 1 ) {
         size_t pos = (L+U)>>1;
@@ -143,18 +159,20 @@ namespace Utils {
       DATA_TYPE & dU = m_data[U];
       if ( dU.first == id ) { m_worker_read.leave(); return dU.second; }
       m_worker_read.leave();
+
       // not found must insert
       m_spin_write.lock();
       m_worker_read.wait(); // wait all read finished
       ok = false;
-      U  = m_data.size();
+      if ( dL.first < id ) ++L;
+      U = m_data.size();
       m_data.resize(U+1);
       while ( U > L ) {
         --U;
         m_data[U+1].first  = m_data[U].first;
         m_data[U+1].second = m_data[U].second;
       }
-      DATA_TYPE & dL1 = m_data[L+1];
+      DATA_TYPE & dL1 = m_data[L];
       dL1.first = id;
       DATA * res = dL1.second = new DATA();
       m_spin_write.unlock();
