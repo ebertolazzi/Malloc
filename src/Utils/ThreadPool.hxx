@@ -55,6 +55,8 @@ namespace Utils {
   private:
     typedef std::pair<std::thread::id,DATA*> DATA_TYPE;
     mutable std::vector<DATA_TYPE>           m_data;
+    mutable std::mutex                       bs_mutex;
+
   public:
 
     BinarySearch() {
@@ -62,18 +64,21 @@ namespace Utils {
     }
 
     ~BinarySearch() {
+      std::lock_guard<std::mutex> lock_access(bs_mutex);
       for ( auto & a : m_data ) delete a.second;
       m_data.clear();
     }
 
     void
     clear() {
+      std::lock_guard<std::mutex> lock_access(bs_mutex);
       for ( auto & a : m_data ) delete a.second;
       m_data.clear(); m_data.reserve(64);
     }
 
     DATA *
     search( std::thread::id const & id , bool & ok ) const {
+      std::lock_guard<std::mutex> lock_access(bs_mutex);
       ok = true;
       size_t U = m_data.size();
       size_t L = 0;
