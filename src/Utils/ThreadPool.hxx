@@ -99,17 +99,9 @@ namespace Utils {
   class SpinLock {
     // see https://geidav.wordpress.com/2016/03/23/test-and-set-spinlocks/
   private:
-    #ifdef UTILS_OS_WINDOWS
-    std::atomic<bool> m_locked;
-    #else
     std::atomic<bool> m_locked = {false};
-    #endif
   public:
-    #ifdef UTILS_OS_WINDOWS
-    SpinLock() { m_locked.clear(); }
-    #else
     SpinLock() {}
-    #endif
 
     void
     wait() {
