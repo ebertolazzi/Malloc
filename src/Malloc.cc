@@ -204,6 +204,7 @@ namespace Utils {
   template class Malloc<float>;
   template class Malloc<double>;
 
+  template class Malloc<void*>;
   template class Malloc<char*>;
   template class Malloc<uint16_t*>;
   template class Malloc<int16_t*>;

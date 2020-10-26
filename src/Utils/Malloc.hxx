@@ -111,6 +111,7 @@ namespace Utils {
   extern template class Malloc<float>;
   extern template class Malloc<double>;
 
+  extern template class Malloc<void*>;
   extern template class Malloc<char*>;
   extern template class Malloc<uint16_t*>;
   extern template class Malloc<int16_t*>;
