@@ -50,57 +50,6 @@ namespace Utils {
    |    |_| |_| |_|_|  \___|\__,_|\__,_|___/
   \*/
 
-  template <typename DATA>
-  class BinarySearch {
-  private:
-    typedef std::pair<std::thread::id,DATA*> DATA_TYPE;
-    mutable std::vector<DATA_TYPE>           m_data;
-    mutable std::mutex                       bs_mutex;
-
-  public:
-
-    BinarySearch() {
-      m_data.reserve(64);
-    }
-
-    ~BinarySearch() {
-      std::lock_guard<std::mutex> lock_access(bs_mutex);
-      for ( auto & a : m_data ) delete a.second;
-      m_data.clear();
-    }
-
-    void
-    clear() {
-      std::lock_guard<std::mutex> lock_access(bs_mutex);
-      for ( auto & a : m_data ) delete a.second;
-      m_data.clear(); m_data.reserve(64);
-    }
-
-    DATA *
-    search( std::thread::id const & id , bool & ok ) const {
-      std::lock_guard<std::mutex> lock_access(bs_mutex);
-      ok = true;
-      size_t U = m_data.size();
-      size_t L = 0;
-      while ( U-L > 1 ) {
-        size_t pos = (L+U)>>1;
-        std::thread::id const & id_pos = m_data[pos].first;
-        if ( id_pos < id ) L = pos; else U = pos;
-      }
-      DATA_TYPE & dL = m_data[L]; if ( dL.first == id ) return dL.second;
-      DATA_TYPE & dU = m_data[U]; if ( dU.first == id ) return dU.second;
-      // not found must insert
-      ok = false;
-      U  = m_data.size();
-      m_data.resize(U+1);
-      while ( U > L ) { m_data[U+1] = m_data[U]; --U; }
-      DATA_TYPE & dL1 = m_data[L+1];
-      dL1.first = id;
-      return (dL1.second = new DATA());
-    }
-
-  };
-
   class SpinLock {
     // see https://geidav.wordpress.com/2016/03/23/test-and-set-spinlocks/
   private:
@@ -145,6 +94,68 @@ namespace Utils {
 
     void enter() { ++n_worker; }
     void leave() { --n_worker; }
+  };
+
+  template <typename DATA>
+  class BinarySearch {
+  private:
+    typedef std::pair<std::thread::id,DATA*> DATA_TYPE;
+    mutable std::vector<DATA_TYPE>           m_data;
+    mutable SpinLock                         m_spin_write;
+    mutable WaitWorker                       m_worker_read;
+
+  public:
+
+    BinarySearch() {
+      m_data.reserve(64);
+    }
+
+    ~BinarySearch() {
+      m_spin_write.wait();
+      for ( auto & a : m_data ) delete a.second;
+      m_data.clear();
+      m_spin_write.wait();
+    }
+
+    void
+    clear() {
+      m_spin_write.wait();
+      for ( auto & a : m_data ) delete a.second;
+      m_data.clear(); m_data.reserve(64);
+      m_spin_write.wait();
+    }
+
+    DATA *
+    search( std::thread::id const & id , bool & ok ) const {
+      m_spin_write.wait(); // wait writing finished
+      m_worker_read.enter();
+      ok = true;
+      size_t U = m_data.size();
+      size_t L = 0;
+      while ( U-L > 1 ) {
+        size_t pos = (L+U)>>1;
+        std::thread::id const & id_pos = m_data[pos].first;
+        if ( id_pos < id ) L = pos; else U = pos;
+      }
+      DATA_TYPE & dL = m_data[L];
+      if ( dL.first == id ) { m_worker_read.leave(); return dL.second; }
+      DATA_TYPE & dU = m_data[U];
+      if ( dU.first == id ) { m_worker_read.leave(); return dU.second; }
+      m_worker_read.leave();
+      // not found must insert
+      m_spin_write.lock();
+      m_worker_read.wait(); // wait all read finished
+      ok = false;
+      U  = m_data.size();
+      m_data.resize(U+1);
+      while ( U > L ) { m_data[U+1] = m_data[U]; --U; }
+      DATA_TYPE & dL1 = m_data[L+1];
+      dL1.first = id;
+      DATA * res = dL1.second = new DATA();
+      m_spin_write.unlock();
+      return res;
+    }
+
   };
 
   class SpinLock_barrier {
