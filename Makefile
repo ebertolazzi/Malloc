@@ -13,7 +13,7 @@ DEFS  =
 CXXFLAGS = -O2 -funroll-loops -fPIC
 CFLAGS   = -O2 -funroll-loops -fPIC
 
-SRCS       = $(shell echo src/*.cc) $(shell echo src/Utils/fmt/*.cc)
+SRCS       = $(shell echo src/*.cc)
 OBJS       = $(SRCS:.cc=.o)
 SRCS_TESTS = $(shell echo src_tests/*.cc)
 OBJS_TESTS = $(SRCS_TESTS:.cc=.o)
@@ -154,7 +154,7 @@ src/Utils.o: src/Utils/zstream/ozstream_impl.hpp
 src/Utils.o: src/Utils/zstream/ozstream.hpp src/Utils/Trace.hxx
 src/Utils.o: src/Utils/Console.hxx src/Utils/Malloc.hxx src/Utils/Numbers.hxx
 src/Utils.o: src/Utils/TicToc.hxx src/Utils/ThreadPool.hxx
-src/Utils/fmt/format.o: src/Utils/fmt/format-inl.h src/Utils/fmt/format.h
-src/Utils/fmt/format.o: src/Utils/fmt/core.h
-src/Utils/fmt/os.o: src/Utils/fmt/os.h src/Utils/fmt/format.h
-src/Utils/fmt/os.o: src/Utils/fmt/core.h
+src/Utils/format.o: src/Utils/fmt/format-inl.h src/Utils/fmt/format.h
+src/Utils/format.o: src/Utils/fmt/core.h
+src/Utils/os.o: src/Utils/fmt/os.h src/Utils/fmt/format.h
+src/Utils/os.o: src/Utils/fmt/core.h
