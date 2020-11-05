@@ -64,5 +64,6 @@ main() {
   mem_info("C");
   do_test2();
   mem_info("main OUT");
+  std::cout << "All done folks!\n\n";
   return 0;
 }

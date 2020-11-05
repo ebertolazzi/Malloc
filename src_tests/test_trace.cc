@@ -85,6 +85,6 @@ main() {
   } catch ( ... ) {
     std::cout << "Unknown error\n";
   }
-  std::cout << "DONE\n";
+  std::cout << "All done folks\n\n";
   return 0;
 }

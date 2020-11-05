@@ -59,10 +59,11 @@ do_test() {
 int
 main() {
   std::vector<std::thread> threads_tab;
-  for ( int i = 0; i < 1000; ++i ) {
+  for ( int i = 0; i < 100; ++i ) {
     //Utils::sleep_for_milliseconds(1);
     threads_tab.push_back(std::thread(do_test));
   }
   for ( auto & t : threads_tab ) t.join();
+  std::cout << "All done folks!\n\n";
   return 0;
 }
