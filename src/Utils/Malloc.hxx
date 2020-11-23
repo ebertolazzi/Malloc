@@ -95,10 +95,11 @@ namespace Utils {
     //! get pointer of allocated memory for `sz` objets
     T * operator () ( size_t sz );
 
-    bool is_empty() const { return m_numAllocated <= m_numTotValues; }
+    //! true if you cannot get more memory pointers
+    bool is_empty() const { return m_numAllocated >= m_numTotValues; }
 
+    //! return an error if memory is not complately used
     void must_be_empty( char const where[] ) const;
-
   };
 
   extern template class Malloc<char>;
