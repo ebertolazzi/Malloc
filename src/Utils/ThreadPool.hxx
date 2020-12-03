@@ -73,6 +73,8 @@ namespace Utils {
     }
   };
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   class WaitWorker {
   private:
     #ifdef UTILS_OS_WINDOWS
@@ -95,6 +97,8 @@ namespace Utils {
     void enter() { ++n_worker; }
     void leave() { --n_worker; }
   };
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename DATA>
   class BinarySearch {
@@ -181,11 +185,13 @@ namespace Utils {
 
   };
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   class SpinLock_barrier {
   private:
     std::atomic<unsigned> m_count;
     std::atomic<unsigned> m_generation;
-    unsigned int m_count_reset_value;
+    unsigned              m_count_reset_value;
   public:
     SpinLock_barrier(const SpinLock_barrier&) = delete;
     SpinLock_barrier& operator=(const SpinLock_barrier&) = delete;
@@ -230,40 +236,45 @@ namespace Utils {
     }
   };
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   class Barrier {
-    int to_be_done, usedThread;
-    std::mutex              mtx;
-    std::condition_variable cond;
+    int                     m_to_be_done;
+    int                     m_usedThread;
+    std::mutex              m_mtx;
+    std::condition_variable m_cond;
   public:
-    Barrier() : to_be_done(0) {}
+    Barrier() : m_to_be_done(0) {}
 
     void
     setup( int nthreads )
-    { usedThread = to_be_done = nthreads ; }
+    { m_usedThread = m_to_be_done = nthreads ; }
 
     void
     count_down() {
-      std::unique_lock<std::mutex> lck(mtx);
-      if ( --to_be_done <= 0 ) cond.notify_all() ; // wake up all tread
+      std::unique_lock<std::mutex> lck(m_mtx);
+      if ( --m_to_be_done <= 0 ) m_cond.notify_all() ; // wake up all tread
     }
 
     void
     wait() {
-      std::unique_lock<std::mutex> lck(mtx);
-      cond.wait(lck);
+      std::unique_lock<std::mutex> lck(m_mtx);
+      m_cond.wait(lck);
     }
 
     void
     count_down_and_wait() {
-      std::unique_lock<std::mutex> lck(mtx);
-      if ( --to_be_done <= 0 ) {
-        cond.notify_all() ; // wake up all tread
-        to_be_done = usedThread ;
+      std::unique_lock<std::mutex> lck(m_mtx);
+      if ( --m_to_be_done <= 0 ) {
+        m_cond.notify_all() ; // wake up all tread
+        m_to_be_done = m_usedThread ;
       } else {
-        cond.wait(lck);
+        m_cond.wait(lck);
       }
     }
   };
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   class SimpleSemaphore {
   private:
@@ -304,10 +315,11 @@ namespace Utils {
   class Worker {
     friend class ThreadPool;
 
-    bool                  active;
-    SimpleSemaphore       is_running, job_done;
-    std::thread           running_thread;
-    std::function<void()> job;
+    bool                  m_active;
+    SimpleSemaphore       m_is_running;
+    SimpleSemaphore       m_job_done;
+    std::thread           m_running_thread;
+    std::function<void()> m_job;
 
     //disable copy
     Worker( Worker const & ) = delete;
@@ -315,54 +327,54 @@ namespace Utils {
 
     void
     loop() {
-      while ( active ) {
-        is_running.wait();
-        if ( active ) job();
-        is_running.red();
-        job_done.green();
+      while ( m_active ) {
+        m_is_running.wait();
+        if ( m_active ) m_job();
+        m_is_running.red();
+        m_job_done.green();
       }
     }
 
   public:
 
-    Worker() : active(false) { start(); }
+    Worker() : m_active(false) { start(); }
     ~Worker() { stop(); }
 
     Worker( Worker && rhs ) {
-      active         = rhs.active;
-      job            = rhs.job;
-      running_thread = std::move(rhs.running_thread);
+      m_active         = rhs.m_active;
+      m_job            = rhs.m_job;
+      m_running_thread = std::move(rhs.m_running_thread);
     }
 
     void
     start() {
-      if ( !active ) {
-        active = true;
-        is_running.red();
-        job_done.green();
-        running_thread = std::thread( [this] () -> void { this->loop(); } );
+      if ( !m_active ) {
+        m_active = true;
+        m_is_running.red();
+        m_job_done.green();
+        m_running_thread = std::thread( [this] () -> void { this->loop(); } );
       }
     }
 
     void
     stop() {
-      if ( active ) {
-        active = false;        // deactivate computation
-        is_running.green();    // for exiting from the loop
-        running_thread.join(); // wait thread for exiting
+      if ( m_active ) {
+        m_active = false;        // deactivate computation
+        m_is_running.green();    // for exiting from the loop
+        m_running_thread.join(); // wait thread for exiting
       }
     }
 
-    void wait() { job_done.wait(); }
+    void wait() { m_job_done.wait(); }
 
     template < class Func, class... Args >
     void
     run( Func && func, Args && ... args ) {
       //launch( std::bind(std::forward<Func>(func), std::forward<Args>(args)...) );
-      job_done.wait(); // se gia occupato in task aspetta
-      job = std::bind(std::forward<Func>(func), std::forward<Args>(args)...);
-      job_done.red();
-      is_running.green(); // activate computation
+      m_job_done.wait(); // se gia occupato in task aspetta
+      m_job = std::bind(std::forward<Func>(func), std::forward<Args>(args)...);
+      m_job_done.red();
+      m_is_running.green(); // activate computation
     }
 
   };
@@ -377,7 +389,7 @@ namespace Utils {
 
   class ThreadPool {
     // need to keep track of threads so we can join them
-    std::vector<Worker> workers;
+    std::vector<Worker> m_workers;
 
     //disable copy
     ThreadPool() = delete;
@@ -387,9 +399,9 @@ namespace Utils {
     #if defined(UTILS_OS_WINDOWS)
     void
     setup() {
-      for ( auto & w: workers ) {
+      for ( auto & w: m_workers ) {
         w.start();
-        std::thread & t = w.running_thread;
+        std::thread & t = w.m_running_thread;
         SetThreadPriority( t.native_handle(), THREAD_PRIORITY_HIGHEST );
       }
     }
@@ -398,9 +410,9 @@ namespace Utils {
     setup() {
       sched_param sch;
       int         policy;
-      for ( auto & w: workers ) {
+      for ( auto & w: m_workers ) {
         w.start();
-        std::thread & t = w.running_thread;
+        std::thread & t = w.m_running_thread;
         pthread_getschedparam( t.native_handle(), &policy, &sch );
         sch.sched_priority = sched_get_priority_max( SCHED_RR );
         pthread_setschedparam( t.native_handle(), SCHED_RR, &sch );
@@ -409,7 +421,7 @@ namespace Utils {
     #else
     void
     setup() {
-      for ( auto & w: workers ) w.start();
+      for ( auto & w: m_workers ) w.start();
     }
     #endif
 
@@ -421,7 +433,7 @@ namespace Utils {
         unsigned(std::thread::hardware_concurrency()-1)
       )
     ) {
-      workers.resize( size_t( nthread ) );
+      m_workers.resize( size_t( nthread ) );
       setup();
     }
 
@@ -429,32 +441,32 @@ namespace Utils {
     template <typename Func, typename... Args>
     void
     run( unsigned nt, Func && func, Args && ... args ) {
-      workers[size_t(nt)].run( func, args...);
+      m_workers[size_t(nt)].run( func, args...);
     }
 
-    void wait_all()  { for ( auto && w : workers ) w.wait(); }
-    void start_all() { for ( auto && w : workers ) w.start(); }
-    void stop_all()  { for ( auto && w : workers ) w.stop(); }
+    void wait_all()  { for ( auto && w : m_workers ) w.wait(); }
+    void start_all() { for ( auto && w : m_workers ) w.start(); }
+    void stop_all()  { for ( auto && w : m_workers ) w.stop(); }
 
-    unsigned size() const { return unsigned(workers.size()); }
+    unsigned size() const { return unsigned(m_workers.size()); }
 
     std::thread::id
     get_id( unsigned i ) const
-    { return workers[size_t(i)].running_thread.get_id(); }
+    { return m_workers[size_t(i)].m_running_thread.get_id(); }
 
     std::thread const &
     get_thread( unsigned i ) const
-    { return workers[size_t(i)].running_thread; }
+    { return m_workers[size_t(i)].m_running_thread; }
 
     std::thread &
     get_thread( unsigned i )
-    { return workers[size_t(i)].running_thread; }
+    { return m_workers[size_t(i)].m_running_thread; }
 
     void
     resize( unsigned numThreads ) {
       wait_all();
       stop_all();
-      workers.resize( size_t(numThreads) );
+      m_workers.resize( size_t(numThreads) );
       setup();
     }
 
