@@ -4,7 +4,7 @@
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
- |         | __/ _   ,_         | __/ _   ,_                                | 
+ |         | __/ _   ,_         | __/ _   ,_                                |
  |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
  |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
  |                           /|                   /|                        |
@@ -103,8 +103,8 @@ namespace Utils {
 
     elapsed_resolution m_elapsed_time;
 
-    TicToc( TicToc const & );
-    TicToc const & operator = ( TicToc const & ) const;
+    TicToc( TicToc const & ) = delete;
+    TicToc const & operator = ( TicToc const & ) const = delete;
 
    public:
 

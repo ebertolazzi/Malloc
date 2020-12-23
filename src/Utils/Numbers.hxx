@@ -45,6 +45,14 @@ namespace Utils {
   template <> inline double
   NaN() { return std::numeric_limits<double>::quiet_NaN(); }
 
+  template <typename T> T Inf();
+
+  template <> inline float
+  Inf() { return std::numeric_limits<float>::infinity(); }
+
+  template <> inline double
+  Inf() { return std::numeric_limits<double>::infinity(); }
+
   /// machine epsilon
   template <typename T> T machineEps();
 
@@ -120,6 +128,19 @@ namespace Utils {
   static
   inline
   bool isRegular( float x )
+  { return !( FP_INFINITE == std::fpclassify(x) ||
+              FP_NAN      == std::fpclassify(x) ); }
+
+  // added alias
+  static
+  inline
+  bool isFinite( double x )
+  { return !( FP_INFINITE == std::fpclassify(x) ||
+              FP_NAN      == std::fpclassify(x) ); }
+
+  static
+  inline
+  bool isFinite( float x )
   { return !( FP_INFINITE == std::fpclassify(x) ||
               FP_NAN      == std::fpclassify(x) ); }
 

@@ -394,7 +394,7 @@ namespace Utils {
     //disable copy
     ThreadPool() = delete;
     ThreadPool( ThreadPool const & ) = delete;
-    ThreadPool& operator = ( ThreadPool const & ) = delete;
+    ThreadPool & operator = ( ThreadPool const & ) = delete;
 
     #if defined(UTILS_OS_WINDOWS)
     void

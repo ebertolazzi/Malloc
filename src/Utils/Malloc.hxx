@@ -71,8 +71,8 @@ namespace Utils {
     size_t      m_numAllocated;
     valueType * m_pMalloc;
 
-    Malloc(Malloc<T> const &); // blocco costruttore di copia
-    Malloc<T> const & operator = (Malloc<T> &) const; // blocco copia
+    Malloc(Malloc<T> const &) = delete; // blocco costruttore di copia
+    Malloc<T> const & operator = (Malloc<T> &) const = delete; // blocco copia
 
   public:
 

@@ -34,7 +34,7 @@ namespace Utils {
 
   class Console {
 
-    mutable std::mutex message_mutex; // mutex for critical section
+    mutable std::mutex m_message_mutex; // mutex for critical section
 
   public:
     class Console_style {
@@ -46,32 +46,32 @@ namespace Utils {
 
   private:
 
-    ostream_type * p_stream;
+    ostream_type * m_stream;
 
     // 0 only fatal, error
     // 1 + warning
     // 2
-    int level;
+    int m_level;
 
-    Console_style message_style;
-    Console_style warning_style;
-    Console_style error_style;
-    Console_style fatal_style;
+    Console_style m_message_style;
+    Console_style m_warning_style;
+    Console_style m_error_style;
+    Console_style m_fatal_style;
 
     Console() = delete;
     Console( Console const & ) = delete;
 
   public:
 
-    Console( ostream_type * p_stream = &std::cout, int level = 4 );
+    Console( ostream_type * stream = &std::cout, int level = 4 );
 
     void changeLevel( int new_level );
-    void changeStream( ostream_type * new_p_stream );
-    int  getLevel() const { return level; }
+    void changeStream( ostream_type * new_stream );
+    int  getLevel() const { return m_level; }
 
-    ostream_type * getStream() const { return p_stream; }
+    ostream_type * getStream() const { return m_stream; }
 
-    Console const & flush() const { p_stream->flush(); return *this; }
+    Console const & flush() const { m_stream->flush(); return *this; }
 
     Console const &
     message( std::string const & msg, int msg_level = 4 ) const;
@@ -112,9 +112,9 @@ namespace Utils {
       rang::fg    const & f,
       rang::bg    const & b
     ) {
-      message_style.s = s;
-      message_style.f = f;
-      message_style.b = b;
+      m_message_style.s = s;
+      m_message_style.f = f;
+      m_message_style.b = b;
     }
 
     void
@@ -123,9 +123,9 @@ namespace Utils {
       rang::fg    const & f,
       rang::bg    const & b
     ) {
-      warning_style.s = s;
-      warning_style.f = f;
-      warning_style.b = b;
+      m_warning_style.s = s;
+      m_warning_style.f = f;
+      m_warning_style.b = b;
     }
 
     void
@@ -134,9 +134,9 @@ namespace Utils {
       rang::fg    const & f,
       rang::bg    const & b
     ) {
-      error_style.s = s;
-      error_style.f = f;
-      error_style.b = b;
+      m_error_style.s = s;
+      m_error_style.f = f;
+      m_error_style.b = b;
     }
 
     void
@@ -145,9 +145,9 @@ namespace Utils {
       rang::fg    const & f,
       rang::bg    const & b
     ) {
-      fatal_style.s = s;
-      fatal_style.f = f;
-      fatal_style.b = b;
+      m_fatal_style.s = s;
+      m_fatal_style.f = f;
+      m_fatal_style.b = b;
     }
 
     //! set off coloring
