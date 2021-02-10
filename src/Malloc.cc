@@ -86,34 +86,31 @@ namespace Utils {
 
   template <typename T>
   void
-  Malloc<T>::allocate( size_t n ) {
+  Malloc<T>::allocate_internal( size_t n ) {
     try {
-      if ( n > m_numTotReserved ) {
-        size_t nb;
-        {
-          std::lock_guard<std::mutex> lock(Utils::MallocMutex);
-          nb = m_numTotReserved*sizeof(T);
-          ++CountFreed; AllocatedBytes -= nb;
-        }
-
-        delete [] m_pMalloc;
-        m_numTotValues   = n;
-        m_numTotReserved = n + (n>>3); // 12% more values
-        m_pMalloc        = new T[m_numTotReserved];
-
-        {
-          std::lock_guard<std::mutex> lock(Utils::MallocMutex);
-          ++CountAlloc;
-          nb = m_numTotReserved*sizeof(T);
-          AllocatedBytes += nb;
-          if ( MaximumAllocatedBytes < AllocatedBytes )
-            MaximumAllocatedBytes = AllocatedBytes;
-        }
-
-        if ( MallocDebug )
-          fmt::print( "Allocating {} for {}\n", outBytes( nb ), m_name );
-
+      size_t nb;
+      {
+        std::lock_guard<std::mutex> lock(Utils::MallocMutex);
+        nb = m_numTotReserved*sizeof(T);
+        ++CountFreed; AllocatedBytes -= nb;
       }
+
+      delete [] m_pMalloc;
+      m_numTotValues   = n;
+      m_numTotReserved = n + (n>>3); // 12% more values
+      m_pMalloc        = new T[m_numTotReserved];
+
+      {
+        std::lock_guard<std::mutex> lock(Utils::MallocMutex);
+        ++CountAlloc;
+        nb = m_numTotReserved*sizeof(T);
+        AllocatedBytes += nb;
+        if ( MaximumAllocatedBytes < AllocatedBytes )
+          MaximumAllocatedBytes = AllocatedBytes;
+      }
+
+      if ( MallocDebug )
+        fmt::print( "Allocating {} for {}\n", outBytes( nb ), m_name );
     }
     catch ( std::exception const & exc ) {
       std::string reason = fmt::format(
@@ -161,18 +158,13 @@ namespace Utils {
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
-  T *
-  Malloc<T>::operator () ( size_t sz ) {
-    size_t offs = m_numAllocated;
-    m_numAllocated += sz;
-    if ( m_numAllocated > m_numTotValues ) {
-      std::string reason = fmt::format(
-        "nMalloc<{}>::operator () ({}) -- Memory EXAUSTED\n", m_name, sz
-      );
-      printTrace( __LINE__, __FILE__, reason, std::cerr );
-      std::exit(0);
-    }
-    return m_pMalloc + offs;
+  void
+  Malloc<T>::memory_exausted( size_t sz ) {
+    std::string reason = fmt::format(
+      "nMalloc<{}>::operator () ({}) -- Memory EXAUSTED\n", m_name, sz
+    );
+    printTrace( __LINE__, __FILE__, reason, std::cerr );
+    std::exit(0);
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

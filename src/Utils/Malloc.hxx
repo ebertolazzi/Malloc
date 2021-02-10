@@ -74,6 +74,9 @@ namespace Utils {
     Malloc(Malloc<T> const &) = delete; // blocco costruttore di copia
     Malloc<T> const & operator = (Malloc<T> &) const = delete; // blocco copia
 
+    void allocate_internal( size_t n );
+    void memory_exausted( size_t sz );
+
   public:
 
     //! malloc object constructor
@@ -84,7 +87,12 @@ namespace Utils {
     ~Malloc();
 
     //! allocate memory for `n` objects
-    void allocate( size_t n );
+    void
+    allocate( size_t n ) {
+      if ( n > m_numTotReserved ) allocate_internal( n );
+      m_numTotValues = n;
+      m_numAllocated = 0;
+    }
 
     //! free memory
     void free(void);
@@ -93,7 +101,20 @@ namespace Utils {
     size_t size(void) const { return m_numTotValues; }
 
     //! get pointer of allocated memory for `sz` objets
-    T * operator () ( size_t sz );
+    T * operator () ( size_t sz ) {
+      size_t offs = m_numAllocated;
+      m_numAllocated += sz;
+      if ( m_numAllocated > m_numTotValues ) memory_exausted( sz );
+      return m_pMalloc + offs;
+    }
+
+    T *
+    malloc( size_t n ) {
+      if ( n > m_numTotReserved ) allocate_internal( n );
+      m_numTotValues = n;
+      m_numAllocated = n;
+      return m_pMalloc;
+    }
 
     //! true if you cannot get more memory pointers
     bool is_empty() const { return m_numAllocated >= m_numTotValues; }
