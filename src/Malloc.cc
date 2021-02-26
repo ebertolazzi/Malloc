@@ -142,6 +142,16 @@ namespace Utils {
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
+  void
+  Malloc<T>::reallocate( size_t n ) {
+    if ( n > m_numTotReserved ) allocate_internal( n );
+    m_numTotValues = n;
+    m_numAllocated = 0;
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
   T *
   Malloc<T>::malloc( size_t n ) {
     UTILS_ASSERT(
@@ -149,6 +159,17 @@ namespace Utils {
       "Malloc[{}]::malloc( {} ), try to allocate already allocated memory!\n",
       m_name, n
     );
+    if ( n > m_numTotReserved ) allocate_internal( n );
+    m_numTotValues = n;
+    m_numAllocated = n;
+    return m_pMalloc;
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  T *
+  Malloc<T>::realloc( size_t n ) {
     if ( n > m_numTotReserved ) allocate_internal( n );
     m_numTotValues = n;
     m_numAllocated = n;

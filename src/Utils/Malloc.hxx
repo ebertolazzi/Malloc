@@ -86,11 +86,14 @@ namespace Utils {
     //! malloc object destructor
     ~Malloc() { hard_free(); }
 
-    //! allocate memory for `n` objects
+    //! allocate memory for `n` objects, raise an error if memory already allocated
     void allocate( size_t n );
 
+    //! allocate memory for `n` objects, no matter if already allocated
+    void reallocate( size_t n );
+
     //! free memory without deallocating pointer
-    void free(void) { m_numAllocated = 0; }
+    void free(void) { m_numTotValues = m_numAllocated = 0; }
 
     //! free memory deallocating pointer
     void hard_free(void);
@@ -107,6 +110,7 @@ namespace Utils {
     }
 
     T * malloc( size_t n );
+    T * realloc( size_t n );
 
     //! true if you cannot get more memory pointers
     bool is_empty() const { return m_numAllocated >= m_numTotValues; }
