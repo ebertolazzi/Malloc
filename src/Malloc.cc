@@ -79,12 +79,6 @@ namespace Utils {
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
-  Malloc<T>::~Malloc()
-  { free(); }
-
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  template <typename T>
   void
   Malloc<T>::allocate_internal( size_t n ) {
     try {
@@ -135,7 +129,37 @@ namespace Utils {
 
   template <typename T>
   void
-  Malloc<T>::free(void) {
+  Malloc<T>::allocate( size_t n ) {
+    UTILS_ASSERT(
+      m_numAllocated == 0,
+      "Malloc[{}]::allocate( {} ), try to allocate already allocated memory!\n",
+      m_name, n
+    );
+    if ( n > m_numTotReserved ) allocate_internal( n );
+    m_numTotValues = n;
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  T *
+  Malloc<T>::malloc( size_t n ) {
+    UTILS_ASSERT(
+      m_numAllocated == 0,
+      "Malloc[{}]::malloc( {} ), try to allocate already allocated memory!\n",
+      m_name, n
+    );
+    if ( n > m_numTotReserved ) allocate_internal( n );
+    m_numTotValues = n;
+    m_numAllocated = n;
+    return m_pMalloc;
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  Malloc<T>::hard_free(void) {
     if ( m_pMalloc != nullptr ) {
       size_t nb;
       {
@@ -151,7 +175,6 @@ namespace Utils {
       m_numTotValues   = 0;
       m_numTotReserved = 0;
       m_numAllocated   = 0;
-
     }
   }
 
