@@ -12,7 +12,10 @@ require_relative "./Rakefile_common.rb"
 task :default => [:build]
 
 TESTS = [
-  "test_trace", "test_Malloc"
+  "test_Malloc",
+  "test_rang",
+  "test_Thread",
+  "test_trace"
 ]
 
 desc "run tests on linux/osx"

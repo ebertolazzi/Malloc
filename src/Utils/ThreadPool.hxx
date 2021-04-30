@@ -40,6 +40,13 @@
   #include <pthread.h>
 #endif
 
+#ifdef max
+  #undef max
+#endif
+#ifdef min
+  #undef min
+#endif
+
 namespace Utils {
 
   /*\
