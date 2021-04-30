@@ -94,7 +94,7 @@ namespace rang {
       using std::cerr;
       using std::clog;
       using std::cout;
-      #if defined(UNIX_OS_LINUX) || defined(UNIX_OS_OSX)
+      #if defined(UTILS_OS_LINUX) || defined(UTILS_OS_OSX)
       if ( osbuf == cout.rdbuf() ) {
         static const bool cout_term = isatty(fileno(stdout)) != 0;
         return cout_term;
