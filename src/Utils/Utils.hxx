@@ -26,9 +26,6 @@
 #ifndef UTILS_dot_HXX
 #define UTILS_dot_HXX
 
-// must be the first header included
-#include "rang.hpp"
-
 // select computer architecture
 #if defined(__APPLE__) && defined(__MACH__)
   // osx architecture
@@ -104,6 +101,12 @@
 #include <stdexcept>
 #include <mutex>
 #include <atomic>
+
+// workaround
+#ifndef _WIN32_WINNT
+  #define _WIN32_WINNT _WIN32_WINNT_VISTA
+#endif
+#include "rang.hpp"
 
 #include "Trace.hxx"
 #include "Console.hxx"
