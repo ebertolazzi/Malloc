@@ -155,8 +155,8 @@ namespace rang {
     }
     #endif
 
-    bool isTerminal( std::streambuf const * osbuf ) noexcept;
-    bool supportsAnsi( std::streambuf const * osbuf ) noexcept;
+    bool isTerminal( std::streambuf const * ) noexcept;
+    bool supportsAnsi( std::streambuf const * ) noexcept;
     bool supportsColor() noexcept;
 
   }  // namespace rang_implementation
