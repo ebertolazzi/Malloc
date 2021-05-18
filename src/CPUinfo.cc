@@ -112,7 +112,7 @@ namespace Utils {
   using std::string;
   using std::map;
 
-  #if defined(MECHATRONIX_OS_WINDOWS)
+  #if defined(UTILS_OS_WINDOWS)
     #include <intrin.h>
     void
     cpuId( unsigned long CPUInfo[4], unsigned long l ) {

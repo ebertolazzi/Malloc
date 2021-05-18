@@ -17,8 +17,8 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#ifndef MECHATRONIX_CORE_CPU_INFO_HH
-#define MECHATRONIX_CORE_CPU_INFO_HH
+#ifndef UTILS_CPU_INFO_HH
+#define UTILS_CPU_INFO_HH
 
 #include <string>
 
