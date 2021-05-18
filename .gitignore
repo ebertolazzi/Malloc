@@ -11,3 +11,6 @@ lib/include
 /vs_*
 /lib
 bin
+docs_build/sphinx/_build
+docs_build/sphinx/_doxygen
+docs_build/sphinx/api-cpp

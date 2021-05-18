@@ -101,10 +101,10 @@ namespace Utils {
 
   void
   printTrace(
-    int                 line,
-    char        const   file[],
-    std::string const & msg,
-    ostream_type      & stream
+    int                  line,
+    char const * const   file,
+    std::string  const & msg,
+    ostream_type       & stream
   );
 
   class Runtime_TraceError : public std::runtime_error {
@@ -112,13 +112,13 @@ namespace Utils {
     std::string
     grab_backtrace(
       std::string const & reason,
-      char        const   file[],
+      char const * const  file,
       int                 line
     ) const;
 
   public:
     explicit
-    Runtime_TraceError( std::string const & reason, char const file[], int line )
+    Runtime_TraceError( std::string const & reason, char const * const file, int line )
     : std::runtime_error( grab_backtrace( reason, file, line ) )
     { }
 
@@ -128,12 +128,12 @@ namespace Utils {
   class Runtime_Error : public std::runtime_error {
   public:
     explicit
-    Runtime_Error( std::string const & reason, char const file[], int line )
+    Runtime_Error( std::string const & reason, char const * const file, int line )
     : std::runtime_error( fmt::format( "\n{}\nOn File:{}:{}\n", reason, file, line ) )
     { }
 
     explicit
-    Runtime_Error( char const reason[], char const file[], int line )
+    Runtime_Error( char const * const reason, char const * const file, int line )
     : std::runtime_error( fmt::format( "\n{}\nOn File:{}:{}\n", reason, file, line ) )
     { }
 

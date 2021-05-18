@@ -31,12 +31,13 @@ namespace Utils {
   typedef std::basic_ostream<char> ostream_type;
   typedef std::basic_istream<char> istream_type;
 
-  std::string basename( char const filename[] );
+  std::string basename( char const * const filename );
 
   class Console {
 
     mutable std::mutex m_message_mutex; // mutex for critical section
 
+  #ifndef DOXYGEN_SHOULD_SKIP_THIS
   public:
     class Console_style {
     public:
@@ -44,6 +45,7 @@ namespace Utils {
       rang::fg    f;
       rang::bg    b;
     };
+  #endif
 
   private:
 

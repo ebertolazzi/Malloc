@@ -17,6 +17,8 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include "Utils.hh"
 
 namespace Utils {
@@ -31,7 +33,7 @@ namespace Utils {
 
   #ifdef UTILS_OS_WINDOWS
     std::string
-    basename( char const path[] ) {
+    basename( char const * const path ) {
       static char drive[100];
       static char dir[1024];
       static char fname[256];
@@ -48,7 +50,7 @@ namespace Utils {
     }
   #else
     std::string
-    basename( char const path[] ) {
+    basename( char const * const path ) {
 
       if ( path[0] == '\0' ) return std::string("");
 
@@ -82,12 +84,12 @@ namespace Utils {
   template <typename T_int, typename T_real>
   void
   searchInterval(
-    T_int        npts,
-    T_real const X[],
-    T_real     & x,
-    T_int      & lastInterval,
-    bool         closed,
-    bool         can_extend
+    T_int                npts,
+    T_real const * const X,
+    T_real             & x,
+    T_int              & lastInterval,
+    bool                 closed,
+    bool                 can_extend
   ) {
 
     // check points
@@ -153,44 +155,44 @@ namespace Utils {
 
   }
 
-
   extern template void searchInterval(
-    int32_t     npts,
-    float const X[],
-    float     & x,
-    int32_t   & lastInterval,
-    bool        closed,
-    bool        can_extend
+    int32_t             npts,
+    float const * const X,
+    float             & x,
+    int32_t           & lastInterval,
+    bool                closed,
+    bool                can_extend
   );
 
   template void searchInterval(
-    int32_t      npts,
-    double const X[],
-    double     & x,
-    int32_t    & lastInterval,
-    bool         closed,
-    bool         can_extend
+    int32_t              npts,
+    double const * const X,
+    double             & x,
+    int32_t            & lastInterval,
+    bool                 closed,
+    bool                 can_extend
   );
 
   template void searchInterval(
-    int64_t     npts,
-    float const X[],
-    float     & x,
-    int64_t   & lastInterval,
-    bool        closed,
-    bool        can_extend
+    int64_t             npts,
+    float const * const X,
+    float             & x,
+    int64_t           & lastInterval,
+    bool                closed,
+    bool                can_extend
   );
 
   template void searchInterval(
-    int64_t      npts,
-    double const X[],
-    double     & x,
-    int64_t    & lastInterval,
-    bool         closed,
-    bool         can_extend
+    int64_t              npts,
+    double const * const X,
+    double             & x,
+    int64_t            & lastInterval,
+    bool                 closed,
+    bool                 can_extend
   );
-
 }
+
+#endif
 
 ///
 /// eof: Utils.cc

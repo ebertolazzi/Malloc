@@ -1,0 +1,253 @@
+
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Class ThreadPool &#8212; Utils v</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/table_styling.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/collapsible-lists/css/tree_view.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noticia+Text:400,i,b,bi|Open+Sans:400,i,b,bi|Roboto+Mono:400,i,b,bi&amp;display=swap" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+    <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+
+    
+    
+     
+        <script src="../_static/jquery.cookie.js"></script>
+    
+
+    
+     
+        <script src="../_static/cloud.base.js"></script>
+    
+
+    
+     
+        <script src="../_static/cloud.js"></script>
+    
+
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Class TicToc" href="class_a00114.html" />
+    <link rel="prev" title="Class SpinLock_barrier" href="class_a00094.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head><body>
+    <div class="relbar-top">
+        
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../index.html" title="Table Of Contents"
+             accesskey="C">toc</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="class_a00114.html" title="Class TicToc"
+             accesskey="N">next</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="class_a00094.html" title="Class SpinLock_barrier"
+             accesskey="P">previous</a> &nbsp; &nbsp;</li>
+    <li><a href="../index.html">Utils</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="root.html" accesskey="U">C++ API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Class ThreadPool</a></li> 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="class-threadpool">
+<span id="exhale-class-a00110"></span><h1>Class ThreadPool<a class="headerlink" href="#class-threadpool" title="Permalink to this headline">¶</a>
+</h1>
+<ul class="simple">
+<li><p>Defined in <a class="reference internal" href="file_Utils_ThreadPool.hxx.html#file-utils-threadpool-hxx"><span class="std std-ref">File ThreadPool.hxx</span></a></p></li>
+</ul>
+<div class="section" id="class-documentation">
+<h2>Class Documentation<a class="headerlink" href="#class-documentation" title="Permalink to this headline">¶</a>
+</h2>
+<dl class="cpp class">
+<dt id="_CPPv4N5Utils10ThreadPoolE">
+<span id="_CPPv3N5Utils10ThreadPoolE"></span><span id="_CPPv2N5Utils10ThreadPoolE"></span><span id="Utils::ThreadPool"></span><span class="target" id="a00110"></span><em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">Utils</span><code class="sig-prename descclassname"><span class="pre">::</span></code></code><code class="sig-name descname"><span class="pre">ThreadPool</span></code><a class="headerlink" href="#_CPPv4N5Utils10ThreadPoolE" title="Permalink to this definition">¶</a><br>
+</dt>
+<dd>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt id="_CPPv4N5Utils10ThreadPool10ThreadPoolEj">
+<span id="_CPPv3N5Utils10ThreadPool10ThreadPoolEj"></span><span id="_CPPv2N5Utils10ThreadPool10ThreadPoolEj"></span><span id="Utils::ThreadPool::ThreadPool__unsigned"></span><span class="target" id="a00110_1a0cba1a9480ac68fea078324758ade6ad"></span><em class="property"><span class="pre">inline</span></em> <code class="sig-name descname"><span class="pre">ThreadPool</span></code><span class="sig-paren">(</span><span class="pre">unsigned</span> <em><span class="pre">nthread</span></em> <span class="pre">=</span> <span class="pre">std</span><span class="pre">::</span><span class="pre">max</span><span class="pre">(</span><span class="pre">unsigned</span><span class="pre">(</span><span class="pre">1</span><span class="pre">)</span><span class="pre">,</span> <span class="pre">unsigned</span><span class="pre">(</span><span class="pre">std</span><span class="pre">::</span><span class="pre">thread</span><span class="pre">::</span><span class="pre">hardware_concurrency</span><span class="pre">(</span><span class="pre">)</span> <span class="pre">-</span> <span class="pre">1</span><span class="pre">)</span><span class="pre">)</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Utils10ThreadPool10ThreadPoolEj" title="Permalink to this definition">¶</a><br>
+</dt>
+<dd></dd>
+</dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4I0DpEN5Utils10ThreadPool3runEvjRR4FuncDpRR4Args">
+<span id="_CPPv3I0DpEN5Utils10ThreadPool3runEjRR4FuncDpRR4Args"></span><span id="_CPPv2I0DpEN5Utils10ThreadPool3runEjRR4FuncDpRR4Args"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Func</span></code><span class="pre">,</span> <span class="pre">typename</span> <span class="pre">...</span><code class="sig-name descname"><span class="pre">Args</span></code><span class="pre">&gt;</span><br><span class="target" id="a00110_1a62919cad630c39985ed59609c9c6e5cb"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><span class="pre">unsigned</span> <em><span class="pre">nt</span></em>, <a class="reference internal" href="#_CPPv4I0DpEN5Utils10ThreadPool3runEvjRR4FuncDpRR4Args" title="Utils::ThreadPool::run::Func"><span class="pre">Func</span></a> <span class="pre">&amp;</span><span class="pre">&amp;</span><em><span class="pre">func</span></em>, <a class="reference internal" href="#_CPPv4I0DpEN5Utils10ThreadPool3runEvjRR4FuncDpRR4Args" title="Utils::ThreadPool::run::Args"><span class="pre">Args</span></a><span class="pre">&amp;</span><span class="pre">&amp;</span><span class="pre">...</span> <em><span class="pre">args</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0DpEN5Utils10ThreadPool3runEvjRR4FuncDpRR4Args" title="Permalink to this definition">¶</a><br>
+</dt>
+<dd>
+<p>Submit a job to be run by the thread pool. </p>
+</dd>
+</dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N5Utils10ThreadPool8wait_allEv">
+<span id="_CPPv3N5Utils10ThreadPool8wait_allEv"></span><span id="_CPPv2N5Utils10ThreadPool8wait_allEv"></span><span id="Utils::ThreadPool::wait_all"></span><span class="target" id="a00110_1ad86a1e78dd89c432fd6089d0371732df"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">wait_all</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Utils10ThreadPool8wait_allEv" title="Permalink to this definition">¶</a><br>
+</dt>
+<dd></dd>
+</dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N5Utils10ThreadPool9start_allEv">
+<span id="_CPPv3N5Utils10ThreadPool9start_allEv"></span><span id="_CPPv2N5Utils10ThreadPool9start_allEv"></span><span id="Utils::ThreadPool::start_all"></span><span class="target" id="a00110_1a5a91a8b67e28e5266c5a1abf38251753"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">start_all</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Utils10ThreadPool9start_allEv" title="Permalink to this definition">¶</a><br>
+</dt>
+<dd></dd>
+</dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N5Utils10ThreadPool8stop_allEv">
+<span id="_CPPv3N5Utils10ThreadPool8stop_allEv"></span><span id="_CPPv2N5Utils10ThreadPool8stop_allEv"></span><span id="Utils::ThreadPool::stop_all"></span><span class="target" id="a00110_1ac3fabf0ea9dda89984280d980b411e96"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">stop_all</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Utils10ThreadPool8stop_allEv" title="Permalink to this definition">¶</a><br>
+</dt>
+<dd></dd>
+</dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK5Utils10ThreadPool4sizeEv">
+<span id="_CPPv3NK5Utils10ThreadPool4sizeEv"></span><span id="_CPPv2NK5Utils10ThreadPool4sizeEv"></span><span id="Utils::ThreadPool::sizeC"></span><span class="target" id="a00110_1a3ba6fd21f8161829935103a44873c591"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">unsigned</span> <code class="sig-name descname"><span class="pre">size</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK5Utils10ThreadPool4sizeEv" title="Permalink to this definition">¶</a><br>
+</dt>
+<dd></dd>
+</dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK5Utils10ThreadPool6get_idEj">
+<span id="_CPPv3NK5Utils10ThreadPool6get_idEj"></span><span id="_CPPv2NK5Utils10ThreadPool6get_idEj"></span><span id="Utils::ThreadPool::get_id__unsignedC"></span><span class="target" id="a00110_1a7f6553b1ccb083ed27b0b1de8545b493"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">thread</span><span class="pre">::</span><span class="pre">id</span> <code class="sig-name descname"><span class="pre">get_id</span></code><span class="sig-paren">(</span><span class="pre">unsigned</span> <em><span class="pre">i</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK5Utils10ThreadPool6get_idEj" title="Permalink to this definition">¶</a><br>
+</dt>
+<dd></dd>
+</dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK5Utils10ThreadPool10get_threadEj">
+<span id="_CPPv3NK5Utils10ThreadPool10get_threadEj"></span><span id="_CPPv2NK5Utils10ThreadPool10get_threadEj"></span><span id="Utils::ThreadPool::get_thread__unsignedC"></span><span class="target" id="a00110_1a8fb432eacaafe437bb607b131f489a13"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">thread</span> <em class="property"><span class="pre">const</span></em> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">get_thread</span></code><span class="sig-paren">(</span><span class="pre">unsigned</span> <em><span class="pre">i</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK5Utils10ThreadPool10get_threadEj" title="Permalink to this definition">¶</a><br>
+</dt>
+<dd></dd>
+</dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N5Utils10ThreadPool10get_threadEj">
+<span id="_CPPv3N5Utils10ThreadPool10get_threadEj"></span><span id="_CPPv2N5Utils10ThreadPool10get_threadEj"></span><span id="Utils::ThreadPool::get_thread__unsigned"></span><span class="target" id="a00110_1a470e9ae428fad2590e6281053fbc753c"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">thread</span> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">get_thread</span></code><span class="sig-paren">(</span><span class="pre">unsigned</span> <em><span class="pre">i</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Utils10ThreadPool10get_threadEj" title="Permalink to this definition">¶</a><br>
+</dt>
+<dd></dd>
+</dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N5Utils10ThreadPool6resizeEj">
+<span id="_CPPv3N5Utils10ThreadPool6resizeEj"></span><span id="_CPPv2N5Utils10ThreadPool6resizeEj"></span><span id="Utils::ThreadPool::resize__unsigned"></span><span class="target" id="a00110_1a53ad06911c20ebbecd636e4badf7a73d"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">resize</span></code><span class="sig-paren">(</span><span class="pre">unsigned</span> <em><span class="pre">numThreads</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Utils10ThreadPool6resizeEj" title="Permalink to this definition">¶</a><br>
+</dt>
+<dd></dd>
+</dl>
+
+</div>
+</dd>
+</dl>
+
+</div>
+</div>
+
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+        <p class="logo"><a href="../index.html" title="index">
+          <img class="logo" src="../_static/dc48Ky8di.png" alt="Logo"/>
+        </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+<div class="sphinx-toc sphinxglobaltoc">
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rang.html">rang - Colors for your Terminal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../zstream.html">Z-stream</a></li>
+<li class="toctree-l1"><a class="reference internal" href="root.html">C++ API</a></li>
+</ul>
+</div>
+        </div>
+      </div>
+    
+    
+        <div class="sidebar-toggle-group no-js">
+            
+            <button class="sidebar-toggle" id="sidebar-hide" title="Hide the sidebar menu">
+                 «
+                <span class="show-for-small">hide menu</span>
+                
+            </button>
+            <button class="sidebar-toggle" id="sidebar-show" title="Show the sidebar menu">
+                
+                <span class="show-for-small">menu</span>
+                <span class="hide-for-small">sidebar</span>
+                 »
+            </button>
+        </div>
+    
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../index.html" title="Table Of Contents"
+             >toc</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="class_a00114.html" title="Class TicToc"
+             >next</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="class_a00094.html" title="Class SpinLock_barrier"
+             >previous</a> &nbsp; &nbsp;</li>
+    <li><a href="../index.html">Utils</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="root.html" >C++ API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Class ThreadPool</a></li> 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Enrico Bertolazzi.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>

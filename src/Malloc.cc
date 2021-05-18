@@ -35,13 +35,22 @@
 #pragma clang diagnostic ignored "-Wglobal-constructors"
 #endif
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include "Utils.hh"
 
 #include <iostream>
 
 namespace Utils {
 
-  std::mutex MallocMutex;
+  using std::string;
+  using std::mutex;
+  using std::lock_guard;
+  using std::exception;
+  using std::exit;
+  using std::cerr;
+
+  mutex MallocMutex;
 
   int64_t CountAlloc            = 0;
   int64_t CountFreed            = 0;
@@ -68,7 +77,7 @@ namespace Utils {
   }
 
   template <typename T>
-  Malloc<T>::Malloc( std::string const & name )
+  Malloc<T>::Malloc( string const & name )
   : m_name(name)
   , m_numTotValues(0)
   , m_numTotReserved(0)
@@ -84,7 +93,7 @@ namespace Utils {
     try {
       size_t nb;
       {
-        std::lock_guard<std::mutex> lock(Utils::MallocMutex);
+        lock_guard<mutex> lock(Utils::MallocMutex);
         nb = m_numTotReserved*sizeof(T);
         ++CountFreed; AllocatedBytes -= nb;
       }
@@ -95,7 +104,7 @@ namespace Utils {
       m_pMalloc        = new T[m_numTotReserved];
 
       {
-        std::lock_guard<std::mutex> lock(Utils::MallocMutex);
+        lock_guard<mutex> lock(Utils::MallocMutex);
         ++CountAlloc;
         nb = m_numTotReserved*sizeof(T);
         AllocatedBytes += nb;
@@ -106,20 +115,20 @@ namespace Utils {
       if ( MallocDebug )
         fmt::print( "Allocating {} for {}\n", outBytes( nb ), m_name );
     }
-    catch ( std::exception const & exc ) {
-      std::string reason = fmt::format(
+    catch ( exception const & exc ) {
+      string reason = fmt::format(
         "Memory allocation failed: {}\nTry to allocate {} bytes for {}\n",
         exc.what(), n, m_name
       );
-      printTrace( __LINE__, __FILE__, reason, std::cerr );
-      std::exit(0);
+      printTrace( __LINE__, __FILE__, reason, cerr );
+      exit(0);
     }
     catch (...) {
-      std::string reason = fmt::format(
+      string reason = fmt::format(
         "Memory allocation failed for {}: memory exausted\n", m_name
       );
-      printTrace( __LINE__, __FILE__, reason, std::cerr );
-      std::exit(0);
+      printTrace( __LINE__, __FILE__, reason, cerr );
+      exit(0);
     }
     m_numTotValues = n;
     m_numAllocated = 0;
@@ -184,7 +193,7 @@ namespace Utils {
     if ( m_pMalloc != nullptr ) {
       size_t nb;
       {
-        std::lock_guard<std::mutex> lock(Utils::MallocMutex);
+        lock_guard<mutex> lock(Utils::MallocMutex);
         nb = m_numTotReserved*sizeof(T);
         ++CountFreed; AllocatedBytes -= nb;
       }
@@ -204,31 +213,31 @@ namespace Utils {
   template <typename T>
   void
   Malloc<T>::memory_exausted( size_t sz ) {
-    std::string reason = fmt::format(
+    string reason = fmt::format(
       "nMalloc<{}>::operator () ({}) -- Memory EXAUSTED\n", m_name, sz
     );
-    printTrace( __LINE__, __FILE__, reason, std::cerr );
-    std::exit(0);
+    printTrace( __LINE__, __FILE__, reason, cerr );
+    exit(0);
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
-  Malloc<T>::must_be_empty( char const where[] ) const {
+  Malloc<T>::must_be_empty( char const * const where ) const {
     if ( m_numAllocated < m_numTotValues ) {
-      std::string tmp = fmt::format(
+      string tmp = fmt::format(
         "in {} {}: not fully used!\nUnused: {} values\n",
         m_name, where, m_numTotValues - m_numAllocated
       );
-      printTrace( __LINE__,__FILE__, tmp, std::cerr );
+      printTrace( __LINE__,__FILE__, tmp, cerr );
     }
     if ( m_numAllocated > m_numTotValues ) {
-      std::string tmp = fmt::format(
+      string tmp = fmt::format(
         "in {} {}: too much used!\nMore used: {} values\n",
         m_name, where, m_numAllocated - m_numTotValues
       );
-      printTrace( __LINE__,__FILE__, tmp, std::cerr );
+      printTrace( __LINE__,__FILE__, tmp, cerr );
     }
   }
 
@@ -254,6 +263,8 @@ namespace Utils {
   template class Malloc<double*>;
 
 } // end namespace lapack_wrapper
+
+#endif
 
 ///
 /// eof: Malloc.cc

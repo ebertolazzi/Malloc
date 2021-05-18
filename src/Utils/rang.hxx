@@ -92,6 +92,8 @@ namespace rang {
   // Use rang::setWinTermMode to explicitly set terminal API for Windows
   // Calling rang::setWinTermMode have no effect on other OS
 
+  #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
   namespace rang_implementation {
 
     inline
@@ -190,5 +192,6 @@ namespace rang {
   setControlMode( control const value ) noexcept {
     rang_implementation::controlMode() = value;
   }
+  #endif
 
 }  // namespace rang

@@ -17,6 +17,8 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include "Utils.hh"
 
 #ifdef UTILS_OS_WINDOWS
@@ -56,7 +58,7 @@ namespace Utils {
   void
   printTrace(
     int                 line,
-    char        const   file[],
+    char const * const  file,
     std::string const & msg,
     ostream_type      & stream
   ) {
@@ -83,7 +85,7 @@ namespace Utils {
   std::string
   Runtime_TraceError::grab_backtrace(
     std::string const & reason,
-    char const          file[],
+    char const * const  file,
     int                 line
   ) const {
     return fmt::format( "\n{}\nOn File:{}:{}\n", reason, file, line );
@@ -94,7 +96,7 @@ namespace Utils {
   static
   inline
   std::string
-  demang( char const mangled_name[] ) {
+  demang( char const * const mangled_name ) {
     if ( mangled_name == nullptr ) return std::string("");
     int status = 0 ;
     std::string retval = mangled_name;
@@ -113,7 +115,7 @@ namespace Utils {
   void
   printTrace(
     int                 line,
-    char        const   file[],
+    char const * const  file,
     std::string const & reason,
     ostream_type      & stream
   ) {
@@ -166,7 +168,7 @@ namespace Utils {
   std::string
   Runtime_TraceError::grab_backtrace(
     std::string const & reason,
-    char const          file[],
+    char const * const  file,
     int                 line
   ) const {
     std::ostringstream ost;
@@ -176,6 +178,8 @@ namespace Utils {
   #endif
 
 }
+
+#endif
 
 ///
 /// eof: Trace.cc

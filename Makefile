@@ -50,6 +50,7 @@ tests: all_libs $(OBJS_TESTS)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_trace src_tests/test_trace.cc $(ALL_LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_Malloc src_tests/test_Malloc.cc $(ALL_LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_Thread src_tests/test_Thread.cc $(ALL_LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_Quaternion src_tests/test_Quaternion.cc $(ALL_LIBS) $(LIBSGCC)
 
 .cc.o:
 	$(CXX) $(INC) $(CXXFLAGS) $(DEFS) -c $< -o $@
@@ -76,6 +77,7 @@ run: tests
 	./bin/test_trace
 	./bin/test_Malloc
 	./bin/test_Thread
+	./bin/test_Quaternion
 
 doc:
 	doxygen
@@ -91,6 +93,7 @@ depend:
 	makedepend -- $(INC) $(CXXFLAGS) $(DEFS) -- $(SRCS)
 # DO NOT DELETE
 
+src/CPUinfo.o: src/CPUinfo.hh
 src/Console.o: src/Utils.hh src/Utils/Utils.hxx src/Utils/fmt/printf.h
 src/Console.o: src/Utils/fmt/ostream.h src/Utils/fmt/format.h
 src/Console.o: src/Utils/fmt/core.h src/Utils/fmt/chrono.h
@@ -130,6 +133,19 @@ src/Numbers.o: src/Utils/zstream/ozstream.hpp src/Utils/rang.hxx
 src/Numbers.o: src/Utils/Trace.hxx src/Utils/Console.hxx src/Utils/Malloc.hxx
 src/Numbers.o: src/Utils/Numbers.hxx src/Utils/TicToc.hxx
 src/Numbers.o: src/Utils/ThreadPool.hxx
+src/TicToc.o: src/Utils.hh src/Utils/Utils.hxx src/Utils/fmt/printf.h
+src/TicToc.o: src/Utils/fmt/ostream.h src/Utils/fmt/format.h
+src/TicToc.o: src/Utils/fmt/core.h src/Utils/fmt/chrono.h
+src/TicToc.o: src/Utils/fmt/locale.h src/Utils/fmt/ostream.h
+src/TicToc.o: src/Utils/zstream/izstream.hpp
+src/TicToc.o: src/Utils/zstream/zstream_common.hpp
+src/TicToc.o: src/Utils/zstream/izstream_impl.hpp
+src/TicToc.o: src/Utils/zstream/izstream.hpp src/Utils/zstream/ozstream.hpp
+src/TicToc.o: src/Utils/zstream/ozstream_impl.hpp
+src/TicToc.o: src/Utils/zstream/ozstream.hpp src/Utils/rang.hxx
+src/TicToc.o: src/Utils/Trace.hxx src/Utils/Console.hxx src/Utils/Malloc.hxx
+src/TicToc.o: src/Utils/Numbers.hxx src/Utils/TicToc.hxx
+src/TicToc.o: src/Utils/ThreadPool.hxx
 src/Trace.o: src/Utils.hh src/Utils/Utils.hxx src/Utils/fmt/printf.h
 src/Trace.o: src/Utils/fmt/ostream.h src/Utils/fmt/format.h
 src/Trace.o: src/Utils/fmt/core.h src/Utils/fmt/chrono.h

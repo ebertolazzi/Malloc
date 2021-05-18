@@ -38,14 +38,22 @@ namespace Utils {
 
   /// Not a number constant
   template <typename T> T NaN();
+  template <typename T> T Inf();
+  /// machine epsilon
+  template <typename T> T machineEps();
+  /// square root of machine epsilon
+  template <typename T> T sqrtMachineEps();
+  /// maximum representable value
+  template <typename T> T maximumValue();
+  /// minimum representable value
+  template <typename T> T minimumValue();
 
+  #ifndef DOXYGEN_SHOULD_SKIP_THIS
   template <> inline float
   NaN() { return std::numeric_limits<float>::quiet_NaN(); }
 
   template <> inline double
   NaN() { return std::numeric_limits<double>::quiet_NaN(); }
-
-  template <typename T> T Inf();
 
   template <> inline float
   Inf() { return std::numeric_limits<float>::infinity(); }
@@ -53,17 +61,11 @@ namespace Utils {
   template <> inline double
   Inf() { return std::numeric_limits<double>::infinity(); }
 
-  /// machine epsilon
-  template <typename T> T machineEps();
-
   template <> inline float
   machineEps() { return std::numeric_limits<float>::epsilon(); }
 
   template <> inline double
   machineEps() { return std::numeric_limits<double>::epsilon(); }
-
-  /// square root of machine epsilon
-  template <typename T> T sqrtMachineEps();
 
   template <> inline float
   sqrtMachineEps() { return std::sqrt(std::numeric_limits<float>::epsilon()); }
@@ -71,23 +73,18 @@ namespace Utils {
   template <> inline double
   sqrtMachineEps() { return std::sqrt(std::numeric_limits<double>::epsilon()); }
 
-  /// maximum representable value
-  template <typename T> T maximumValue();
-
   template <> inline float
   maximumValue() { return std::sqrt(std::numeric_limits<float>::max()); }
 
   template <> inline double
   maximumValue() { return std::sqrt(std::numeric_limits<double>::max()); }
 
-  /// minimum representable value
-  template <typename T> T minimumValue();
-
   template <> inline float
   minimumValue() { return std::sqrt(std::numeric_limits<float>::min()); }
 
   template <> inline double
   minimumValue() { return std::sqrt(std::numeric_limits<double>::min()); }
+  #endif
 
   static
   inline
@@ -165,27 +162,27 @@ namespace Utils {
   //============================================================================
 
   bool
-  foundNaN( double const pv[], int DIM );
+  foundNaN( double const * const pv, int DIM );
 
   bool
-  foundNaN( float const pv[], int DIM );
+  foundNaN( float const * const pv, int DIM );
 
   void
   checkNaN(
-    double const pv[],
-    char   const v_name[],
-    int          DIM,
-    int          line,
-    char   const file[]
+    double const * const pv,
+    char   const * const v_name,
+    int                  DIM,
+    int                  line,
+    char   const * const file
   );
 
   void
   checkNaN(
-    float const pv[],
-    char  const v_name[],
-    int         DIM,
-    int         line,
-    char  const file[]
+    float const * const pv,
+    char  const * const v_name,
+    int                 DIM,
+    int                 line,
+    char  const * const file
   );
 
   //============================================================================
