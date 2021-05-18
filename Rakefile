@@ -15,7 +15,8 @@ TESTS = [
   "test_Malloc",
   "test_rang",
   "test_Thread",
-  "test_trace"
+  "test_trace",
+  "test_Quaternion"
 ]
 
 desc "run tests on linux/osx"

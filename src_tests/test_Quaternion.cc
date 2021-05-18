@@ -42,6 +42,14 @@ main() {
   Q3 = Q2*Q2;
   std::cout << "Q3 = Q2*Q2 = " << Q3 << '\n';
 
+  Q3 = Q1;
+  Q3.conj();
+  std::cout << "Q1.conj() = " << Q3 << '\n';
+
+  Q3 = Q1;
+  Q3.invert();
+  std::cout << "Q1.invert() = " << Q3 << '\n';
+
   std::cout << "All done folks\n\n";
   return 0;
 }
