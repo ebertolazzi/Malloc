@@ -14,6 +14,10 @@
 
 namespace rang {
 
+  #ifndef DOXYGEN_SHOULD_SKIP_THIS
+  using std::ostream;
+  #endif
+
   /* For better compability with most of terminals do not use any style settings
    * except of reset, bold and reversed.
    * Note that on Windows terminals bold style is same as fgB color.
@@ -96,45 +100,56 @@ namespace rang {
 
   namespace rang_implementation {
 
+    #ifndef DOXYGEN_SHOULD_SKIP_THIS
+    using std::atomic;
+    using std::enable_if;
+    using std::is_same;
+    using std::ostream;
+    using std::streambuf;
+    #endif
+
     inline
-    std::atomic<control> &
+    atomic<control> &
     controlMode() noexcept {
-      static std::atomic<control> value(control::Auto);
+      static atomic<control> value(control::Auto);
       return value;
     }
 
     inline
-    std::atomic<winTerm> &
+    atomic<winTerm> &
     winTermMode() noexcept {
-      static std::atomic<winTerm> termMode(winTerm::Auto);
+      static atomic<winTerm> termMode(winTerm::Auto);
       return termMode;
     }
 
     template <typename T>
-    using enableStd = typename std::enable_if<
-      std::is_same<T, rang::style>::value || std::is_same<T, rang::fg>::value
-        || std::is_same<T, rang::bg>::value || std::is_same<T, rang::fgB>::value
-        || std::is_same<T, rang::bgB>::value,
-      std::ostream &>::type;
+    using enableStd = typename enable_if<
+      is_same<T, rang::style>::value ||
+      is_same<T, rang::fg>::value    ||
+      is_same<T, rang::bg>::value    ||
+      is_same<T, rang::fgB>::value   ||
+      is_same<T, rang::bgB>::value,
+      ostream &
+    >::type;
 
     #ifdef UTILS_OS_WINDOWS
   	template <typename T>
     inline
     void
-    setWinColorAnsi( std::ostream &os, T const value )	{
+    setWinColorAnsi( ostream &os, T const value )	{
       os << "\033[" << static_cast<int>(value) << "m";
     }
 
-  	void setWinColorNative( std::ostream &os, enum rang::style value );
-  	void setWinColorNative( std::ostream &os, enum rang::bg    value );
-  	void setWinColorNative( std::ostream &os, enum rang::fg    value );
-  	void setWinColorNative( std::ostream &os, enum rang::bgB   value );
-  	void setWinColorNative( std::ostream &os, enum rang::fgB   value );
+  	void setWinColorNative( ostream &os, enum rang::style value );
+  	void setWinColorNative( ostream &os, enum rang::bg    value );
+  	void setWinColorNative( ostream &os, enum rang::fg    value );
+  	void setWinColorNative( ostream &os, enum rang::bgB   value );
+  	void setWinColorNative( ostream &os, enum rang::fgB   value );
 
   	template <typename T>
     inline
     enableStd<T>
-    setColor(std::ostream &os, T const value) {
+    setColor( ostream &os, T const value ) {
       if (winTermMode() == winTerm::Auto) {
         if (supportsAnsi(os.rdbuf())) {
           setWinColorAnsi(os, value);
@@ -152,13 +167,13 @@ namespace rang {
     template <typename T>
     inline
     enableStd<T>
-    setColor(std::ostream &os, T const value) {
+    setColor( ostream &os, T const value ) {
       return os << "\033[" << static_cast<int>(value) << "m";
     }
     #endif
 
-    bool isTerminal( std::streambuf const * ) noexcept;
-    bool supportsAnsi( std::streambuf const * ) noexcept;
+    bool isTerminal( streambuf const * ) noexcept;
+    bool supportsAnsi( streambuf const * ) noexcept;
     bool supportsColor() noexcept;
 
   }  // namespace rang_implementation
@@ -166,7 +181,7 @@ namespace rang {
   template <typename T>
   inline
   rang_implementation::enableStd<T>
-  operator << ( std::ostream &os, T const value ) {
+  operator << ( ostream &os, T const value ) {
     control const option = rang_implementation::controlMode();
     switch (option) {
       case control::Auto:

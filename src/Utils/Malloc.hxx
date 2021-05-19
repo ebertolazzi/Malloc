@@ -36,16 +36,20 @@
 
 namespace Utils {
 
+  #ifndef DOXYGEN_SHOULD_SKIP_THIS
   using std::int64_t;
   using std::string;
+  using std::mutex;
+  #endif
 
-  extern std::mutex MallocMutex;
 
-  extern int64_t    CountAlloc;
-  extern int64_t    CountFreed;
-  extern int64_t    AllocatedBytes;
-  extern int64_t    MaximumAllocatedBytes;
-  extern bool       MallocDebug;
+  extern mutex MallocMutex;
+
+  extern int64_t CountAlloc;
+  extern int64_t CountFreed;
+  extern int64_t AllocatedBytes;
+  extern int64_t MaximumAllocatedBytes;
+  extern bool    MallocDebug;
 
   string outBytes( size_t nb );
 
@@ -67,7 +71,7 @@ namespace Utils {
 
   private:
 
-    std::string m_name;
+    string      m_name;
     size_t      m_numTotValues;
     size_t      m_numTotReserved;
     size_t      m_numAllocated;
@@ -85,7 +89,7 @@ namespace Utils {
     //! Malloc object constructor
     //!
     explicit
-    Malloc( std::string const & name );
+    Malloc( string const & name );
 
     //!
     //! Malloc object destructor.

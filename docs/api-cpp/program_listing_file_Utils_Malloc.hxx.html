@@ -105,16 +105,20 @@
 
 <span class="k">namespace</span> <span class="n">Utils</span> <span class="p">{</span>
 
+  <span class="cp">#ifndef DOXYGEN_SHOULD_SKIP_THIS</span>
   <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="p">;</span>
   <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">;</span>
+  <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="p">;</span>
+  <span class="cp">#endif</span>
 
-  <span class="k">extern</span> <span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">MallocMutex</span><span class="p">;</span>
 
-  <span class="k">extern</span> <span class="kt">int64_t</span>    <span class="n">CountAlloc</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="kt">int64_t</span>    <span class="n">CountFreed</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="kt">int64_t</span>    <span class="n">AllocatedBytes</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="kt">int64_t</span>    <span class="n">MaximumAllocatedBytes</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="kt">bool</span>       <span class="n">MallocDebug</span><span class="p">;</span>
+  <span class="k">extern</span> <span class="n">mutex</span> <span class="n">MallocMutex</span><span class="p">;</span>
+
+  <span class="k">extern</span> <span class="kt">int64_t</span> <span class="n">CountAlloc</span><span class="p">;</span>
+  <span class="k">extern</span> <span class="kt">int64_t</span> <span class="n">CountFreed</span><span class="p">;</span>
+  <span class="k">extern</span> <span class="kt">int64_t</span> <span class="n">AllocatedBytes</span><span class="p">;</span>
+  <span class="k">extern</span> <span class="kt">int64_t</span> <span class="n">MaximumAllocatedBytes</span><span class="p">;</span>
+  <span class="k">extern</span> <span class="kt">bool</span>    <span class="n">MallocDebug</span><span class="p">;</span>
 
   <span class="n">string</span> <span class="nf">outBytes</span><span class="p">(</span> <span class="kt">size_t</span> <span class="n">nb</span> <span class="p">);</span>
 
@@ -133,7 +137,7 @@
 
   <span class="k">private</span><span class="o">:</span>
 
-    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">m_name</span><span class="p">;</span>
+    <span class="n">string</span>      <span class="n">m_name</span><span class="p">;</span>
     <span class="kt">size_t</span>      <span class="n">m_numTotValues</span><span class="p">;</span>
     <span class="kt">size_t</span>      <span class="n">m_numTotReserved</span><span class="p">;</span>
     <span class="kt">size_t</span>      <span class="n">m_numAllocated</span><span class="p">;</span>
@@ -148,7 +152,7 @@
   <span class="k">public</span><span class="o">:</span>
 
     <span class="k">explicit</span>
-    <span class="n">Malloc</span><span class="p">(</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="k">const</span> <span class="o">&amp;</span> <span class="n">name</span> <span class="p">);</span>
+    <span class="n">Malloc</span><span class="p">(</span> <span class="n">string</span> <span class="k">const</span> <span class="o">&amp;</span> <span class="n">name</span> <span class="p">);</span>
 
     <span class="o">~</span><span class="n">Malloc</span><span class="p">()</span> <span class="p">{</span> <span class="n">hard_free</span><span class="p">();</span> <span class="p">}</span>
 

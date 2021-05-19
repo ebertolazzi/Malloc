@@ -115,14 +115,20 @@
 
 <span class="k">namespace</span> <span class="n">Utils</span> <span class="p">{</span>
 
+  <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">;</span>
+  <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">ostringstream</span><span class="p">;</span>
+  <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">;</span>
+  <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">hex</span><span class="p">;</span>
+  <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">dec</span><span class="p">;</span>
+
   <span class="k">const</span> <span class="kt">char</span><span class="o">*</span>
   <span class="n">Runtime_Error</span><span class="o">::</span><span class="n">what</span><span class="p">()</span> <span class="k">const</span> <span class="k">noexcept</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="o">::</span><span class="n">what</span><span class="p">();</span>
+    <span class="k">return</span> <span class="n">runtime_error</span><span class="o">::</span><span class="n">what</span><span class="p">();</span>
   <span class="p">}</span>
 
   <span class="k">const</span> <span class="kt">char</span><span class="o">*</span>
   <span class="n">Runtime_TraceError</span><span class="o">::</span><span class="n">what</span><span class="p">()</span> <span class="k">const</span> <span class="k">noexcept</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="o">::</span><span class="n">what</span><span class="p">();</span>
+    <span class="k">return</span> <span class="n">runtime_error</span><span class="o">::</span><span class="n">what</span><span class="p">();</span>
   <span class="p">}</span>
 
   <span class="cp">#ifdef UTILS_OS_WINDOWS</span>
@@ -131,7 +137,7 @@
   <span class="n">printTrace</span><span class="p">(</span>
     <span class="kt">int</span>                 <span class="n">line</span><span class="p">,</span>
     <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span> <span class="k">const</span>  <span class="n">file</span><span class="p">,</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="k">const</span> <span class="o">&amp;</span> <span class="n">msg</span><span class="p">,</span>
+    <span class="n">string</span> <span class="k">const</span>      <span class="o">&amp;</span> <span class="n">msg</span><span class="p">,</span>
     <span class="n">ostream_type</span>      <span class="o">&amp;</span> <span class="n">stream</span>
   <span class="p">)</span> <span class="p">{</span>
     <span class="n">fmt</span><span class="o">::</span><span class="n">print</span><span class="p">(</span> <span class="n">stream</span><span class="p">,</span>
@@ -154,11 +160,11 @@
     <span class="cp">#endif</span>
   <span class="p">}</span>
 
-  <span class="n">std</span><span class="o">::</span><span class="n">string</span>
+  <span class="n">string</span>
   <span class="n">Runtime_TraceError</span><span class="o">::</span><span class="n">grab_backtrace</span><span class="p">(</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="k">const</span> <span class="o">&amp;</span> <span class="n">reason</span><span class="p">,</span>
-    <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span> <span class="k">const</span>  <span class="n">file</span><span class="p">,</span>
-    <span class="kt">int</span>                 <span class="n">line</span>
+    <span class="n">string</span> <span class="k">const</span> <span class="o">&amp;</span>     <span class="n">reason</span><span class="p">,</span>
+    <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span> <span class="k">const</span> <span class="n">file</span><span class="p">,</span>
+    <span class="kt">int</span>                <span class="n">line</span>
   <span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
     <span class="k">return</span> <span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span> <span class="s">"</span><span class="se">\n</span><span class="s">{}</span><span class="se">\n</span><span class="s">On File:{}:{}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">reason</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">line</span> <span class="p">);</span>
   <span class="p">}</span>
@@ -167,11 +173,11 @@
 
   <span class="k">static</span>
   <span class="kr">inline</span>
-  <span class="n">std</span><span class="o">::</span><span class="n">string</span>
+  <span class="n">string</span>
   <span class="n">demang</span><span class="p">(</span> <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span> <span class="k">const</span> <span class="n">mangled_name</span> <span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span> <span class="n">mangled_name</span> <span class="o">==</span> <span class="k">nullptr</span> <span class="p">)</span> <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">""</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span> <span class="n">mangled_name</span> <span class="o">==</span> <span class="k">nullptr</span> <span class="p">)</span> <span class="k">return</span> <span class="n">string</span><span class="p">(</span><span class="s">""</span><span class="p">);</span>
     <span class="kt">int</span> <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">;</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">retval</span> <span class="o">=</span> <span class="n">mangled_name</span><span class="p">;</span>
+    <span class="n">string</span> <span class="n">retval</span> <span class="o">=</span> <span class="n">mangled_name</span><span class="p">;</span>
     <span class="kt">char</span> <span class="o">*</span> <span class="n">name</span> <span class="o">=</span> <span class="n">abi</span><span class="o">::</span><span class="n">__cxa_demangle</span><span class="p">(</span> <span class="n">mangled_name</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">status</span> <span class="p">);</span>
     <span class="k">if</span> <span class="p">(</span> <span class="n">status</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">{</span>
       <span class="n">retval</span> <span class="o">=</span> <span class="n">name</span><span class="p">;</span>
@@ -179,16 +185,16 @@
       <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span> <span class="n">p</span> <span class="o">=</span> <span class="n">strchr</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="sc">'('</span><span class="p">);</span>
       <span class="k">if</span> <span class="p">(</span> <span class="n">p</span> <span class="o">!=</span> <span class="k">nullptr</span> <span class="p">)</span> <span class="n">retval</span> <span class="o">=</span> <span class="n">retval</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">p</span><span class="o">-</span><span class="n">name</span><span class="p">);</span>
     <span class="p">}</span>
-    <span class="k">if</span> <span class="p">(</span> <span class="n">name</span> <span class="o">!=</span> <span class="k">nullptr</span> <span class="p">)</span> <span class="n">std</span><span class="o">::</span><span class="n">free</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span> <span class="n">name</span> <span class="o">!=</span> <span class="k">nullptr</span> <span class="p">)</span> <span class="n">free</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="p">;</span>
     <span class="k">return</span> <span class="n">retval</span><span class="p">;</span>
   <span class="p">}</span>
 
   <span class="kt">void</span>
   <span class="n">printTrace</span><span class="p">(</span>
-    <span class="kt">int</span>                 <span class="n">line</span><span class="p">,</span>
-    <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span> <span class="k">const</span>  <span class="n">file</span><span class="p">,</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="k">const</span> <span class="o">&amp;</span> <span class="n">reason</span><span class="p">,</span>
-    <span class="n">ostream_type</span>      <span class="o">&amp;</span> <span class="n">stream</span>
+    <span class="kt">int</span>                <span class="n">line</span><span class="p">,</span>
+    <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span> <span class="k">const</span> <span class="n">file</span><span class="p">,</span>
+    <span class="n">string</span> <span class="k">const</span>     <span class="o">&amp;</span> <span class="n">reason</span><span class="p">,</span>
+    <span class="n">ostream_type</span>     <span class="o">&amp;</span> <span class="n">stream</span>
   <span class="p">)</span> <span class="p">{</span>
 
     <span class="n">fmt</span><span class="o">::</span><span class="n">print</span><span class="p">(</span>
@@ -209,10 +215,10 @@
       <span class="n">unw_word_t</span> <span class="n">offset</span><span class="p">,</span> <span class="n">pc</span><span class="p">;</span>
       <span class="n">unw_get_reg</span><span class="p">(</span><span class="o">&amp;</span><span class="n">cursor</span><span class="p">,</span> <span class="n">UNW_REG_IP</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pc</span><span class="p">);</span>
       <span class="k">if</span> <span class="p">(</span> <span class="n">pc</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">)</span> <span class="k">break</span><span class="p">;</span>
-      <span class="n">stream</span> <span class="o">&lt;&lt;</span> <span class="s">"0x"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">hex</span> <span class="o">&lt;&lt;</span> <span class="n">pc</span> <span class="o">&lt;&lt;</span> <span class="s">":"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">dec</span><span class="p">;</span>
+      <span class="n">stream</span> <span class="o">&lt;&lt;</span> <span class="s">"0x"</span> <span class="o">&lt;&lt;</span> <span class="n">hex</span> <span class="o">&lt;&lt;</span> <span class="n">pc</span> <span class="o">&lt;&lt;</span> <span class="s">":"</span> <span class="o">&lt;&lt;</span> <span class="n">dec</span><span class="p">;</span>
       <span class="kt">char</span> <span class="n">sym</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span>
       <span class="k">if</span> <span class="p">(</span> <span class="n">unw_get_proc_name</span><span class="p">(</span><span class="o">&amp;</span><span class="n">cursor</span><span class="p">,</span> <span class="n">sym</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">sym</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">offset</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">{</span>
-        <span class="n">stream</span> <span class="o">&lt;&lt;</span> <span class="s">" ("</span> <span class="o">&lt;&lt;</span> <span class="n">demang</span><span class="p">(</span> <span class="n">sym</span> <span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"+0x"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">hex</span> <span class="o">&lt;&lt;</span> <span class="n">offset</span> <span class="o">&lt;&lt;</span> <span class="s">")</span><span class="se">\n</span><span class="s">"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">dec</span><span class="p">;</span>
+        <span class="n">stream</span> <span class="o">&lt;&lt;</span> <span class="s">" ("</span> <span class="o">&lt;&lt;</span> <span class="n">demang</span><span class="p">(</span> <span class="n">sym</span> <span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"+0x"</span> <span class="o">&lt;&lt;</span> <span class="n">hex</span> <span class="o">&lt;&lt;</span> <span class="n">offset</span> <span class="o">&lt;&lt;</span> <span class="s">")</span><span class="se">\n</span><span class="s">"</span> <span class="o">&lt;&lt;</span> <span class="n">dec</span><span class="p">;</span>
       <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
         <span class="n">stream</span> <span class="o">&lt;&lt;</span> <span class="s">" -- error: unable to obtain symbol name for this frame</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
       <span class="p">}</span>
@@ -236,13 +242,13 @@
     <span class="cp">#endif</span>
   <span class="p">}</span>
 
-  <span class="n">std</span><span class="o">::</span><span class="n">string</span>
+  <span class="n">string</span>
   <span class="n">Runtime_TraceError</span><span class="o">::</span><span class="n">grab_backtrace</span><span class="p">(</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="k">const</span> <span class="o">&amp;</span> <span class="n">reason</span><span class="p">,</span>
-    <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span> <span class="k">const</span>  <span class="n">file</span><span class="p">,</span>
-    <span class="kt">int</span>                 <span class="n">line</span>
+    <span class="n">string</span> <span class="k">const</span> <span class="o">&amp;</span>     <span class="n">reason</span><span class="p">,</span>
+    <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span> <span class="k">const</span> <span class="n">file</span><span class="p">,</span>
+    <span class="kt">int</span>                <span class="n">line</span>
   <span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">ostringstream</span> <span class="n">ost</span><span class="p">;</span>
+    <span class="n">ostringstream</span> <span class="n">ost</span><span class="p">;</span>
     <span class="n">printTrace</span><span class="p">(</span> <span class="n">line</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">reason</span><span class="p">,</span> <span class="n">ost</span> <span class="p">);</span>
     <span class="k">return</span> <span class="n">ost</span><span class="p">.</span><span class="n">str</span><span class="p">();</span>
   <span class="p">}</span>

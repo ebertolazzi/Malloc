@@ -23,6 +23,9 @@
 
 namespace Utils {
 
+  using std::string;
+  using std::lower_bound;
+
   /*\
   :|:  _
   :|: | |__  __ _ ___ ___ _ _  __ _ _ __  ___
@@ -32,7 +35,7 @@ namespace Utils {
   \*/
 
   #ifdef UTILS_OS_WINDOWS
-    std::string
+    string
     basename( char const * const path ) {
       static char drive[100];
       static char dir[1024];
@@ -49,24 +52,24 @@ namespace Utils {
       return fname;
     }
   #else
-    std::string
+    string
     basename( char const * const path ) {
 
-      if ( path[0] == '\0' ) return std::string("");
+      if ( path[0] == '\0' ) return string("");
 
-      std::string filename(path);
+      string filename(path);
 
       size_t len   = filename.length();
       size_t index = filename.find_last_of("/\\");
 
-      if ( index == std::string::npos ) return filename;
+      if ( index == string::npos ) return filename;
       if ( index + 1 >= len ) {
         --len;
         index = filename.substr(0, len).find_last_of("/\\");
 
         if ( len   == 0 ) return filename;
         if ( index == 0 ) return filename.substr(1, len - 1);
-        if ( index == std::string::npos ) return filename.substr(0, len);
+        if ( index == string::npos ) return filename.substr(0, len);
         return filename.substr(index + 1, len - index - 1);
       }
       return filename.substr(index + 1, len - index);
@@ -128,7 +131,7 @@ namespace Utils {
         ++lastInterval;
       } else { // x >= XL[2] search the right interval
         T_real const * XE = X+n;
-        lastInterval += T_int(std::lower_bound( XL, XE, x )-XL);
+        lastInterval += T_int(lower_bound( XL, XE, x )-XL);
         T_real const * XX = X+lastInterval;
         if ( x < XX[0] || Utils::isZero(XX[0]-XX[1]) ) --lastInterval;
       }
@@ -138,7 +141,7 @@ namespace Utils {
       } else if ( XL[-1] <= x ) { // x in [XL[-1],XL[0])
         --lastInterval;
       } else {
-        lastInterval = T_int(std::lower_bound( X+1, XL, x )-X);
+        lastInterval = T_int(lower_bound( X+1, XL, x )-X);
         T_real const * XX = X+lastInterval;
         if ( x < XX[0] || Utils::isZero(XX[0]-XX[1]) ) --lastInterval;
       }

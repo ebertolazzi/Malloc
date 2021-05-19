@@ -97,6 +97,14 @@
 
 <span class="k">namespace</span> <span class="n">Utils</span> <span class="p">{</span>
 
+  <span class="cp">#ifndef DOXYGEN_SHOULD_SKIP_THIS</span>
+  <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="p">;</span>
+  <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">;</span>
+  <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">sqrt</span><span class="p">;</span>
+  <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">fpclassify</span><span class="p">;</span>
+  <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">floor</span><span class="p">;</span>
+  <span class="cp">#endif</span>
+
   <span class="cm">/*</span>
 <span class="cm">  //    ____                _              _</span>
 <span class="cm">  //   / ___|___  _ __  ___| |_ __ _ _ __ | |_ ___</span>
@@ -114,106 +122,106 @@
 
   <span class="cp">#ifndef DOXYGEN_SHOULD_SKIP_THIS</span>
   <span class="k">template</span> <span class="o">&lt;&gt;</span> <span class="kr">inline</span> <span class="kt">float</span>
-  <span class="n">NaN</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;::</span><span class="n">quiet_NaN</span><span class="p">();</span> <span class="p">}</span>
+  <span class="n">NaN</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;::</span><span class="n">quiet_NaN</span><span class="p">();</span> <span class="p">}</span>
 
   <span class="k">template</span> <span class="o">&lt;&gt;</span> <span class="kr">inline</span> <span class="kt">double</span>
-  <span class="n">NaN</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;::</span><span class="n">quiet_NaN</span><span class="p">();</span> <span class="p">}</span>
+  <span class="n">NaN</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;::</span><span class="n">quiet_NaN</span><span class="p">();</span> <span class="p">}</span>
 
   <span class="k">template</span> <span class="o">&lt;&gt;</span> <span class="kr">inline</span> <span class="kt">float</span>
-  <span class="n">Inf</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;::</span><span class="n">infinity</span><span class="p">();</span> <span class="p">}</span>
+  <span class="n">Inf</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;::</span><span class="n">infinity</span><span class="p">();</span> <span class="p">}</span>
 
   <span class="k">template</span> <span class="o">&lt;&gt;</span> <span class="kr">inline</span> <span class="kt">double</span>
-  <span class="n">Inf</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;::</span><span class="n">infinity</span><span class="p">();</span> <span class="p">}</span>
+  <span class="n">Inf</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;::</span><span class="n">infinity</span><span class="p">();</span> <span class="p">}</span>
 
   <span class="k">template</span> <span class="o">&lt;&gt;</span> <span class="kr">inline</span> <span class="kt">float</span>
-  <span class="n">machineEps</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;::</span><span class="n">epsilon</span><span class="p">();</span> <span class="p">}</span>
+  <span class="n">machineEps</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;::</span><span class="n">epsilon</span><span class="p">();</span> <span class="p">}</span>
 
   <span class="k">template</span> <span class="o">&lt;&gt;</span> <span class="kr">inline</span> <span class="kt">double</span>
-  <span class="n">machineEps</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;::</span><span class="n">epsilon</span><span class="p">();</span> <span class="p">}</span>
+  <span class="n">machineEps</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;::</span><span class="n">epsilon</span><span class="p">();</span> <span class="p">}</span>
 
   <span class="k">template</span> <span class="o">&lt;&gt;</span> <span class="kr">inline</span> <span class="kt">float</span>
-  <span class="n">sqrtMachineEps</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">sqrt</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;::</span><span class="n">epsilon</span><span class="p">());</span> <span class="p">}</span>
+  <span class="n">sqrtMachineEps</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nf">sqrt</span><span class="p">(</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;::</span><span class="n">epsilon</span><span class="p">());</span> <span class="p">}</span>
 
   <span class="k">template</span> <span class="o">&lt;&gt;</span> <span class="kr">inline</span> <span class="kt">double</span>
-  <span class="n">sqrtMachineEps</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">sqrt</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;::</span><span class="n">epsilon</span><span class="p">());</span> <span class="p">}</span>
+  <span class="n">sqrtMachineEps</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nf">sqrt</span><span class="p">(</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;::</span><span class="n">epsilon</span><span class="p">());</span> <span class="p">}</span>
 
   <span class="k">template</span> <span class="o">&lt;&gt;</span> <span class="kr">inline</span> <span class="kt">float</span>
-  <span class="n">maximumValue</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">sqrt</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;::</span><span class="n">max</span><span class="p">());</span> <span class="p">}</span>
+  <span class="n">maximumValue</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nf">sqrt</span><span class="p">(</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;::</span><span class="n">max</span><span class="p">());</span> <span class="p">}</span>
 
   <span class="k">template</span> <span class="o">&lt;&gt;</span> <span class="kr">inline</span> <span class="kt">double</span>
-  <span class="n">maximumValue</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">sqrt</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;::</span><span class="n">max</span><span class="p">());</span> <span class="p">}</span>
+  <span class="n">maximumValue</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nf">sqrt</span><span class="p">(</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;::</span><span class="n">max</span><span class="p">());</span> <span class="p">}</span>
 
   <span class="k">template</span> <span class="o">&lt;&gt;</span> <span class="kr">inline</span> <span class="kt">float</span>
-  <span class="n">minimumValue</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">sqrt</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;::</span><span class="n">min</span><span class="p">());</span> <span class="p">}</span>
+  <span class="n">minimumValue</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nf">sqrt</span><span class="p">(</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;::</span><span class="n">min</span><span class="p">());</span> <span class="p">}</span>
 
   <span class="k">template</span> <span class="o">&lt;&gt;</span> <span class="kr">inline</span> <span class="kt">double</span>
-  <span class="n">minimumValue</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">sqrt</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;::</span><span class="n">min</span><span class="p">());</span> <span class="p">}</span>
+  <span class="n">minimumValue</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nf">sqrt</span><span class="p">(</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;::</span><span class="n">min</span><span class="p">());</span> <span class="p">}</span>
   <span class="cp">#endif</span>
 
   <span class="k">static</span>
   <span class="kr">inline</span>
   <span class="kt">bool</span> <span class="n">isZero</span><span class="p">(</span> <span class="kt">double</span> <span class="n">x</span> <span class="p">)</span>
-  <span class="p">{</span> <span class="k">return</span> <span class="n">FP_ZERO</span> <span class="o">==</span> <span class="n">std</span><span class="o">::</span><span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">);</span> <span class="p">}</span>
+  <span class="p">{</span> <span class="k">return</span> <span class="n">FP_ZERO</span> <span class="o">==</span> <span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">);</span> <span class="p">}</span>
 
   <span class="k">static</span>
   <span class="kr">inline</span>
   <span class="kt">bool</span> <span class="n">isZero</span><span class="p">(</span> <span class="kt">float</span> <span class="n">x</span> <span class="p">)</span>
-  <span class="p">{</span> <span class="k">return</span> <span class="n">FP_ZERO</span> <span class="o">==</span> <span class="n">std</span><span class="o">::</span><span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">);</span> <span class="p">}</span>
+  <span class="p">{</span> <span class="k">return</span> <span class="n">FP_ZERO</span> <span class="o">==</span> <span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">);</span> <span class="p">}</span>
 
   <span class="k">static</span>
   <span class="kr">inline</span>
   <span class="kt">bool</span> <span class="n">isInfinite</span><span class="p">(</span> <span class="kt">double</span> <span class="n">x</span> <span class="p">)</span>
-  <span class="p">{</span> <span class="k">return</span> <span class="n">FP_INFINITE</span> <span class="o">==</span> <span class="n">std</span><span class="o">::</span><span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">);</span> <span class="p">}</span>
+  <span class="p">{</span> <span class="k">return</span> <span class="n">FP_INFINITE</span> <span class="o">==</span> <span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">);</span> <span class="p">}</span>
 
   <span class="k">static</span>
   <span class="kr">inline</span>
   <span class="kt">bool</span> <span class="n">isInfinite</span><span class="p">(</span> <span class="kt">float</span> <span class="n">x</span> <span class="p">)</span>
-  <span class="p">{</span> <span class="k">return</span> <span class="n">FP_INFINITE</span> <span class="o">==</span> <span class="n">std</span><span class="o">::</span><span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">);</span> <span class="p">}</span>
+  <span class="p">{</span> <span class="k">return</span> <span class="n">FP_INFINITE</span> <span class="o">==</span> <span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">);</span> <span class="p">}</span>
 
   <span class="k">static</span>
   <span class="kr">inline</span>
   <span class="kt">bool</span> <span class="n">isNaN</span><span class="p">(</span> <span class="kt">double</span> <span class="n">x</span> <span class="p">)</span>
-  <span class="p">{</span> <span class="k">return</span> <span class="n">FP_NAN</span> <span class="o">==</span> <span class="n">std</span><span class="o">::</span><span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">);</span> <span class="p">}</span>
+  <span class="p">{</span> <span class="k">return</span> <span class="n">FP_NAN</span> <span class="o">==</span> <span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">);</span> <span class="p">}</span>
 
   <span class="k">static</span>
   <span class="kr">inline</span>
   <span class="kt">bool</span> <span class="n">isNaN</span><span class="p">(</span> <span class="kt">float</span> <span class="n">x</span> <span class="p">)</span>
-  <span class="p">{</span> <span class="k">return</span> <span class="n">FP_NAN</span> <span class="o">==</span> <span class="n">std</span><span class="o">::</span><span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">);</span> <span class="p">}</span>
+  <span class="p">{</span> <span class="k">return</span> <span class="n">FP_NAN</span> <span class="o">==</span> <span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">);</span> <span class="p">}</span>
 
   <span class="k">static</span>
   <span class="kr">inline</span>
   <span class="kt">bool</span> <span class="n">isRegular</span><span class="p">(</span> <span class="kt">double</span> <span class="n">x</span> <span class="p">)</span>
-  <span class="p">{</span> <span class="k">return</span> <span class="o">!</span><span class="p">(</span> <span class="n">FP_INFINITE</span> <span class="o">==</span> <span class="n">std</span><span class="o">::</span><span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">||</span>
-              <span class="n">FP_NAN</span>      <span class="o">==</span> <span class="n">std</span><span class="o">::</span><span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="p">);</span> <span class="p">}</span>
+  <span class="p">{</span> <span class="k">return</span> <span class="o">!</span><span class="p">(</span> <span class="n">FP_INFINITE</span> <span class="o">==</span> <span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">||</span>
+              <span class="n">FP_NAN</span>      <span class="o">==</span> <span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="p">);</span> <span class="p">}</span>
 
   <span class="k">static</span>
   <span class="kr">inline</span>
   <span class="kt">bool</span> <span class="n">isRegular</span><span class="p">(</span> <span class="kt">float</span> <span class="n">x</span> <span class="p">)</span>
-  <span class="p">{</span> <span class="k">return</span> <span class="o">!</span><span class="p">(</span> <span class="n">FP_INFINITE</span> <span class="o">==</span> <span class="n">std</span><span class="o">::</span><span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">||</span>
-              <span class="n">FP_NAN</span>      <span class="o">==</span> <span class="n">std</span><span class="o">::</span><span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="p">);</span> <span class="p">}</span>
+  <span class="p">{</span> <span class="k">return</span> <span class="o">!</span><span class="p">(</span> <span class="n">FP_INFINITE</span> <span class="o">==</span> <span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">||</span>
+              <span class="n">FP_NAN</span>      <span class="o">==</span> <span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="p">);</span> <span class="p">}</span>
 
   <span class="c1">// added alias</span>
   <span class="k">static</span>
   <span class="kr">inline</span>
   <span class="kt">bool</span> <span class="n">isFinite</span><span class="p">(</span> <span class="kt">double</span> <span class="n">x</span> <span class="p">)</span>
-  <span class="p">{</span> <span class="k">return</span> <span class="o">!</span><span class="p">(</span> <span class="n">FP_INFINITE</span> <span class="o">==</span> <span class="n">std</span><span class="o">::</span><span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">||</span>
-              <span class="n">FP_NAN</span>      <span class="o">==</span> <span class="n">std</span><span class="o">::</span><span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="p">);</span> <span class="p">}</span>
+  <span class="p">{</span> <span class="k">return</span> <span class="o">!</span><span class="p">(</span> <span class="n">FP_INFINITE</span> <span class="o">==</span> <span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">||</span>
+              <span class="n">FP_NAN</span>      <span class="o">==</span> <span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="p">);</span> <span class="p">}</span>
 
   <span class="k">static</span>
   <span class="kr">inline</span>
   <span class="kt">bool</span> <span class="n">isFinite</span><span class="p">(</span> <span class="kt">float</span> <span class="n">x</span> <span class="p">)</span>
-  <span class="p">{</span> <span class="k">return</span> <span class="o">!</span><span class="p">(</span> <span class="n">FP_INFINITE</span> <span class="o">==</span> <span class="n">std</span><span class="o">::</span><span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">||</span>
-              <span class="n">FP_NAN</span>      <span class="o">==</span> <span class="n">std</span><span class="o">::</span><span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="p">);</span> <span class="p">}</span>
+  <span class="p">{</span> <span class="k">return</span> <span class="o">!</span><span class="p">(</span> <span class="n">FP_INFINITE</span> <span class="o">==</span> <span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">||</span>
+              <span class="n">FP_NAN</span>      <span class="o">==</span> <span class="n">fpclassify</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="p">);</span> <span class="p">}</span>
 
   <span class="k">static</span>
   <span class="kr">inline</span>
   <span class="kt">bool</span> <span class="n">isInteger</span><span class="p">(</span> <span class="kt">double</span> <span class="n">x</span> <span class="p">)</span>
-  <span class="p">{</span> <span class="k">return</span> <span class="nf">isZero</span><span class="p">(</span> <span class="n">x</span><span class="o">-</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">floor</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="p">);</span> <span class="p">}</span>
+  <span class="p">{</span> <span class="k">return</span> <span class="nf">isZero</span><span class="p">(</span> <span class="n">x</span><span class="o">-</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="p">);</span> <span class="p">}</span>
 
   <span class="k">static</span>
   <span class="kr">inline</span>
   <span class="kt">bool</span> <span class="n">isInteger</span><span class="p">(</span> <span class="kt">float</span> <span class="n">x</span> <span class="p">)</span>
-  <span class="p">{</span> <span class="k">return</span> <span class="nf">isZero</span><span class="p">(</span> <span class="n">x</span><span class="o">-</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">floor</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="p">);</span> <span class="p">}</span>
+  <span class="p">{</span> <span class="k">return</span> <span class="nf">isZero</span><span class="p">(</span> <span class="n">x</span><span class="o">-</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="p">);</span> <span class="p">}</span>
 
   <span class="k">static</span>
   <span class="kr">inline</span>

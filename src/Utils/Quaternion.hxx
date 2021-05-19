@@ -28,7 +28,9 @@
 
 namespace Utils {
 
- using std::ostream;
+  #ifndef DOXYGEN_SHOULD_SKIP_THIS
+  using std::ostream;
+  #endif
 
   //!
   //! **Quaternion class**

@@ -86,6 +86,10 @@
 
 <span class="k">namespace</span> <span class="n">rang</span> <span class="p">{</span>
 
+  <span class="cp">#ifndef DOXYGEN_SHOULD_SKIP_THIS</span>
+  <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="p">;</span>
+  <span class="cp">#endif</span>
+
   <span class="cm">/* For better compability with most of terminals do not use any style settings</span>
 <span class="cm">   * except of reset, bold and reversed.</span>
 <span class="cm">   * Note that on Windows terminals bold style is same as fgB color.</span>
@@ -168,45 +172,56 @@
 
   <span class="k">namespace</span> <span class="n">rang_implementation</span> <span class="p">{</span>
 
+    <span class="cp">#ifndef DOXYGEN_SHOULD_SKIP_THIS</span>
+    <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="p">;</span>
+    <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">enable_if</span><span class="p">;</span>
+    <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">is_same</span><span class="p">;</span>
+    <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="p">;</span>
+    <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">streambuf</span><span class="p">;</span>
+    <span class="cp">#endif</span>
+
     <span class="kr">inline</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">control</span><span class="o">&gt;</span> <span class="o">&amp;</span>
+    <span class="n">atomic</span><span class="o">&lt;</span><span class="n">control</span><span class="o">&gt;</span> <span class="o">&amp;</span>
     <span class="n">controlMode</span><span class="p">()</span> <span class="k">noexcept</span> <span class="p">{</span>
-      <span class="k">static</span> <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">control</span><span class="o">&gt;</span> <span class="n">value</span><span class="p">(</span><span class="n">control</span><span class="o">::</span><span class="n">Auto</span><span class="p">);</span>
+      <span class="k">static</span> <span class="n">atomic</span><span class="o">&lt;</span><span class="n">control</span><span class="o">&gt;</span> <span class="n">value</span><span class="p">(</span><span class="n">control</span><span class="o">::</span><span class="n">Auto</span><span class="p">);</span>
       <span class="k">return</span> <span class="n">value</span><span class="p">;</span>
     <span class="p">}</span>
 
     <span class="kr">inline</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">winTerm</span><span class="o">&gt;</span> <span class="o">&amp;</span>
+    <span class="n">atomic</span><span class="o">&lt;</span><span class="n">winTerm</span><span class="o">&gt;</span> <span class="o">&amp;</span>
     <span class="n">winTermMode</span><span class="p">()</span> <span class="k">noexcept</span> <span class="p">{</span>
-      <span class="k">static</span> <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">winTerm</span><span class="o">&gt;</span> <span class="n">termMode</span><span class="p">(</span><span class="n">winTerm</span><span class="o">::</span><span class="n">Auto</span><span class="p">);</span>
+      <span class="k">static</span> <span class="n">atomic</span><span class="o">&lt;</span><span class="n">winTerm</span><span class="o">&gt;</span> <span class="n">termMode</span><span class="p">(</span><span class="n">winTerm</span><span class="o">::</span><span class="n">Auto</span><span class="p">);</span>
       <span class="k">return</span> <span class="n">termMode</span><span class="p">;</span>
     <span class="p">}</span>
 
     <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="o">&gt;</span>
-    <span class="k">using</span> <span class="n">enableStd</span> <span class="o">=</span> <span class="k">typename</span> <span class="nc">std</span><span class="o">::</span><span class="n">enable_if</span><span class="o">&lt;</span>
-      <span class="n">std</span><span class="o">::</span><span class="n">is_same</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">rang</span><span class="o">::</span><span class="n">style</span><span class="o">&gt;::</span><span class="n">value</span> <span class="o">||</span> <span class="n">std</span><span class="o">::</span><span class="n">is_same</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">rang</span><span class="o">::</span><span class="n">fg</span><span class="o">&gt;::</span><span class="n">value</span>
-        <span class="o">||</span> <span class="n">std</span><span class="o">::</span><span class="n">is_same</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">rang</span><span class="o">::</span><span class="n">bg</span><span class="o">&gt;::</span><span class="n">value</span> <span class="o">||</span> <span class="n">std</span><span class="o">::</span><span class="n">is_same</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">rang</span><span class="o">::</span><span class="n">fgB</span><span class="o">&gt;::</span><span class="n">value</span>
-        <span class="o">||</span> <span class="n">std</span><span class="o">::</span><span class="n">is_same</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">rang</span><span class="o">::</span><span class="n">bgB</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">,</span>
-      <span class="n">std</span><span class="o">::</span><span class="n">ostream</span> <span class="o">&amp;&gt;::</span><span class="n">type</span><span class="p">;</span>
+    <span class="k">using</span> <span class="n">enableStd</span> <span class="o">=</span> <span class="k">typename</span> <span class="nc">enable_if</span><span class="o">&lt;</span>
+      <span class="n">is_same</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">rang</span><span class="o">::</span><span class="n">style</span><span class="o">&gt;::</span><span class="n">value</span> <span class="o">||</span>
+      <span class="n">is_same</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">rang</span><span class="o">::</span><span class="n">fg</span><span class="o">&gt;::</span><span class="n">value</span>    <span class="o">||</span>
+      <span class="n">is_same</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">rang</span><span class="o">::</span><span class="n">bg</span><span class="o">&gt;::</span><span class="n">value</span>    <span class="o">||</span>
+      <span class="n">is_same</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">rang</span><span class="o">::</span><span class="n">fgB</span><span class="o">&gt;::</span><span class="n">value</span>   <span class="o">||</span>
+      <span class="n">is_same</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">rang</span><span class="o">::</span><span class="n">bgB</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">,</span>
+      <span class="n">ostream</span> <span class="o">&amp;</span>
+    <span class="o">&gt;::</span><span class="n">type</span><span class="p">;</span>
 
     <span class="cp">#ifdef UTILS_OS_WINDOWS</span>
     <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="o">&gt;</span>
     <span class="kr">inline</span>
     <span class="kt">void</span>
-    <span class="n">setWinColorAnsi</span><span class="p">(</span> <span class="n">std</span><span class="o">::</span><span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span> <span class="n">T</span> <span class="k">const</span> <span class="n">value</span> <span class="p">)</span>  <span class="p">{</span>
+    <span class="n">setWinColorAnsi</span><span class="p">(</span> <span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span> <span class="n">T</span> <span class="k">const</span> <span class="n">value</span> <span class="p">)</span>   <span class="p">{</span>
       <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\033</span><span class="s">["</span> <span class="o">&lt;&lt;</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"m"</span><span class="p">;</span>
     <span class="p">}</span>
 
-    <span class="kt">void</span> <span class="n">setWinColorNative</span><span class="p">(</span> <span class="n">std</span><span class="o">::</span><span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span> <span class="k">enum</span> <span class="nc">rang</span><span class="o">::</span><span class="n">style</span> <span class="n">value</span> <span class="p">);</span>
-    <span class="kt">void</span> <span class="nf">setWinColorNative</span><span class="p">(</span> <span class="n">std</span><span class="o">::</span><span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span> <span class="k">enum</span> <span class="nc">rang</span><span class="o">::</span><span class="n">bg</span>    <span class="n">value</span> <span class="p">);</span>
-    <span class="kt">void</span> <span class="nf">setWinColorNative</span><span class="p">(</span> <span class="n">std</span><span class="o">::</span><span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span> <span class="k">enum</span> <span class="nc">rang</span><span class="o">::</span><span class="n">fg</span>    <span class="n">value</span> <span class="p">);</span>
-    <span class="kt">void</span> <span class="nf">setWinColorNative</span><span class="p">(</span> <span class="n">std</span><span class="o">::</span><span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span> <span class="k">enum</span> <span class="nc">rang</span><span class="o">::</span><span class="n">bgB</span>   <span class="n">value</span> <span class="p">);</span>
-    <span class="kt">void</span> <span class="nf">setWinColorNative</span><span class="p">(</span> <span class="n">std</span><span class="o">::</span><span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span> <span class="k">enum</span> <span class="nc">rang</span><span class="o">::</span><span class="n">fgB</span>   <span class="n">value</span> <span class="p">);</span>
+    <span class="kt">void</span> <span class="n">setWinColorNative</span><span class="p">(</span> <span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span> <span class="k">enum</span> <span class="nc">rang</span><span class="o">::</span><span class="n">style</span> <span class="n">value</span> <span class="p">);</span>
+    <span class="kt">void</span> <span class="nf">setWinColorNative</span><span class="p">(</span> <span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span> <span class="k">enum</span> <span class="nc">rang</span><span class="o">::</span><span class="n">bg</span>    <span class="n">value</span> <span class="p">);</span>
+    <span class="kt">void</span> <span class="nf">setWinColorNative</span><span class="p">(</span> <span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span> <span class="k">enum</span> <span class="nc">rang</span><span class="o">::</span><span class="n">fg</span>    <span class="n">value</span> <span class="p">);</span>
+    <span class="kt">void</span> <span class="nf">setWinColorNative</span><span class="p">(</span> <span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span> <span class="k">enum</span> <span class="nc">rang</span><span class="o">::</span><span class="n">bgB</span>   <span class="n">value</span> <span class="p">);</span>
+    <span class="kt">void</span> <span class="nf">setWinColorNative</span><span class="p">(</span> <span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span> <span class="k">enum</span> <span class="nc">rang</span><span class="o">::</span><span class="n">fgB</span>   <span class="n">value</span> <span class="p">);</span>
 
     <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="o">&gt;</span>
     <span class="kr">inline</span>
     <span class="n">enableStd</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
-    <span class="n">setColor</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span> <span class="n">T</span> <span class="k">const</span> <span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">setColor</span><span class="p">(</span> <span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span> <span class="n">T</span> <span class="k">const</span> <span class="n">value</span> <span class="p">)</span> <span class="p">{</span>
       <span class="k">if</span> <span class="p">(</span><span class="n">winTermMode</span><span class="p">()</span> <span class="o">==</span> <span class="n">winTerm</span><span class="o">::</span><span class="n">Auto</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">supportsAnsi</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">rdbuf</span><span class="p">()))</span> <span class="p">{</span>
           <span class="n">setWinColorAnsi</span><span class="p">(</span><span class="n">os</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
@@ -224,13 +239,13 @@
     <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="o">&gt;</span>
     <span class="kr">inline</span>
     <span class="n">enableStd</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
-    <span class="n">setColor</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span> <span class="n">T</span> <span class="k">const</span> <span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">setColor</span><span class="p">(</span> <span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span> <span class="n">T</span> <span class="k">const</span> <span class="n">value</span> <span class="p">)</span> <span class="p">{</span>
       <span class="k">return</span> <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\033</span><span class="s">["</span> <span class="o">&lt;&lt;</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"m"</span><span class="p">;</span>
     <span class="p">}</span>
     <span class="cp">#endif</span>
 
-    <span class="kt">bool</span> <span class="n">isTerminal</span><span class="p">(</span> <span class="n">std</span><span class="o">::</span><span class="n">streambuf</span> <span class="k">const</span> <span class="o">*</span> <span class="p">)</span> <span class="k">noexcept</span><span class="p">;</span>
-    <span class="kt">bool</span> <span class="nf">supportsAnsi</span><span class="p">(</span> <span class="n">std</span><span class="o">::</span><span class="n">streambuf</span> <span class="k">const</span> <span class="o">*</span> <span class="p">)</span> <span class="k">noexcept</span><span class="p">;</span>
+    <span class="kt">bool</span> <span class="n">isTerminal</span><span class="p">(</span> <span class="n">streambuf</span> <span class="k">const</span> <span class="o">*</span> <span class="p">)</span> <span class="k">noexcept</span><span class="p">;</span>
+    <span class="kt">bool</span> <span class="nf">supportsAnsi</span><span class="p">(</span> <span class="n">streambuf</span> <span class="k">const</span> <span class="o">*</span> <span class="p">)</span> <span class="k">noexcept</span><span class="p">;</span>
     <span class="kt">bool</span> <span class="nf">supportsColor</span><span class="p">()</span> <span class="k">noexcept</span><span class="p">;</span>
 
   <span class="p">}</span>  <span class="c1">// namespace rang_implementation</span>
@@ -238,7 +253,7 @@
   <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="o">&gt;</span>
   <span class="kr">inline</span>
   <span class="n">rang_implementation</span><span class="o">::</span><span class="n">enableStd</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
-  <span class="k">operator</span> <span class="o">&lt;&lt;</span> <span class="p">(</span> <span class="n">std</span><span class="o">::</span><span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span> <span class="n">T</span> <span class="k">const</span> <span class="n">value</span> <span class="p">)</span> <span class="p">{</span>
+  <span class="k">operator</span> <span class="o">&lt;&lt;</span> <span class="p">(</span> <span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span> <span class="n">T</span> <span class="k">const</span> <span class="n">value</span> <span class="p">)</span> <span class="p">{</span>
     <span class="n">control</span> <span class="k">const</span> <span class="n">option</span> <span class="o">=</span> <span class="n">rang_implementation</span><span class="o">::</span><span class="n">controlMode</span><span class="p">();</span>
     <span class="k">switch</span> <span class="p">(</span><span class="n">option</span><span class="p">)</span> <span class="p">{</span>
       <span class="k">case</span> <span class="n">control</span><span class="o">::</span><span class="nl">Auto</span><span class="p">:</span>

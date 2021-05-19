@@ -43,14 +43,20 @@
 
 namespace Utils {
 
+  using std::runtime_error;
+  using std::ostringstream;
+  using std::string;
+  using std::hex;
+  using std::dec;
+
   const char*
   Runtime_Error::what() const noexcept {
-    return std::runtime_error::what();
+    return runtime_error::what();
   }
 
   const char*
   Runtime_TraceError::what() const noexcept {
-    return std::runtime_error::what();
+    return runtime_error::what();
   }
 
   #ifdef UTILS_OS_WINDOWS
@@ -59,7 +65,7 @@ namespace Utils {
   printTrace(
     int                 line,
     char const * const  file,
-    std::string const & msg,
+    string const      & msg,
     ostream_type      & stream
   ) {
     fmt::print( stream,
@@ -82,11 +88,11 @@ namespace Utils {
     #endif
   }
 
-  std::string
+  string
   Runtime_TraceError::grab_backtrace(
-    std::string const & reason,
-    char const * const  file,
-    int                 line
+    string const &     reason,
+    char const * const file,
+    int                line
   ) const {
     return fmt::format( "\n{}\nOn File:{}:{}\n", reason, file, line );
   }
@@ -95,11 +101,11 @@ namespace Utils {
 
   static
   inline
-  std::string
+  string
   demang( char const * const mangled_name ) {
-    if ( mangled_name == nullptr ) return std::string("");
+    if ( mangled_name == nullptr ) return string("");
     int status = 0 ;
-    std::string retval = mangled_name;
+    string retval = mangled_name;
     char * name = abi::__cxa_demangle( mangled_name, nullptr, nullptr, &status );
     if ( status == 0 ) {
       retval = name;
@@ -107,17 +113,17 @@ namespace Utils {
       char const * p = strchr(name,'(');
       if ( p != nullptr ) retval = retval.substr(0,p-name);
     }
-    if ( name != nullptr ) std::free(name) ;
+    if ( name != nullptr ) free(name) ;
     return retval;
   }
 
   //! print a trace stack used in debug
   void
   printTrace(
-    int                 line,
-    char const * const  file,
-    std::string const & reason,
-    ostream_type      & stream
+    int                line,
+    char const * const file,
+    string const     & reason,
+    ostream_type     & stream
   ) {
 
     fmt::print(
@@ -138,10 +144,10 @@ namespace Utils {
       unw_word_t offset, pc;
       unw_get_reg(&cursor, UNW_REG_IP, &pc);
       if ( pc == 0 ) break;
-      stream << "0x" << std::hex << pc << ":" << std::dec;
+      stream << "0x" << hex << pc << ":" << dec;
       char sym[256];
       if ( unw_get_proc_name(&cursor, sym, sizeof(sym), &offset) == 0 ) {
-        stream << " (" << demang( sym ) << "+0x" << std::hex << offset << ")\n" << std::dec;
+        stream << " (" << demang( sym ) << "+0x" << hex << offset << ")\n" << dec;
       } else {
         stream << " -- error: unable to obtain symbol name for this frame\n";
       }
@@ -165,13 +171,13 @@ namespace Utils {
     #endif
   }
 
-  std::string
+  string
   Runtime_TraceError::grab_backtrace(
-    std::string const & reason,
-    char const * const  file,
-    int                 line
+    string const &     reason,
+    char const * const file,
+    int                line
   ) const {
-    std::ostringstream ost;
+    ostringstream ost;
     printTrace( line, file, reason, ost );
     return ost.str();
   }

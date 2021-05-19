@@ -143,13 +143,15 @@ namespace Utils {
 
   inline
   void
-  sleep_for_seconds( unsigned s )
-  { std::this_thread::sleep_for(std::chrono::seconds(s)); }
+  sleep_for_seconds( unsigned s ) {
+    std::this_thread::sleep_for(std::chrono::seconds(s));
+  }
 
   inline
   void
-  sleep_for_milliseconds( unsigned ms )
-  { std::this_thread::sleep_for(std::chrono::milliseconds(ms)); }
+  sleep_for_milliseconds( unsigned ms ) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+  }
 
 #endif
 

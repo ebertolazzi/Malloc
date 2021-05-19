@@ -102,7 +102,11 @@
 
 namespace Utils {
 
-  std::string basename( char const * const filename );
+  #ifndef DOXYGEN_SHOULD_SKIP_THIS
+  using std::string;
+  #endif
+
+  string basename( char const * const filename );
 
   template <typename T_int, typename T_real>
   void
