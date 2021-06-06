@@ -132,6 +132,10 @@ namespace rang {
       ostream &
     >::type;
 
+    extern bool isTerminal( streambuf const * ) noexcept;
+    extern bool supportsAnsi( streambuf const * ) noexcept;
+    extern bool supportsColor() noexcept;
+
     #ifdef UTILS_OS_WINDOWS
   	template <typename T>
     inline
@@ -171,10 +175,6 @@ namespace rang {
       return os << "\033[" << static_cast<int>(value) << "m";
     }
     #endif
-
-    bool isTerminal( streambuf const * ) noexcept;
-    bool supportsAnsi( streambuf const * ) noexcept;
-    bool supportsColor() noexcept;
 
   }  // namespace rang_implementation
 

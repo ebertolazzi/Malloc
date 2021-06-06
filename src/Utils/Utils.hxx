@@ -88,8 +88,22 @@
 #include <cmath>
 #include <cstdint>
 #include <stdexcept>
-#include <mutex>
-#include <atomic>
+
+#if defined(MINGW) || defined(__MINGW32__)
+  //#include "mingw-std-threads/mingw.future.h"
+  #include "mingw-std-threads/mingw.mutex.h"
+  //#include "mingw-std-threads/mingw.invoke.h"
+  //#include "mingw-std-threads/mingw.shared_mutex.h"
+  #include "mingw-std-threads/mingw.thread.h"
+  #include "mingw-std-threads/mingw.condition_variable.h"
+#else
+  //#include <future>
+  #include <mutex>
+  //#include <shared_mutex>
+  #include <thread>
+  #include <condition_variable>
+  #include <atomic>
+#endif
 
 #include "rang.hxx"
 #include "Trace.hxx"

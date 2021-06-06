@@ -16,27 +16,31 @@ CFLAGS   = -O2 -funroll-loops -fPIC
 SRCS       = $(shell echo src/*.cc)
 OBJS       = $(SRCS:.cc=.o)
 SRCS_TESTS = $(shell echo src_tests/*.cc)
-OBJS_TESTS = $(SRCS_TESTS:.cc=.o)
 
 #src/AlglinConfig.hh
 DEPS = $(shell echo src/*.h*)
 
 # check if the OS string contains 'Linux'
 ifneq (,$(findstring Linux, $(OS)))
-include Makefile_linux.mk
+  MKDIR = mkdir -p
+  include Makefile_linux.mk
+else
+  # check if the OS string contains 'MINGW'
+  ifneq (,$(findstring MINGW, $(OS)))
+    MKDIR = echo
+    include Makefile_mingw.mk
+  else
+    # check if the OS string contains 'Darwin'
+    ifneq (,$(findstring Darwin, $(OS)))
+      MKDIR = mkdir -p
+      include Makefile_osx.mk
+	else
+      MKDIR = echo
+      include Makefile_mingw.mk
+	endif
+  endif
 endif
 
-# check if the OS string contains 'MINGW'
-ifneq (,$(findstring MINGW, $(OS)))
-include Makefile_mingw.mk
-endif
-
-# check if the OS string contains 'Darwin'
-ifneq (,$(findstring Darwin, $(OS)))
-include Makefile_osx.mk
-endif
-
-MKDIR = mkdir -p
 
 .SUFFIXES:           # Delete the default suffixes
 .SUFFIXES: .c .cc .o # Define our suffix list
@@ -45,7 +49,7 @@ MKDIR = mkdir -p
 # to override
 PREFIX = /usr/local
 
-tests: all_libs $(OBJS_TESTS)
+tests: all_libs
 	mkdir -p bin
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_trace src_tests/test_trace.cc $(ALL_LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_Malloc src_tests/test_Malloc.cc $(ALL_LIBS) $(LIBSGCC)
