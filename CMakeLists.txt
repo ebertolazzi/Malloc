@@ -106,10 +106,11 @@ IF( BUILD_EXECUTABLE )
 
 ENDIF()
 
-FILE( GLOB HDR     ./src/*.h* )
-FILE( GLOB HDR1    ./src/Utils/*.h* )
-FILE( GLOB HDR_FMT ./src/Utils/fmt/*.h* )
-FILE( GLOB HDR_ZS  ./src/Utils/zstream/*.h* )
+FILE( GLOB HDR       ./src/*.h* )
+FILE( GLOB HDR1      ./src/Utils/*.h* )
+FILE( GLOB HDR_FMT   ./src/Utils/fmt/*.h* )
+FILE( GLOB HDR_ZS    ./src/Utils/zstream/*.h* )
+FILE( GLOB HDR_MINGW ./src/Utils/mingw-std-threads/*.h* ./src/Utils/mingw-std-threads/README.* ./src/Utils/mingw-std-threads/LICENSE )
 
 IF ( BUILD_SHARED )
   INSTALL(
@@ -127,10 +128,11 @@ ELSE()
   )
 ENDIF()
 
-INSTALL(FILES ${HDR}     DESTINATION ${CMAKE_INSTALL_PREFIX}/include )
-INSTALL(FILES ${HDR1}    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/Utils )
-INSTALL(FILES ${HDR_FMT} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/Utils/fmt )
-INSTALL(FILES ${HDR_ZS}  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/Utils/zstream )
+INSTALL(FILES ${HDR}       DESTINATION ${CMAKE_INSTALL_PREFIX}/include )
+INSTALL(FILES ${HDR1}      DESTINATION ${CMAKE_INSTALL_PREFIX}/include/Utils )
+INSTALL(FILES ${HDR_FMT}   DESTINATION ${CMAKE_INSTALL_PREFIX}/include/Utils/fmt )
+INSTALL(FILES ${HDR_ZS}    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/Utils/zstream )
+INSTALL(FILES ${HDR_MINGW} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/Utils/mingw-std-threads )
 
 MESSAGE( STATUS "Using ${SSE_FLAGS} extensions")
 MESSAGE( STATUS "C compiler                  = ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER}" )
