@@ -39,10 +39,11 @@ basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::basic_unzip_streambuf(
   size_t            window_size_,
   size_t            read_buffer_size_,
   size_t            input_buffer_size_
-) : m_istream(istream_)
-  , m_input_buffer(input_buffer_size_)
-  , m_buffer(read_buffer_size_)
-  , m_crc(0)
+)
+: m_istream(istream_)
+, m_input_buffer(input_buffer_size_)
+, m_buffer(read_buffer_size_)
+, m_crc(0)
 {
   // setting zalloc, zfree and opaque
   m_zip_stream.zalloc = (alloc_func) 0;
@@ -103,9 +104,11 @@ basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::underflow() {
   int n_putback = static_cast<int>(this->gptr() - this->eback());
   if (n_putback > 4) n_putback = 4;
 
-  memcpy( &(m_buffer[0]) + (4 - n_putback),
-          this->gptr() - n_putback,
-		  n_putback * sizeof(char_type) );
+  memcpy(
+    &(m_buffer[0]) + (4 - n_putback),
+    this->gptr() - n_putback,
+		n_putback * sizeof(char_type)
+  );
 
   int num = unzip_from_stream(
 	&(m_buffer[0]) + 4,
@@ -115,9 +118,11 @@ basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::underflow() {
     return EOF;
 
   // reset buffer pointers
-  this->setg(&(m_buffer[0]) + (4 - n_putback),   // beginning of putback area
-             &(m_buffer[0]) + 4,                 // read position
-             &(m_buffer[0]) + 4 + num);          // end of buffer
+  this->setg(
+    &(m_buffer[0]) + (4 - n_putback),   // beginning of putback area
+    &(m_buffer[0]) + 4,                 // read position
+    &(m_buffer[0]) + 4 + num            // end of buffer
+  );
 
   // return next character
   return *reinterpret_cast<unsigned char *>(this->gptr());
@@ -146,9 +151,9 @@ basic_unzip_streambuf<Elem, Tr, ElemA, ByteT, ByteAT>::unzip_from_stream(
 
   // updating crc
   m_crc = crc32(
-	m_crc,
-	(byte_buffer_type) buffer_,
-	buffer_size_ - m_zip_stream.avail_out / sizeof(char_type)
+  	m_crc,
+  	(byte_buffer_type) buffer_,
+  	buffer_size_ - m_zip_stream.avail_out / sizeof(char_type)
   );
   std::streamsize n_read = buffer_size_ - m_zip_stream.avail_out / sizeof(char_type);
 
@@ -200,7 +205,7 @@ basic_gzip_istream<Elem, Tr, ElemA, ByteT, ByteAT>::check_header() {
       }
       err = zip_stream.avail_in != 0 ? Z_OK : Z_STREAM_END;
       return err;
-	}
+	  }
   }
 
   method = (int) this->rdbuf()->get_istream().get();
