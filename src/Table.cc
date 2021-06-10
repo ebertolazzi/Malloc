@@ -86,7 +86,7 @@ namespace Utils {
     , m_Value(val)
     , m_ColSpan(colSpan)
     {
-      m_Width = val.length();
+      m_Width = integer(val.length());
     }
 
     integer
@@ -102,7 +102,7 @@ namespace Utils {
 
     integer
     Cell::height() const {
-      return count( m_Value.begin(), m_Value.end(), '\n') + 1;
+      return integer( count( m_Value.begin(), m_Value.end(), '\n') + 1);
     }
 
     integer
@@ -392,7 +392,7 @@ namespace Utils {
         for ( integer c = 0; c < this->numColumns(); ++c )
           innerWidth += this->columnWidth(c);
 
-        integer spaceLeft = (innerWidth - m_Title.length()) / 2;
+        integer spaceLeft = (innerWidth - integer(m_Title.length())) / 2;
 
         ss << m_Style.borderTopLeft() 
            << string(innerWidth, m_Style.borderTop())
