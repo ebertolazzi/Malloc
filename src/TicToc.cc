@@ -66,6 +66,29 @@ namespace Utils {
   }
 }
 
+#else
+
+namespace Utils {
+
+  void
+  TicToc::tic()
+  { m_start_time = clock::now(); }
+
+  void
+  TicToc::toc() {
+    m_stop_time    = clock::now();
+    m_elapsed_time = std::chrono::duration_cast<elapsed_resolution>(m_stop_time - m_start_time);
+  }
+
+  typename TicToc::real_type
+  TicToc::elapsed_s() const
+  { return 1e-6*m_elapsed_time.count(); }
+
+  typename TicToc::real_type
+  TicToc::elapsed_ms() const
+  { return 1e-3*m_elapsed_time.count(); }
+}
+
 #endif
 
 ///

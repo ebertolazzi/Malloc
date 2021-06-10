@@ -24,16 +24,18 @@
 using namespace std;
 using namespace rang;
 
+static
 void
-printHeading(const string &heading) {
+printHeading( string const & heading ) {
   cout
     << '\n'
     << style::reset << heading << style::reset << bg::reset << fg::reset
     << endl;
 }
 
+static
 void
-test_colors(ostream &os, const winTerm opt) {
+test_colors( ostream &os, winTerm opt ) {
   setWinTermMode(opt);
 
   printHeading("Text Style Test:");
@@ -88,6 +90,7 @@ test_colors(ostream &os, const winTerm opt) {
   os << fgB::gray << " Grey " << fg::reset << endl;
 }
 
+static
 void
 enumerateWinTerms() {
   cout << endl;

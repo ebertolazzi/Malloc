@@ -41,7 +41,6 @@ else
   endif
 endif
 
-
 .SUFFIXES:           # Delete the default suffixes
 .SUFFIXES: .c .cc .o # Define our suffix list
 
@@ -51,10 +50,12 @@ PREFIX = /usr/local
 
 tests: all_libs
 	mkdir -p bin
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_trace src_tests/test_trace.cc $(ALL_LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_Malloc src_tests/test_Malloc.cc $(ALL_LIBS) $(LIBSGCC)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_Thread src_tests/test_Thread.cc $(ALL_LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_Quaternion src_tests/test_Quaternion.cc $(ALL_LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_rang src_tests/test_rang.cc $(ALL_LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_table src_tests/test_table.cc $(ALL_LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_Thread src_tests/test_Thread.cc $(ALL_LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_trace src_tests/test_trace.cc $(ALL_LIBS) $(LIBSGCC)
 
 .cc.o:
 	$(CXX) $(INC) $(CXXFLAGS) $(DEFS) -c $< -o $@
@@ -78,10 +79,12 @@ install: all_libs
 	cp -f -P lib/lib/*   $(PREFIX)/lib
 
 run: tests
-	./bin/test_trace
 	./bin/test_Malloc
-	./bin/test_Thread
 	./bin/test_Quaternion
+	./bin/test_rang
+	./bin/test_table
+	./bin/test_Thread
+	./bin/test_trace
 
 doc:
 	doxygen
@@ -97,7 +100,20 @@ depend:
 	makedepend -- $(INC) $(CXXFLAGS) $(DEFS) -- $(SRCS)
 # DO NOT DELETE
 
-src/CPUinfo.o: src/CPUinfo.hh
+src/CPUinfo.o: src/Utils.hh src/Utils/Utils.hxx src/Utils/fmt/printf.h
+src/CPUinfo.o: src/Utils/fmt/ostream.h src/Utils/fmt/format.h
+src/CPUinfo.o: src/Utils/fmt/core.h src/Utils/fmt/chrono.h
+src/CPUinfo.o: src/Utils/fmt/locale.h src/Utils/fmt/ostream.h
+src/CPUinfo.o: src/Utils/zstream/izstream.hpp
+src/CPUinfo.o: src/Utils/zstream/zstream_common.hpp
+src/CPUinfo.o: src/Utils/zstream/izstream_impl.hpp
+src/CPUinfo.o: src/Utils/zstream/izstream.hpp src/Utils/zstream/ozstream.hpp
+src/CPUinfo.o: src/Utils/zstream/ozstream_impl.hpp
+src/CPUinfo.o: src/Utils/zstream/ozstream.hpp src/Utils/rang.hxx
+src/CPUinfo.o: src/Utils/Trace.hxx src/Utils/Console.hxx src/Utils/Malloc.hxx
+src/CPUinfo.o: src/Utils/Numbers.hxx src/Utils/TicToc.hxx
+src/CPUinfo.o: src/Utils/ThreadPool.hxx src/Utils/Quaternion.hxx
+src/CPUinfo.o: src/Utils/Table.hxx src/CPUinfo.hh
 src/Console.o: src/Utils.hh src/Utils/Utils.hxx src/Utils/fmt/printf.h
 src/Console.o: src/Utils/fmt/ostream.h src/Utils/fmt/format.h
 src/Console.o: src/Utils/fmt/core.h src/Utils/fmt/chrono.h
@@ -110,7 +126,8 @@ src/Console.o: src/Utils/zstream/ozstream_impl.hpp
 src/Console.o: src/Utils/zstream/ozstream.hpp src/Utils/rang.hxx
 src/Console.o: src/Utils/Trace.hxx src/Utils/Console.hxx src/Utils/Malloc.hxx
 src/Console.o: src/Utils/Numbers.hxx src/Utils/TicToc.hxx
-src/Console.o: src/Utils/ThreadPool.hxx
+src/Console.o: src/Utils/ThreadPool.hxx src/Utils/Quaternion.hxx
+src/Console.o: src/Utils/Table.hxx
 src/Malloc.o: src/Utils.hh src/Utils/Utils.hxx src/Utils/fmt/printf.h
 src/Malloc.o: src/Utils/fmt/ostream.h src/Utils/fmt/format.h
 src/Malloc.o: src/Utils/fmt/core.h src/Utils/fmt/chrono.h
@@ -123,7 +140,8 @@ src/Malloc.o: src/Utils/zstream/ozstream_impl.hpp
 src/Malloc.o: src/Utils/zstream/ozstream.hpp src/Utils/rang.hxx
 src/Malloc.o: src/Utils/Trace.hxx src/Utils/Console.hxx src/Utils/Malloc.hxx
 src/Malloc.o: src/Utils/Numbers.hxx src/Utils/TicToc.hxx
-src/Malloc.o: src/Utils/ThreadPool.hxx
+src/Malloc.o: src/Utils/ThreadPool.hxx src/Utils/Quaternion.hxx
+src/Malloc.o: src/Utils/Table.hxx
 src/Numbers.o: src/Utils.hh src/Utils/Utils.hxx src/Utils/fmt/printf.h
 src/Numbers.o: src/Utils/fmt/ostream.h src/Utils/fmt/format.h
 src/Numbers.o: src/Utils/fmt/core.h src/Utils/fmt/chrono.h
@@ -136,7 +154,22 @@ src/Numbers.o: src/Utils/zstream/ozstream_impl.hpp
 src/Numbers.o: src/Utils/zstream/ozstream.hpp src/Utils/rang.hxx
 src/Numbers.o: src/Utils/Trace.hxx src/Utils/Console.hxx src/Utils/Malloc.hxx
 src/Numbers.o: src/Utils/Numbers.hxx src/Utils/TicToc.hxx
-src/Numbers.o: src/Utils/ThreadPool.hxx
+src/Numbers.o: src/Utils/ThreadPool.hxx src/Utils/Quaternion.hxx
+src/Numbers.o: src/Utils/Table.hxx
+src/Table.o: src/Utils.hh src/Utils/Utils.hxx src/Utils/fmt/printf.h
+src/Table.o: src/Utils/fmt/ostream.h src/Utils/fmt/format.h
+src/Table.o: src/Utils/fmt/core.h src/Utils/fmt/chrono.h
+src/Table.o: src/Utils/fmt/locale.h src/Utils/fmt/ostream.h
+src/Table.o: src/Utils/zstream/izstream.hpp
+src/Table.o: src/Utils/zstream/zstream_common.hpp
+src/Table.o: src/Utils/zstream/izstream_impl.hpp
+src/Table.o: src/Utils/zstream/izstream.hpp src/Utils/zstream/ozstream.hpp
+src/Table.o: src/Utils/zstream/ozstream_impl.hpp
+src/Table.o: src/Utils/zstream/ozstream.hpp src/Utils/rang.hxx
+src/Table.o: src/Utils/Trace.hxx src/Utils/Console.hxx src/Utils/Malloc.hxx
+src/Table.o: src/Utils/Numbers.hxx src/Utils/TicToc.hxx
+src/Table.o: src/Utils/ThreadPool.hxx src/Utils/Quaternion.hxx
+src/Table.o: src/Utils/Table.hxx
 src/TicToc.o: src/Utils.hh src/Utils/Utils.hxx src/Utils/fmt/printf.h
 src/TicToc.o: src/Utils/fmt/ostream.h src/Utils/fmt/format.h
 src/TicToc.o: src/Utils/fmt/core.h src/Utils/fmt/chrono.h
@@ -149,7 +182,8 @@ src/TicToc.o: src/Utils/zstream/ozstream_impl.hpp
 src/TicToc.o: src/Utils/zstream/ozstream.hpp src/Utils/rang.hxx
 src/TicToc.o: src/Utils/Trace.hxx src/Utils/Console.hxx src/Utils/Malloc.hxx
 src/TicToc.o: src/Utils/Numbers.hxx src/Utils/TicToc.hxx
-src/TicToc.o: src/Utils/ThreadPool.hxx
+src/TicToc.o: src/Utils/ThreadPool.hxx src/Utils/Quaternion.hxx
+src/TicToc.o: src/Utils/Table.hxx
 src/Trace.o: src/Utils.hh src/Utils/Utils.hxx src/Utils/fmt/printf.h
 src/Trace.o: src/Utils/fmt/ostream.h src/Utils/fmt/format.h
 src/Trace.o: src/Utils/fmt/core.h src/Utils/fmt/chrono.h
@@ -162,7 +196,8 @@ src/Trace.o: src/Utils/zstream/ozstream_impl.hpp
 src/Trace.o: src/Utils/zstream/ozstream.hpp src/Utils/rang.hxx
 src/Trace.o: src/Utils/Trace.hxx src/Utils/Console.hxx src/Utils/Malloc.hxx
 src/Trace.o: src/Utils/Numbers.hxx src/Utils/TicToc.hxx
-src/Trace.o: src/Utils/ThreadPool.hxx
+src/Trace.o: src/Utils/ThreadPool.hxx src/Utils/Quaternion.hxx
+src/Trace.o: src/Utils/Table.hxx
 src/Utils.o: src/Utils.hh src/Utils/Utils.hxx src/Utils/fmt/printf.h
 src/Utils.o: src/Utils/fmt/ostream.h src/Utils/fmt/format.h
 src/Utils.o: src/Utils/fmt/core.h src/Utils/fmt/chrono.h
@@ -175,7 +210,8 @@ src/Utils.o: src/Utils/zstream/ozstream_impl.hpp
 src/Utils.o: src/Utils/zstream/ozstream.hpp src/Utils/rang.hxx
 src/Utils.o: src/Utils/Trace.hxx src/Utils/Console.hxx src/Utils/Malloc.hxx
 src/Utils.o: src/Utils/Numbers.hxx src/Utils/TicToc.hxx
-src/Utils.o: src/Utils/ThreadPool.hxx
+src/Utils.o: src/Utils/ThreadPool.hxx src/Utils/Quaternion.hxx
+src/Utils.o: src/Utils/Table.hxx
 src/fmt.o: src/Utils/fmt/os.cc src/Utils/fmt/os.h src/Utils/fmt/format.h
 src/fmt.o: src/Utils/fmt/core.h src/Utils/fmt/format.cc
 src/fmt.o: src/Utils/fmt/format-inl.h
@@ -191,4 +227,5 @@ src/rang.o: src/Utils/zstream/ozstream_impl.hpp
 src/rang.o: src/Utils/zstream/ozstream.hpp src/Utils/rang.hxx
 src/rang.o: src/Utils/Trace.hxx src/Utils/Console.hxx src/Utils/Malloc.hxx
 src/rang.o: src/Utils/Numbers.hxx src/Utils/TicToc.hxx
-src/rang.o: src/Utils/ThreadPool.hxx
+src/rang.o: src/Utils/ThreadPool.hxx src/Utils/Quaternion.hxx
+src/rang.o: src/Utils/Table.hxx

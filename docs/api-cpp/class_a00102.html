@@ -7,7 +7,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Class SimpleSemaphore &#8212; Utils v</title>
+    <title>Class SpinLock &#8212; Utils v1.0
+</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/cloud.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/table_styling.css" />
@@ -39,8 +40,8 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Class SpinLock" href="class_a00082.html" />
-    <link rel="prev" title="Class Runtime_TraceError" href="class_a00118.html" /> 
+    <link rel="next" title="Class SpinLock_barrier" href="class_a00114.html" />
+    <link rel="prev" title="Class SimpleSemaphore" href="class_a00122.html" /> 
         <meta name="viewport" content="width=device-width, initial-scale=1">
   </head><body>
     <div class="relbar-top">
@@ -55,15 +56,15 @@
           <a href="../index.html" title="Table Of Contents"
              accesskey="C">toc</a> &nbsp; &nbsp;</li>
         <li class="right" >
-          <a href="class_a00082.html" title="Class SpinLock"
+          <a href="class_a00114.html" title="Class SpinLock_barrier"
              accesskey="N">next</a> &nbsp; &nbsp;</li>
         <li class="right" >
-          <a href="class_a00118.html" title="Class Runtime_TraceError"
+          <a href="class_a00122.html" title="Class SimpleSemaphore"
              accesskey="P">previous</a> &nbsp; &nbsp;</li>
     <li><a href="../index.html">Utils</a> &#187;</li>
 
           <li class="nav-item nav-item-1"><a href="root.html" accesskey="U">C++ API</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Class SimpleSemaphore</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Class SpinLock</a></li> 
       </ul>
     </div>
     </div>
@@ -74,8 +75,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="class-simplesemaphore">
-<span id="exhale-class-a00102"></span><h1>Class SimpleSemaphore<a class="headerlink" href="#class-simplesemaphore" title="Permalink to this headline">¶</a>
+  <div class="section" id="class-spinlock">
+<span id="exhale-class-a00102"></span><h1>Class SpinLock<a class="headerlink" href="#class-spinlock" title="Permalink to this headline">¶</a>
 </h1>
 <ul class="simple">
 <li><p>Defined in <a class="reference internal" href="file_Utils_ThreadPool.hxx.html#file-utils-threadpool-hxx"><span class="std std-ref">File ThreadPool.hxx</span></a></p></li>
@@ -84,36 +85,36 @@
 <h2>Class Documentation<a class="headerlink" href="#class-documentation" title="Permalink to this headline">¶</a>
 </h2>
 <dl class="cpp class">
-<dt id="_CPPv4N5Utils15SimpleSemaphoreE">
-<span id="_CPPv3N5Utils15SimpleSemaphoreE"></span><span id="_CPPv2N5Utils15SimpleSemaphoreE"></span><span id="Utils::SimpleSemaphore"></span><span class="target" id="a00102"></span><em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">Utils</span><code class="sig-prename descclassname"><span class="pre">::</span></code></code><code class="sig-name descname"><span class="pre">SimpleSemaphore</span></code><a class="headerlink" href="#_CPPv4N5Utils15SimpleSemaphoreE" title="Permalink to this definition">¶</a><br>
+<dt id="_CPPv4N5Utils8SpinLockE">
+<span id="_CPPv3N5Utils8SpinLockE"></span><span id="_CPPv2N5Utils8SpinLockE"></span><span id="Utils::SpinLock"></span><span class="target" id="a00102"></span><em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">Utils</span><code class="sig-prename descclassname"><span class="pre">::</span></code></code><code class="sig-name descname"><span class="pre">SpinLock</span></code><a class="headerlink" href="#_CPPv4N5Utils8SpinLockE" title="Permalink to this definition">¶</a><br>
 </dt>
 <dd>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
-<dt id="_CPPv4N5Utils15SimpleSemaphore15SimpleSemaphoreEv">
-<span id="_CPPv3N5Utils15SimpleSemaphore15SimpleSemaphoreEv"></span><span id="_CPPv2N5Utils15SimpleSemaphore15SimpleSemaphoreEv"></span><span id="Utils::SimpleSemaphore::SimpleSemaphore"></span><span class="target" id="a00102_1ad59b1b4c5d42253353e2932fc5d4e8e9"></span><em class="property"><span class="pre">inline</span></em> <code class="sig-name descname"><span class="pre">SimpleSemaphore</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">noexcept</span></em><a class="headerlink" href="#_CPPv4N5Utils15SimpleSemaphore15SimpleSemaphoreEv" title="Permalink to this definition">¶</a><br>
+<dt id="_CPPv4N5Utils8SpinLock8SpinLockEv">
+<span id="_CPPv3N5Utils8SpinLock8SpinLockEv"></span><span id="_CPPv2N5Utils8SpinLock8SpinLockEv"></span><span id="Utils::SpinLock::SpinLock"></span><span class="target" id="a00102_1afb2f894cbf0571e38c565a67d6852d41"></span><em class="property"><span class="pre">inline</span></em> <code class="sig-name descname"><span class="pre">SpinLock</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Utils8SpinLock8SpinLockEv" title="Permalink to this definition">¶</a><br>
 </dt>
 <dd></dd>
 </dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4N5Utils15SimpleSemaphore5greenEv">
-<span id="_CPPv3N5Utils15SimpleSemaphore5greenEv"></span><span id="_CPPv2N5Utils15SimpleSemaphore5greenEv"></span><span id="Utils::SimpleSemaphore::green"></span><span class="target" id="a00102_1a99a06257074f3c1c1e0eaac8de603ea6"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">green</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">noexcept</span></em><a class="headerlink" href="#_CPPv4N5Utils15SimpleSemaphore5greenEv" title="Permalink to this definition">¶</a><br>
+<dt id="_CPPv4N5Utils8SpinLock4waitEv">
+<span id="_CPPv3N5Utils8SpinLock4waitEv"></span><span id="_CPPv2N5Utils8SpinLock4waitEv"></span><span id="Utils::SpinLock::wait"></span><span class="target" id="a00102_1ae60aff56f492232861087c74b9af9483"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">wait</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Utils8SpinLock4waitEv" title="Permalink to this definition">¶</a><br>
 </dt>
 <dd></dd>
 </dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4N5Utils15SimpleSemaphore3redEv">
-<span id="_CPPv3N5Utils15SimpleSemaphore3redEv"></span><span id="_CPPv2N5Utils15SimpleSemaphore3redEv"></span><span id="Utils::SimpleSemaphore::red"></span><span class="target" id="a00102_1a46e67813b32bbb426469b748c50bc62b"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">red</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">noexcept</span></em><a class="headerlink" href="#_CPPv4N5Utils15SimpleSemaphore3redEv" title="Permalink to this definition">¶</a><br>
+<dt id="_CPPv4N5Utils8SpinLock4lockEv">
+<span id="_CPPv3N5Utils8SpinLock4lockEv"></span><span id="_CPPv2N5Utils8SpinLock4lockEv"></span><span id="Utils::SpinLock::lock"></span><span class="target" id="a00102_1a41aad301ab8a0dd6e5f03b7cdfeedb39"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">lock</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Utils8SpinLock4lockEv" title="Permalink to this definition">¶</a><br>
 </dt>
 <dd></dd>
 </dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4N5Utils15SimpleSemaphore4waitEv">
-<span id="_CPPv3N5Utils15SimpleSemaphore4waitEv"></span><span id="_CPPv2N5Utils15SimpleSemaphore4waitEv"></span><span id="Utils::SimpleSemaphore::wait"></span><span class="target" id="a00102_1ae4e2e51d1c7bd99167b76a4d8f7b2642"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">wait</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">noexcept</span></em><a class="headerlink" href="#_CPPv4N5Utils15SimpleSemaphore4waitEv" title="Permalink to this definition">¶</a><br>
+<dt id="_CPPv4N5Utils8SpinLock6unlockEv">
+<span id="_CPPv3N5Utils8SpinLock6unlockEv"></span><span id="_CPPv2N5Utils8SpinLock6unlockEv"></span><span id="Utils::SpinLock::unlock"></span><span class="target" id="a00102_1a583b80eab972afc3afcbebc192760d40"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">unlock</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Utils8SpinLock6unlockEv" title="Permalink to this definition">¶</a><br>
 </dt>
 <dd></dd>
 </dl>
@@ -187,15 +188,15 @@
           <a href="../index.html" title="Table Of Contents"
              >toc</a> &nbsp; &nbsp;</li>
         <li class="right" >
-          <a href="class_a00082.html" title="Class SpinLock"
+          <a href="class_a00114.html" title="Class SpinLock_barrier"
              >next</a> &nbsp; &nbsp;</li>
         <li class="right" >
-          <a href="class_a00118.html" title="Class Runtime_TraceError"
+          <a href="class_a00122.html" title="Class SimpleSemaphore"
              >previous</a> &nbsp; &nbsp;</li>
     <li><a href="../index.html">Utils</a> &#187;</li>
 
           <li class="nav-item nav-item-1"><a href="root.html" >C++ API</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Class SimpleSemaphore</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Class SpinLock</a></li> 
       </ul>
     </div>
     </div>

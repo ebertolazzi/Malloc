@@ -114,6 +114,7 @@
 #include "TicToc.hxx"
 #include "ThreadPool.hxx"
 #include "Quaternion.hxx"
+#include "Table.hxx"
 
 namespace Utils {
 

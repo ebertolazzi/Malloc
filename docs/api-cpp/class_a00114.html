@@ -7,7 +7,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Class TicToc &#8212; Utils v</title>
+    <title>Class SpinLock_barrier &#8212; Utils v1.0
+</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/cloud.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/table_styling.css" />
@@ -39,8 +40,8 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Class WaitWorker" href="class_a00086.html" />
-    <link rel="prev" title="Class ThreadPool" href="class_a00110.html" /> 
+    <link rel="next" title="Class Cell" href="class_a00090.html" />
+    <link rel="prev" title="Class SpinLock" href="class_a00102.html" /> 
         <meta name="viewport" content="width=device-width, initial-scale=1">
   </head><body>
     <div class="relbar-top">
@@ -55,15 +56,15 @@
           <a href="../index.html" title="Table Of Contents"
              accesskey="C">toc</a> &nbsp; &nbsp;</li>
         <li class="right" >
-          <a href="class_a00086.html" title="Class WaitWorker"
+          <a href="class_a00090.html" title="Class Cell"
              accesskey="N">next</a> &nbsp; &nbsp;</li>
         <li class="right" >
-          <a href="class_a00110.html" title="Class ThreadPool"
+          <a href="class_a00102.html" title="Class SpinLock"
              accesskey="P">previous</a> &nbsp; &nbsp;</li>
     <li><a href="../index.html">Utils</a> &#187;</li>
 
           <li class="nav-item nav-item-1"><a href="root.html" accesskey="U">C++ API</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Class TicToc</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Class SpinLock_barrier</a></li> 
       </ul>
     </div>
     </div>
@@ -74,71 +75,69 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="class-tictoc">
-<span id="exhale-class-a00114"></span><h1>Class TicToc<a class="headerlink" href="#class-tictoc" title="Permalink to this headline">¶</a>
+  <div class="section" id="class-spinlock-barrier">
+<span id="exhale-class-a00114"></span><h1>Class SpinLock_barrier<a class="headerlink" href="#class-spinlock-barrier" title="Permalink to this headline">¶</a>
 </h1>
 <ul class="simple">
-<li><p>Defined in <a class="reference internal" href="file_Utils_TicToc.hxx.html#file-utils-tictoc-hxx"><span class="std std-ref">File TicToc.hxx</span></a></p></li>
+<li><p>Defined in <a class="reference internal" href="file_Utils_ThreadPool.hxx.html#file-utils-threadpool-hxx"><span class="std std-ref">File ThreadPool.hxx</span></a></p></li>
 </ul>
 <div class="section" id="class-documentation">
 <h2>Class Documentation<a class="headerlink" href="#class-documentation" title="Permalink to this headline">¶</a>
 </h2>
 <dl class="cpp class">
-<dt id="_CPPv4N5Utils6TicTocE">
-<span id="_CPPv3N5Utils6TicTocE"></span><span id="_CPPv2N5Utils6TicTocE"></span><span id="Utils::TicToc"></span><span class="target" id="a00114"></span><em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">Utils</span><code class="sig-prename descclassname"><span class="pre">::</span></code></code><code class="sig-name descname"><span class="pre">TicToc</span></code><a class="headerlink" href="#_CPPv4N5Utils6TicTocE" title="Permalink to this definition">¶</a><br>
+<dt id="_CPPv4N5Utils16SpinLock_barrierE">
+<span id="_CPPv3N5Utils16SpinLock_barrierE"></span><span id="_CPPv2N5Utils16SpinLock_barrierE"></span><span id="Utils::SpinLock_barrier"></span><span class="target" id="a00114"></span><em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">Utils</span><code class="sig-prename descclassname"><span class="pre">::</span></code></code><code class="sig-name descname"><span class="pre">SpinLock_barrier</span></code><a class="headerlink" href="#_CPPv4N5Utils16SpinLock_barrierE" title="Permalink to this definition">¶</a><br>
 </dt>
 <dd>
-<p>Class for timing code execution. </p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
-<dt id="_CPPv4N5Utils6TicToc6TicTocEv">
-<span id="_CPPv3N5Utils6TicToc6TicTocEv"></span><span id="_CPPv2N5Utils6TicToc6TicTocEv"></span><span id="Utils::TicToc::TicToc"></span><span class="target" id="a00114_1a45a074011eea46904f9447ca880bb829"></span><em class="property"><span class="pre">inline</span></em> <code class="sig-name descname"><span class="pre">TicToc</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Utils6TicToc6TicTocEv" title="Permalink to this definition">¶</a><br>
+<dt id="_CPPv4N5Utils16SpinLock_barrier16SpinLock_barrierERK16SpinLock_barrier">
+<span id="_CPPv3N5Utils16SpinLock_barrier16SpinLock_barrierERK16SpinLock_barrier"></span><span id="_CPPv2N5Utils16SpinLock_barrier16SpinLock_barrierERK16SpinLock_barrier"></span><span id="Utils::SpinLock_barrier::SpinLock_barrier__SpinLock_barrierCR"></span><span class="target" id="a00114_1ab70f9efcef9a275c710aa7d638ade217"></span><code class="sig-name descname"><span class="pre">SpinLock_barrier</span></code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N5Utils16SpinLock_barrier16SpinLock_barrierERK16SpinLock_barrier" title="Utils::SpinLock_barrier::SpinLock_barrier"><span class="pre">SpinLock_barrier</span></a> <em class="property"><span class="pre">const</span></em><span class="pre">&amp;</span><span class="sig-paren">)</span> <span class="pre">=</span> <span class="pre">delete</span><a class="headerlink" href="#_CPPv4N5Utils16SpinLock_barrier16SpinLock_barrierERK16SpinLock_barrier" title="Permalink to this definition">¶</a><br>
 </dt>
 <dd></dd>
 </dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4N5Utils6TicTocD0Ev">
-<span id="_CPPv3N5Utils6TicTocD0Ev"></span><span id="_CPPv2N5Utils6TicTocD0Ev"></span><span id="Utils::TicToc::~TicToc"></span><span class="target" id="a00114_1ad38330dcba91d089fd08e9d855411698"></span><em class="property"><span class="pre">inline</span></em> <code class="sig-name descname"><span class="pre">~TicToc</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Utils6TicTocD0Ev" title="Permalink to this definition">¶</a><br>
+<dt id="_CPPv4N5Utils16SpinLock_barrieraSERK16SpinLock_barrier">
+<span id="_CPPv3N5Utils16SpinLock_barrieraSERK16SpinLock_barrier"></span><span id="_CPPv2N5Utils16SpinLock_barrieraSERK16SpinLock_barrier"></span><span id="Utils::SpinLock_barrier::assign-operator__SpinLock_barrierCR"></span><span class="target" id="a00114_1ac2fa2ceb7f139c8880a8b6b37ab11db3"></span><a class="reference internal" href="#_CPPv4N5Utils16SpinLock_barrierE" title="Utils::SpinLock_barrier"><span class="pre">SpinLock_barrier</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">operator=</span></code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N5Utils16SpinLock_barrierE" title="Utils::SpinLock_barrier"><span class="pre">SpinLock_barrier</span></a> <em class="property"><span class="pre">const</span></em><span class="pre">&amp;</span><span class="sig-paren">)</span> <span class="pre">=</span> <span class="pre">delete</span><a class="headerlink" href="#_CPPv4N5Utils16SpinLock_barrieraSERK16SpinLock_barrier" title="Permalink to this definition">¶</a><br>
 </dt>
 <dd></dd>
 </dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4N5Utils6TicToc3ticEv">
-<span id="_CPPv3N5Utils6TicToc3ticEv"></span><span id="_CPPv2N5Utils6TicToc3ticEv"></span><span id="Utils::TicToc::tic"></span><span class="target" id="a00114_1a06770d03e648fa3a509038f00dc74506"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">tic</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Utils6TicToc3ticEv" title="Permalink to this definition">¶</a><br>
+<dt id="_CPPv4N5Utils16SpinLock_barrier16SpinLock_barrierEv">
+<span id="_CPPv3N5Utils16SpinLock_barrier16SpinLock_barrierEv"></span><span id="_CPPv2N5Utils16SpinLock_barrier16SpinLock_barrierEv"></span><span id="Utils::SpinLock_barrier::SpinLock_barrier"></span><span class="target" id="a00114_1a2742c511d968944250465fcdb288c4f6"></span><em class="property"><span class="pre">inline</span></em> <em class="property"><span class="pre">explicit</span></em> <code class="sig-name descname"><span class="pre">SpinLock_barrier</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Utils16SpinLock_barrier16SpinLock_barrierEv" title="Permalink to this definition">¶</a><br>
 </dt>
-<dd>
-<p>Start timing </p>
-</dd>
+<dd></dd>
 </dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4N5Utils6TicToc3tocEv">
-<span id="_CPPv3N5Utils6TicToc3tocEv"></span><span id="_CPPv2N5Utils6TicToc3tocEv"></span><span id="Utils::TicToc::toc"></span><span class="target" id="a00114_1a2a9cce5adc5098c42e553b92ecc7e309"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">toc</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Utils6TicToc3tocEv" title="Permalink to this definition">¶</a><br>
+<dt id="_CPPv4N5Utils16SpinLock_barrier5setupEj">
+<span id="_CPPv3N5Utils16SpinLock_barrier5setupEj"></span><span id="_CPPv2N5Utils16SpinLock_barrier5setupEj"></span><span id="Utils::SpinLock_barrier::setup__unsigned"></span><span class="target" id="a00114_1aebd67322f06059dd1c12aa1447ee4283"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><span class="pre">unsigned</span> <em><span class="pre">count</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Utils16SpinLock_barrier5setupEj" title="Permalink to this definition">¶</a><br>
 </dt>
-<dd>
-<p>End timing </p>
-</dd>
+<dd></dd>
 </dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4NK5Utils6TicToc9elapsed_sEv">
-<span id="_CPPv3NK5Utils6TicToc9elapsed_sEv"></span><span id="_CPPv2NK5Utils6TicToc9elapsed_sEv"></span><span id="Utils::TicToc::elapsed_sC"></span><span class="target" id="a00114_1a5da044ad716a94e4aae1c6ced8d5cbc1"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">real_type</span> <code class="sig-name descname"><span class="pre">elapsed_s</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK5Utils6TicToc9elapsed_sEv" title="Permalink to this definition">¶</a><br>
+<dt id="_CPPv4N5Utils16SpinLock_barrier10count_downEv">
+<span id="_CPPv3N5Utils16SpinLock_barrier10count_downEv"></span><span id="_CPPv2N5Utils16SpinLock_barrier10count_downEv"></span><span id="Utils::SpinLock_barrier::count_down"></span><span class="target" id="a00114_1af5c3c0d2f8d1847cd0bce6e8139d695c"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">count_down</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Utils16SpinLock_barrier10count_downEv" title="Permalink to this definition">¶</a><br>
 </dt>
-<dd>
-<p>Return elapsed time (between tic-toc) in seconds </p>
-</dd>
+<dd></dd>
 </dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4NK5Utils6TicToc10elapsed_msEv">
-<span id="_CPPv3NK5Utils6TicToc10elapsed_msEv"></span><span id="_CPPv2NK5Utils6TicToc10elapsed_msEv"></span><span id="Utils::TicToc::elapsed_msC"></span><span class="target" id="a00114_1a3ea0100128ff03fdb79686ce197579c3"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">real_type</span> <code class="sig-name descname"><span class="pre">elapsed_ms</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK5Utils6TicToc10elapsed_msEv" title="Permalink to this definition">¶</a><br>
+<dt id="_CPPv4N5Utils16SpinLock_barrier4waitEv">
+<span id="_CPPv3N5Utils16SpinLock_barrier4waitEv"></span><span id="_CPPv2N5Utils16SpinLock_barrier4waitEv"></span><span id="Utils::SpinLock_barrier::wait"></span><span class="target" id="a00114_1a43ebabb055e13b93982fb7612b257fd3"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">wait</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Utils16SpinLock_barrier4waitEv" title="Permalink to this definition">¶</a><br>
 </dt>
-<dd>
-<p>Return elapsed time (between tic-toc) in milliseconds </p>
-</dd>
+<dd></dd>
+</dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N5Utils16SpinLock_barrier19count_down_and_waitEv">
+<span id="_CPPv3N5Utils16SpinLock_barrier19count_down_and_waitEv"></span><span id="_CPPv2N5Utils16SpinLock_barrier19count_down_and_waitEv"></span><span id="Utils::SpinLock_barrier::count_down_and_wait"></span><span class="target" id="a00114_1a35edd75542e893c7d5b0fc7c2fa7cd51"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">count_down_and_wait</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Utils16SpinLock_barrier19count_down_and_waitEv" title="Permalink to this definition">¶</a><br>
+</dt>
+<dd></dd>
 </dl>
 
 </div>
@@ -210,15 +209,15 @@
           <a href="../index.html" title="Table Of Contents"
              >toc</a> &nbsp; &nbsp;</li>
         <li class="right" >
-          <a href="class_a00086.html" title="Class WaitWorker"
+          <a href="class_a00090.html" title="Class Cell"
              >next</a> &nbsp; &nbsp;</li>
         <li class="right" >
-          <a href="class_a00110.html" title="Class ThreadPool"
+          <a href="class_a00102.html" title="Class SpinLock"
              >previous</a> &nbsp; &nbsp;</li>
     <li><a href="../index.html">Utils</a> &#187;</li>
 
           <li class="nav-item nav-item-1"><a href="root.html" >C++ API</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Class TicToc</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Class SpinLock_barrier</a></li> 
       </ul>
     </div>
     </div>

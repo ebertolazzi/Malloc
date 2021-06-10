@@ -7,7 +7,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Program Listing for File TicToc.cc &#8212; Utils v</title>
+    <title>Program Listing for File TicToc.cc &#8212; Utils v1.0
+</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/cloud.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/table_styling.css" />
@@ -133,6 +134,29 @@
   <span class="n">sleep_for_milliseconds</span><span class="p">(</span><span class="kt">unsigned</span> <span class="n">ms</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">Sleep</span><span class="p">(</span><span class="n">DWORD</span><span class="p">(</span><span class="n">ms</span><span class="p">));</span>
   <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cp">#else</span>
+
+<span class="k">namespace</span> <span class="n">Utils</span> <span class="p">{</span>
+
+  <span class="kt">void</span>
+  <span class="n">TicToc</span><span class="o">::</span><span class="n">tic</span><span class="p">()</span>
+  <span class="p">{</span> <span class="n">m_start_time</span> <span class="o">=</span> <span class="n">clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span> <span class="p">}</span>
+
+  <span class="kt">void</span>
+  <span class="n">TicToc</span><span class="o">::</span><span class="n">toc</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">m_stop_time</span>    <span class="o">=</span> <span class="n">clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
+    <span class="n">m_elapsed_time</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">duration_cast</span><span class="o">&lt;</span><span class="n">elapsed_resolution</span><span class="o">&gt;</span><span class="p">(</span><span class="n">m_stop_time</span> <span class="o">-</span> <span class="n">m_start_time</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">typename</span> <span class="nc">TicToc</span><span class="o">::</span><span class="n">real_type</span>
+  <span class="n">TicToc</span><span class="o">::</span><span class="n">elapsed_s</span><span class="p">()</span> <span class="k">const</span>
+  <span class="p">{</span> <span class="k">return</span> <span class="mf">1e-6</span><span class="o">*</span><span class="n">m_elapsed_time</span><span class="p">.</span><span class="n">count</span><span class="p">();</span> <span class="p">}</span>
+
+  <span class="k">typename</span> <span class="nc">TicToc</span><span class="o">::</span><span class="n">real_type</span>
+  <span class="n">TicToc</span><span class="o">::</span><span class="n">elapsed_ms</span><span class="p">()</span> <span class="k">const</span>
+  <span class="p">{</span> <span class="k">return</span> <span class="mf">1e-3</span><span class="o">*</span><span class="n">m_elapsed_time</span><span class="p">.</span><span class="n">count</span><span class="p">();</span> <span class="p">}</span>
 <span class="p">}</span>
 
 <span class="cp">#endif</span>

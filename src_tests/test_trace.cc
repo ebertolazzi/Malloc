@@ -19,17 +19,19 @@
 
 #include "Utils.hh"
 
-void fun1( int i );
-void fun2( int i );
-void fun3( int i );
-void fun4( int i );
+static void fun1( int i );
+static void fun2( int i );
+static void fun3( int i );
+static void fun4( int i );
 
+static
 void
 fun5( char const str[] ) {
   std::cout << "fun3: " << str << '\n';
   Utils::printTrace(__LINE__,__FILE__,"in fun3",std::cerr);
 }
 
+static
 void
 fun1( int i ) {
   std::cout << "in fun1\n";
@@ -41,6 +43,7 @@ fun1( int i ) {
   }
 }
 
+static 
 void
 fun2( int i ) {
   std::cout << "in fun2\n";
@@ -52,6 +55,7 @@ fun2( int i ) {
   }
 }
 
+static 
 void
 fun3( int i ) {
   std::cout << "in fun3\n";
@@ -63,6 +67,7 @@ fun3( int i ) {
   }
 }
 
+static 
 void
 fun4( int i ) {
   std::cout << "in fun4\n";

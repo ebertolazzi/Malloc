@@ -7,7 +7,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Program Listing for File rang.hxx &#8212; Utils v</title>
+    <title>Program Listing for File rang.hxx &#8212; Utils v1.0
+</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/cloud.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/table_styling.css" />
@@ -204,6 +205,10 @@
       <span class="n">ostream</span> <span class="o">&amp;</span>
     <span class="o">&gt;::</span><span class="n">type</span><span class="p">;</span>
 
+    <span class="k">extern</span> <span class="kt">bool</span> <span class="n">isTerminal</span><span class="p">(</span> <span class="n">streambuf</span> <span class="k">const</span> <span class="o">*</span> <span class="p">)</span> <span class="k">noexcept</span><span class="p">;</span>
+    <span class="k">extern</span> <span class="kt">bool</span> <span class="n">supportsAnsi</span><span class="p">(</span> <span class="n">streambuf</span> <span class="k">const</span> <span class="o">*</span> <span class="p">)</span> <span class="k">noexcept</span><span class="p">;</span>
+    <span class="k">extern</span> <span class="kt">bool</span> <span class="n">supportsColor</span><span class="p">()</span> <span class="k">noexcept</span><span class="p">;</span>
+
     <span class="cp">#ifdef UTILS_OS_WINDOWS</span>
     <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="o">&gt;</span>
     <span class="kr">inline</span>
@@ -243,10 +248,6 @@
       <span class="k">return</span> <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\033</span><span class="s">["</span> <span class="o">&lt;&lt;</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"m"</span><span class="p">;</span>
     <span class="p">}</span>
     <span class="cp">#endif</span>
-
-    <span class="kt">bool</span> <span class="n">isTerminal</span><span class="p">(</span> <span class="n">streambuf</span> <span class="k">const</span> <span class="o">*</span> <span class="p">)</span> <span class="k">noexcept</span><span class="p">;</span>
-    <span class="kt">bool</span> <span class="nf">supportsAnsi</span><span class="p">(</span> <span class="n">streambuf</span> <span class="k">const</span> <span class="o">*</span> <span class="p">)</span> <span class="k">noexcept</span><span class="p">;</span>
-    <span class="kt">bool</span> <span class="nf">supportsColor</span><span class="p">()</span> <span class="k">noexcept</span><span class="p">;</span>
 
   <span class="p">}</span>  <span class="c1">// namespace rang_implementation</span>
 

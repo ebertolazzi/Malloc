@@ -3,9 +3,10 @@ UTILS
 
 A collection of useful code for C++ applications:
 
-- Terminal coloring use code from `https://github.com/agauniyal/rang`
-- Stream compression use code from `https://github.com/geromueller/zstream-cpp`
-- Stream formatting use code from  `https://fmt.dev`
+- Terminal coloring use code from `https://github.com/agauniyal/rang` by Abhinav Gauniyal (license `http://unlicense.org`)
+- Stream compression use code from `https://github.com/geromueller/zstream-cpp` by Jonathan de Halleux and Gero Müller
+- Stream formatting use code from  `https://fmt.dev` by Victor Zverovich (MIT license)
+- Table formatting use code from  `https://github.com/Bornageek/terminal-table` by Andreas Wilhelm (Apache License, Version 2.0) partially rewritten.
 
 in addition a TreadPool class, TicToc class for timing, Malloc
 class for easy allocation with traking of allocated memory.

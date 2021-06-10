@@ -7,7 +7,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>File Utils.hxx &#8212; Utils v</title>
+    <title>File Utils.hxx &#8212; Utils v1.0
+</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/cloud.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/table_styling.css" />
@@ -96,11 +97,13 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">Malloc.hxx</span></code> (<a class="reference internal" href="file_Utils_Malloc.hxx.html#file-utils-malloc-hxx"><span class="std std-ref">File Malloc.hxx</span></a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Numbers.hxx</span></code> (<a class="reference internal" href="file_Utils_Numbers.hxx.html#file-utils-numbers-hxx"><span class="std std-ref">File Numbers.hxx</span></a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Quaternion.hxx</span></code> (<a class="reference internal" href="file_Utils_Quaternion.hxx.html#file-utils-quaternion-hxx"><span class="std std-ref">File Quaternion.hxx</span></a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Table.hxx</span></code> (<a class="reference internal" href="file_Utils_Table.hxx.html#file-utils-table-hxx"><span class="std std-ref">File Table.hxx</span></a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ThreadPool.hxx</span></code> (<a class="reference internal" href="file_Utils_ThreadPool.hxx.html#file-utils-threadpool-hxx"><span class="std std-ref">File ThreadPool.hxx</span></a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">TicToc.hxx</span></code> (<a class="reference internal" href="file_Utils_TicToc.hxx.html#file-utils-tictoc-hxx"><span class="std std-ref">File TicToc.hxx</span></a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Trace.hxx</span></code> (<a class="reference internal" href="file_Utils_Trace.hxx.html#file-utils-trace-hxx"><span class="std std-ref">File Trace.hxx</span></a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">atomic</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cmath</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">condition_variable</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cstdint</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cstdlib</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">fmt/chrono.h</span></code></p></li>
@@ -113,6 +116,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">sstream</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">stdexcept</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">thread</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">zstream/izstream.hpp</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">zstream/ozstream.hpp</span></code></p></li>
 </ul>
@@ -128,17 +132,17 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a>
 </h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="function_a00065_1a9ebe53f5e8fe4744f45d6d3ecf2258c2.html#exhale-function-a00065-1a9ebe53f5e8fe4744f45d6d3ecf2258c2"><span class="std std-ref">Template Function Utils::searchInterval</span></a></p></li>
+<li><p><a class="reference internal" href="function_a00068_1a9ebe53f5e8fe4744f45d6d3ecf2258c2.html#exhale-function-a00068-1a9ebe53f5e8fe4744f45d6d3ecf2258c2"><span class="std std-ref">Template Function Utils::searchInterval</span></a></p></li>
 </ul>
 </div>
 <div class="section" id="defines">
 <h2>Defines<a class="headerlink" href="#defines" title="Permalink to this headline">¶</a>
 </h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="define_a00062_1a9401ec3a5293fffb1126273cf44788cf.html#exhale-define-a00062-1a9401ec3a5293fffb1126273cf44788cf"><span class="std std-ref">Define UTILS_CONSTEXPR</span></a></p></li>
-<li><p><a class="reference internal" href="define_a00062_1a099d03c0bd135ab72d9e980213955b17.html#exhale-define-a00062-1a099d03c0bd135ab72d9e980213955b17"><span class="std std-ref">Define UTILS_dot_HXX</span></a></p></li>
-<li><p><a class="reference internal" href="define_a00062_1a18d1c9d1e228a9399b62137808e2e872.html#exhale-define-a00062-1a18d1c9d1e228a9399b62137808e2e872"><span class="std std-ref">Define UTILS_OVERRIDE</span></a></p></li>
-<li><p><a class="reference internal" href="define_a00062_1a72ddd1f7ad357033dd5a5324a288a259.html#exhale-define-a00062-1a72ddd1f7ad357033dd5a5324a288a259"><span class="std std-ref">Define UTILS_PURE_VIRTUAL</span></a></p></li>
+<li><p><a class="reference internal" href="define_a00065_1a9401ec3a5293fffb1126273cf44788cf.html#exhale-define-a00065-1a9401ec3a5293fffb1126273cf44788cf"><span class="std std-ref">Define UTILS_CONSTEXPR</span></a></p></li>
+<li><p><a class="reference internal" href="define_a00065_1a099d03c0bd135ab72d9e980213955b17.html#exhale-define-a00065-1a099d03c0bd135ab72d9e980213955b17"><span class="std std-ref">Define UTILS_dot_HXX</span></a></p></li>
+<li><p><a class="reference internal" href="define_a00065_1a18d1c9d1e228a9399b62137808e2e872.html#exhale-define-a00065-1a18d1c9d1e228a9399b62137808e2e872"><span class="std std-ref">Define UTILS_OVERRIDE</span></a></p></li>
+<li><p><a class="reference internal" href="define_a00065_1a72ddd1f7ad357033dd5a5324a288a259.html#exhale-define-a00065-1a72ddd1f7ad357033dd5a5324a288a259"><span class="std std-ref">Define UTILS_PURE_VIRTUAL</span></a></p></li>
 </ul>
 </div>
 </div>

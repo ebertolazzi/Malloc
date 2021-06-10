@@ -87,7 +87,7 @@ INCLUDE_DIRECTORIES( src src/Utils )
 
 IF( BUILD_EXECUTABLE )
 
-  SET( EXELISTCPP test_trace test_Malloc test_Thread test_rang test_Quaternion )
+  SET( EXELISTCPP test_Malloc test_Quaternion test_rang test_table test_Thread test_trace )
 
   SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
   FILE(MAKE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/bin )
