@@ -18,6 +18,7 @@
 \*--------------------------------------------------------------------------*/
 
 #include "Utils.hh"
+#include "Utils/zstream/ozstream.hpp"
 
 #include <fstream>
 

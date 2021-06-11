@@ -13,10 +13,12 @@ task :default => [:build]
 
 TESTS = [
   "test_Malloc",
+  "test_Quaternion",
   "test_rang",
+  "test_table",
   "test_Thread",
   "test_trace",
-  "test_Quaternion"
+  "test_zstream"
 ]
 
 desc "run tests on linux/osx"
