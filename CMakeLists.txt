@@ -79,7 +79,6 @@ IF ( BUILD_SHARED )
   ADD_LIBRARY( ${TARGET} SHARED ${SOURCES} ${HEADERS} )
 ENDIF()
 
-
 MESSAGE( STATUS "YEAR = ${YEAR}" )
 MESSAGE( STATUS "BITS = ${BITS}" )
 
@@ -87,16 +86,28 @@ INCLUDE_DIRECTORIES( src src/Utils )
 
 IF( BUILD_EXECUTABLE )
 
-  SET( EXELISTCPP test_Malloc test_Quaternion test_rang test_table test_Thread test_trace )
+  IF(APPLE OR UNIX)
+    FIND_PACKAGE( ZLIB REQUIRED )
+    INCLUDE_DIRECTORIES( ${ZLIB_INCLUDE_DIRS} )
+  ELSE()
+    IF ( CMAKE_BUILD_TYPE STREQUAL "Debug" )
+      SET( ZLIB_LIBRARIES ./ThirdParties/zlib/lib/zlibstaticd.lib )
+    ELSE()
+      SET( ZLIB_LIBRARIES ./ThirdParties/zlib/lib/zlibstatic.lib )
+    ENDIF()
+    INCLUDE_DIRECTORIES( ./ThirdParties/zlib/include )
+  ENDIF()
+
+  SET( EXELISTCPP test_Malloc test_Quaternion test_rang test_table test_Thread test_trace test_zstream )
 
   SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
   FILE(MAKE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/bin )
   FOREACH( S ${EXELISTCPP} )
     ADD_EXECUTABLE( ${S} ${CMAKE_CURRENT_SOURCE_DIR}/src_tests/${S}.cc ${HEADERS} )
     IF ( UNIX AND NOT APPLE )
-      TARGET_LINK_LIBRARIES( ${S} ${TARGETS} ${lapackblas_libraries} -ldl )
+      TARGET_LINK_LIBRARIES( ${S} ${TARGETS} ${lapackblas_libraries} ${ZLIB_LIBRARIES} -ldl )
     ELSE()
-      TARGET_LINK_LIBRARIES( ${S} ${TARGETS} ${lapackblas_libraries} )
+      TARGET_LINK_LIBRARIES( ${S} ${TARGETS} ${lapackblas_libraries} ${ZLIB_LIBRARIES} )
     ENDIF()
     ADD_TEST(
       ${S} COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/${S}

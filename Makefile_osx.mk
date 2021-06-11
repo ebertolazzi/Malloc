@@ -12,6 +12,7 @@ AR      = libtool -static -o
 LIBSGCC = -lstdc++ -lm
 
 ALL_LIBS = $(LIBS) -Llib/lib -Llib/dll -lUtils_osx_static
+ZLIB     = -lz
 
 all_libs: lib/dll/libUtils_osx.dylib lib/lib/libUtils_osx_static.a
 

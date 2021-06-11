@@ -56,6 +56,7 @@ tests: all_libs
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_table src_tests/test_table.cc $(ALL_LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_Thread src_tests/test_Thread.cc $(ALL_LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_trace src_tests/test_trace.cc $(ALL_LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test_zstream src_tests/test_zstream.cc $(ALL_LIBS) $(LIBSGCC) $(ZLIB)
 
 .cc.o:
 	$(CXX) $(INC) $(CXXFLAGS) $(DEFS) -c $< -o $@
@@ -85,6 +86,7 @@ run: tests
 	./bin/test_table
 	./bin/test_Thread
 	./bin/test_trace
+	./bin/test_zstream
 
 doc:
 	doxygen

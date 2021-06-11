@@ -10,6 +10,8 @@ CXX    += $(WARN)
 AR      = ar rcs
 LIBSGCC = -static-libgcc -static-libstdc++ -lm -ldl
 
+ZLIB    = -lz
+
 override CXXFLAGS += -floop-interchange -floop-block
 
 ALL_LIBS = $(LIBS) -Llib/lib -Llib/dll -lUtils_linux_static
