@@ -50,7 +50,9 @@ end
 
 def ChangeOnFile( file, text_to_replace, text_to_put_in_place )
   text = File.read file
-  File.open(file, 'w+'){|f| f << text.gsub(text_to_replace, text_to_put_in_place)}
+  File.open(file, 'w+') do |f|
+    f << text.gsub(text_to_replace, text_to_put_in_place)
+  end
 end
 
 desc "compile for Visual Studio [default year=2017, bits=x64]"
