@@ -56,12 +56,12 @@ namespace Utils {
   }
 
   void
-  sleep_for_seconds(unsigned s) {
+  sleep_for_seconds( unsigned s ) {
     Sleep(DWORD(s) * 1000);
   }
 
   void
-  sleep_for_milliseconds(unsigned ms) {
+  sleep_for_milliseconds( unsigned ms ) {
     Sleep(DWORD(ms));
   }
 }

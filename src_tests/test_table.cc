@@ -2,7 +2,7 @@
 #include "Utils.hh"
 
 int
-main( int argc, char const * argv[] ) {
+main() {
   Utils::Table::Style style;
   Utils::Table::Table table;
   std::cout << "Starting table test ...\n\n";
