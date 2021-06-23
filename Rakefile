@@ -58,6 +58,10 @@ end
 desc "compile for Visual Studio [default year=2017, bits=x64]"
 task :build_win, [:year, :bits] do |t, args|
 
+  FileUtils.cd "ThirdParties"
+    sh "rake install_win[#{args.year},#{args.bits}]"
+  FileUtils.cd ".."
+
   FileUtils.rm_rf 'lib'
 
   args.with_defaults( :year => "2017", :bits => "x64" )
@@ -95,6 +99,10 @@ end
 desc 'compile for OSX'
 task :build_osx do |t, args|
 
+  FileUtils.cd "ThirdParties"
+    sh "rake install_osx"
+  FileUtils.cd ".."
+
   FileUtils.rm_rf 'lib'
 
   dir = "build"
@@ -122,6 +130,10 @@ end
 
 desc 'compile for LINUX'
 task :build_linux do |t, args|
+
+  FileUtils.cd "ThirdParties"
+    sh "rake install_linux"
+  FileUtils.cd ".."
 
   FileUtils.rm_rf 'lib'
 

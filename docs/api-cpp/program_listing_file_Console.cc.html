@@ -291,9 +291,9 @@
 
   <span class="n">Console</span> <span class="k">const</span> <span class="o">&amp;</span>
   <span class="n">Console</span><span class="o">::</span><span class="n">semaphore</span><span class="p">(</span>
-    <span class="kt">unsigned</span>            <span class="n">rvg</span><span class="p">,</span>
+    <span class="kt">unsigned</span>       <span class="n">rvg</span><span class="p">,</span>
     <span class="n">string</span> <span class="k">const</span> <span class="o">&amp;</span> <span class="n">msg</span><span class="p">,</span>
-    <span class="kt">int</span>                 <span class="n">msg_level</span>
+    <span class="kt">int</span>            <span class="n">msg_level</span>
   <span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
     <span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lock_access</span><span class="p">(</span><span class="n">m_message_mutex</span><span class="p">);</span>
     <span class="k">static</span> <span class="n">rang</span><span class="o">::</span><span class="n">fg</span> <span class="n">rvg_color</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>

@@ -126,12 +126,12 @@
   <span class="p">}</span>
 
   <span class="kt">void</span>
-  <span class="n">sleep_for_seconds</span><span class="p">(</span><span class="kt">unsigned</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">sleep_for_seconds</span><span class="p">(</span> <span class="kt">unsigned</span> <span class="n">s</span> <span class="p">)</span> <span class="p">{</span>
     <span class="n">Sleep</span><span class="p">(</span><span class="n">DWORD</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">);</span>
   <span class="p">}</span>
 
   <span class="kt">void</span>
-  <span class="n">sleep_for_milliseconds</span><span class="p">(</span><span class="kt">unsigned</span> <span class="n">ms</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">sleep_for_milliseconds</span><span class="p">(</span> <span class="kt">unsigned</span> <span class="n">ms</span> <span class="p">)</span> <span class="p">{</span>
     <span class="n">Sleep</span><span class="p">(</span><span class="n">DWORD</span><span class="p">(</span><span class="n">ms</span><span class="p">));</span>
   <span class="p">}</span>
 <span class="p">}</span>

@@ -1,0 +1,35 @@
+require "rake"
+require "fileutils"
+
+require_relative "../../Rakefile_common.rb"
+
+desc "install Eigen3"
+task :install do
+  if File.exist?('eigen-3.3.9.zip') then
+  else
+    url_download( 'https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.zip', 'eigen-3.3.9.zip' )
+  end
+  if Dir.exist?('eigen-3.3.9/Eigen') then
+  else
+    extract_zip('eigen-3.3.9.zip');
+  end
+  FileUtils.cp_r 'eigen-3.3.9/Eigen', '../../src'
+end
+
+task :install_osx => :install do
+end
+
+task :install_linux => :install do
+end
+
+task :install_win => :install do
+end
+
+task :clean_osx do
+end
+
+task :clean_linux do
+end
+
+task :clean_win do
+end
