@@ -1,6 +1,5 @@
 .vscode
 build
-lib/include
 *.a
 *.o
 *.dylib
@@ -10,6 +9,7 @@ lib/include
 *~
 /vs_*
 /lib
+/lib3rd
 bin
 docs_build/sphinx/_build
 docs_build/sphinx/_doxygen

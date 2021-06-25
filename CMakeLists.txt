@@ -82,7 +82,7 @@ ENDIF()
 MESSAGE( STATUS "YEAR = ${YEAR}" )
 MESSAGE( STATUS "BITS = ${BITS}" )
 
-INCLUDE_DIRECTORIES( src src/Utils )
+INCLUDE_DIRECTORIES( src src/Utils lib3rd/include )
 
 IF( BUILD_EXECUTABLE )
 
@@ -122,9 +122,9 @@ FILE( GLOB HDR1      ./src/Utils/*.h* )
 FILE( GLOB HDR_FMT   ./src/Utils/fmt/*.h* )
 FILE( GLOB HDR_ZS    ./src/Utils/zstream/*.h* )
 FILE( GLOB HDR_MINGW ./src/Utils/mingw-std-threads/*.h* ./src/Utils/mingw-std-threads/README.* ./src/Utils/mingw-std-threads/LICENSE )
-FILE( GLOB HDR_ZLIB  ./ThirdParties/zlib/include/*.h* )
-FILE( GLOB LIB_ZLIB  ./ThirdParties/zlib/lib/*.* )
-FILE( GLOB DLL_ZLIB  ./ThirdParties/zlib/bin/*.* )
+FILE( GLOB HDR_ZLIB  ./lib3rd/include/*.h* )
+FILE( GLOB LIB_ZLIB  ./lib3rd/lib/*.* )
+FILE( GLOB DLL_ZLIB  ./lib3rd/dll/*.* )
 
 IF ( BUILD_SHARED )
   INSTALL(
