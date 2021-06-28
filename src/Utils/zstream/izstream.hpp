@@ -75,9 +75,9 @@ public:
     size_t            input_buffer_size_
   );
 
-  ~basic_unzip_streambuf();
+  ~basic_unzip_streambuf() override;
 
-  int_type underflow();
+  int_type underflow() override;
 
   //! returns the compressed input istream
   istream_reference get_istream() { return m_istream; }
