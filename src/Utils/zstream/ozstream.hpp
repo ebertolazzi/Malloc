@@ -30,12 +30,6 @@
 #ifndef OUTPUT_ZIP_STREAM_HPP
 #define OUTPUT_ZIP_STREAM_HPP
 
-#include <vector>
-#include <iostream>
-#include <algorithm>
-#include <string>
-#include <zlib.h>
-
 #include "zstream_common.hpp"
 
 namespace zstream {

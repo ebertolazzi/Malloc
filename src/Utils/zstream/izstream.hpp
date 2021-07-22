@@ -30,12 +30,6 @@
 #ifndef INPUT_ZIP_STREAM_HPP
 #define INPUT_ZIP_STREAM_HPP
 
-#include <vector>
-#include <iostream>
-#include <algorithm>
-
-#include <zlib.h>
-
 #include "zstream_common.hpp"
 
 namespace zstream {

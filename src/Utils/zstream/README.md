@@ -1,7 +1,9 @@
 Introduction
 ============
 
-STL iostream implementation using the library zlib. This means that you can easily manipulate zipped streams like any other STL ostream/istream.
+STL iostream implementation using the library zlib.
+This means that you can easily manipulate zipped
+streams like any other STL ostream/istream.
 
 To give you an idea, consider following snippet that prints "Hello World":
 
@@ -23,7 +25,9 @@ Or, to create gzipped files:
     ogzstream gzfile(file);
     gzfile << "Hello world " << endl;
 
-As you can see adding zipped buffers into your existing applications is quite straightforward. To summarize, let's see some quick facts about zstream:
+As you can see adding zipped buffers into your existing 
+applications is quite straightforward.
+To summarize, let's see some quick facts about zstream:
 
     * STL compliant,
     * any-stream-to-any-stream support,
@@ -32,4 +36,5 @@ As you can see adding zipped buffers into your existing applications is quite st
     * support custom allocators (New!)
 
 
-Based on the work of Jonathan de Halleux, published on CodeProject http://www.codeproject.com/Articles/4457/zipstream-bzip-stream-iostream-wrappers-for-the-zl
+Based on the work of Jonathan de Halleux, published on 
+CodeProject http://www.codeproject.com/Articles/4457/zipstream-bzip-stream-iostream-wrappers-for-the-zl
