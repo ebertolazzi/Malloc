@@ -9,6 +9,8 @@ end
 
 require_relative "./Rakefile_common.rb"
 
+file_base = File.expand_path(File.dirname(__FILE__)).to_s
+
 task :default => [:build]
 
 TESTS = [
@@ -73,6 +75,7 @@ task :build_win, [:year, :bits] do |t, args|
   FileUtils.cd      dir
 
   cmake_cmd = win_vs(args.bits,args.year)
+  cmake_cmd += " -DCMAKE_INSTALL_PREFIX=\"#{file_base}\" "
   if COMPILE_EXECUTABLE then
     cmake_cmd += ' -DBUILD_EXECUTABLE:VAR=true '
   else
@@ -111,7 +114,7 @@ task :build_osx do |t, args|
   FileUtils.mkdir_p dir
   FileUtils.cd      dir
 
-  cmd_cmake = 'cmake -DBUILD_EXECUTABLE:VAR='
+  cmd_cmake = "cmake -DCMAKE_INSTALL_PREFIX=\"#{file_base}\" -DBUILD_EXECUTABLE:VAR="
   if COMPILE_EXECUTABLE then
     cmd_cmake += 'true '
   else
@@ -143,7 +146,7 @@ task :build_linux do |t, args|
   FileUtils.mkdir_p dir
   FileUtils.cd      dir
 
-  cmd_cmake = 'cmake -DBUILD_EXECUTABLE:VAR='
+  cmd_cmake = "cmake -DCMAKE_INSTALL_PREFIX=\"#{file_base}\" cmake -DBUILD_EXECUTABLE:VAR="
   if COMPILE_EXECUTABLE then
     cmd_cmake += 'true '
   else

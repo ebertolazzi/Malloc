@@ -1,0 +1,38 @@
+if(INSTALL_HERE)
+set(INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/lib")
+else()
+set(INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/lib")
+endif()
+
+file(GLOB HDR       ./src/*.h*)
+file(GLOB HDR1      ./src/Utils/*.h*)
+file(GLOB HDR_FMT   ./src/Utils/fmt/*.h*)
+file(GLOB HDR_ZS    ./src/Utils/zstream/*.h*)
+file(GLOB HDR_MINGW ./src/Utils/mingw-std-threads/*.h* ./src/Utils/mingw-std-threads/README.* ./src/Utils/mingw-std-threads/LICENSE)
+file(GLOB HDR_ZLIB  ./lib3rd/include/*.h*)
+file(GLOB LIB_ZLIB  ./lib3rd/lib/*.*)
+file(GLOB DLL_ZLIB  ./lib3rd/dll/*.*)
+
+# FIXME: With targets defined in this method it is possible to automatically
+# export and install headers (PUBLIC_HEADER and PRIVATE_HEADER)
+# ref: https://cmake.org/cmake/help/latest/command/install.html#installing-targets
+set(INSTALL_TARGET ${STATIC_PROJECT})
+if(BUILD_SHARED)
+  set(INSTALL_TARGET ${INSTALL_TARGET} ${DYNAMIC_PROJECT})
+endif()
+install(
+  TARGETS ${INSTALL_TARGET}
+  RUNTIME DESTINATION ${INSTALL_PREFIX}/bin
+  LIBRARY DESTINATION ${INSTALL_PREFIX}/dll
+  ARCHIVE DESTINATION ${INSTALL_PREFIX}/lib
+  PUBLIC_HEADER DESTINATION ${INSTALL_PREFIX}/include/${PROJECT_NAME})
+
+install(FILES ${HDR}       DESTINATION ${INSTALL_PREFIX}/include/${PROJECT_NAME})
+install(FILES ${HDR1}      DESTINATION ${INSTALL_PREFIX}/include/${PROJECT_NAME}/Utils)
+install(FILES ${HDR_FMT}   DESTINATION ${INSTALL_PREFIX}/include/${PROJECT_NAME}/Utils/fmt)
+install(FILES ${HDR_ZS}    DESTINATION ${INSTALL_PREFIX}/include/${PROJECT_NAME}/Utils/zstream)
+install(FILES ${HDR_MINGW} DESTINATION ${INSTALL_PREFIX}/include/${PROJECT_NAME}/Utils/mingw-std-threads)
+install(FILES ${HDR_ZLIB}  DESTINATION ${INSTALL_PREFIX}/include/${PROJECT_NAME})
+install(FILES ${LIB_ZLIB}  DESTINATION ${INSTALL_PREFIX}/lib)
+install(FILES ${DLL_ZLIB}  DESTINATION ${INSTALL_PREFIX}/dll)
+install(DIRECTORY ./src/Eigen DESTINATION ${INSTALL_PREFIX}/include/${PROJECT_NAME})
