@@ -6,16 +6,17 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>rang - Colors for your Terminal &#8212; Utils v1.0
 </title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/cloud.css" />
     <link rel="stylesheet" type="text/css" href="_static/table_styling.css" />
     <link rel="stylesheet" type="text/css" href="_static/collapsible-lists/css/tree_view.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noticia+Text:400,i,b,bi|Open+Sans:400,i,b,bi|Roboto+Mono:400,i,b,bi&amp;display=swap" type="text/css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -74,7 +75,7 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="rang-colors-for-your-terminal">
+  <section id="rang-colors-for-your-terminal">
 <h1>rang - Colors for your Terminal<a class="headerlink" href="#rang-colors-for-your-terminal" title="Permalink to this headline">¶</a>
 </h1>
 <div class="admonition note">
@@ -86,17 +87,17 @@ to avoid windows header conflict in complex projects.</p>
 </div>
 <p><strong>Example usage</strong></p>
 <div class="highlight-cpp notranslate">
-<div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">"rang.hpp"</span><span class="cp"></span>
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">"rang.hpp"</span><span class="cp"></span>
 
-<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
-<span class="k">using</span> <span class="k">namespace</span> <span class="n">rang</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">std</span><span class="p">;</span><span class="w"></span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">rang</span><span class="p">;</span><span class="w"></span>
 
-<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
-<span class="p">{</span>
-    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Plain old text"</span>
-         <span class="o">&lt;&lt;</span> <span class="n">style</span><span class="o">::</span><span class="n">bold</span> <span class="o">&lt;&lt;</span> <span class="s">"Rang styled text!!"</span>
-         <span class="o">&lt;&lt;</span> <span class="n">style</span><span class="o">::</span><span class="n">reset</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Plain old text"</span><span class="w"></span>
+<span class="w">         </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">style</span><span class="o">::</span><span class="n">bold</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Rang styled text!!"</span><span class="w"></span>
+<span class="w">         </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">style</span><span class="o">::</span><span class="n">reset</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <hr class="docutils">
@@ -119,7 +120,7 @@ supports virtually all terminals and their capablities.</strong></p>
 <p>Apart from setting text attributes, you can also ask rang to override
 its default behaviour through these methods -</p>
 <div class="highlight-cpp notranslate">
-<div class="highlight"><pre><span></span><span class="kt">void</span> <span class="n">rang</span><span class="o">::</span><span class="n">setControlMode</span><span class="p">(</span><span class="n">rang</span><span class="o">::</span><span class="n">control</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">rang::setControlMode</span><span class="p">(</span><span class="n">rang</span><span class="o">::</span><span class="n">control</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">rang::control</span></code> takes - <code class="docutils literal notranslate"><span class="pre">control::Auto</span></code> - Automatically
@@ -128,7 +129,7 @@ detects whether terminal supports color or not(<strong>Default</strong>) -
 Force colors even if terminal doesn’t supports them or output is
 redirected to non-terminal</p>
 <div class="highlight-cpp notranslate">
-<div class="highlight"><pre><span></span><span class="kt">void</span> <span class="n">rang</span><span class="o">::</span><span class="n">setWinTermMode</span><span class="p">(</span><span class="n">rang</span><span class="o">::</span><span class="n">winTerm</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">rang::setWinTermMode</span><span class="p">(</span><span class="n">rang</span><span class="o">::</span><span class="n">winTerm</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">rang::winTerm</span></code> takes - <code class="docutils literal notranslate"><span class="pre">winTerm::Auto</span></code> - Checks for newer
@@ -472,7 +473,7 @@ you’ve read this
 <a class="reference external" href="https://github.com/agauniyal/rang/pull/77#issuecomment-360991652">conversation</a>
 and check out the example code
 <a class="reference external" href="https://gist.github.com/kingseva/a918ec66079a9475f19642ec31276a21">here</a>.</p>
-</div>
+</section>
 
 
 
@@ -489,7 +490,7 @@ and check out the example code
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -550,7 +551,7 @@ and check out the example code
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Enrico Bertolazzi.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
     </div>
     <!-- cloud_sptheme 1.4 -->
   </body>

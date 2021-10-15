@@ -6,16 +6,17 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Program Listing for File Malloc.hxx &#8212; Utils v1.0
 </title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/cloud.css" />
     <link rel="stylesheet" type="text/css" href="../_static/table_styling.css" />
     <link rel="stylesheet" type="text/css" href="../_static/collapsible-lists/css/tree_view.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noticia+Text:400,i,b,bi|Open+Sans:400,i,b,bi|Roboto+Mono:400,i,b,bi&amp;display=swap" type="text/css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
@@ -66,7 +67,7 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="program-listing-for-file-malloc-hxx">
+  <section id="program-listing-for-file-malloc-hxx">
 <span id="program-listing-file-utils-malloc-hxx"></span><h1>Program Listing for File Malloc.hxx<a class="headerlink" href="#program-listing-for-file-malloc-hxx" title="Permalink to this headline">¶</a>
 </h1>
 <p>↰ <a class="reference internal" href="file_Utils_Malloc.hxx.html#file-utils-malloc-hxx"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">Utils/Malloc.hxx</span></code>)</p>
@@ -88,7 +89,7 @@
 <span class="cm"> |      Universita` degli Studi di Trento                                   |</span>
 <span class="cm"> |      email: enrico.bertolazzi@unitn.it                                   |</span>
 <span class="cm"> |                                                                          |</span>
-<span class="cm">\*--------------------------------------------------------------------------*/</span>
+<span class="cm">\*--------------------------------------------------------------------------*/</span><span class="w"></span>
 
 
 <span class="cp">#pragma once</span>
@@ -102,113 +103,113 @@
 <span class="cm">:|:  | |   _| |_ _| |_| | '_ \| __/ _ \ '__| |_ / _` |/ __/ _ \</span>
 <span class="cm">:|:  | |__|_   _|_   _| | | | | ||  __/ |  |  _| (_| | (_|  __/</span>
 <span class="cm">:|:   \____||_|   |_| |_|_| |_|\__\___|_|  |_|  \__,_|\___\___|</span>
-<span class="cm">\*/</span>
+<span class="cm">\*/</span><span class="w"></span>
 
-<span class="k">namespace</span> <span class="n">Utils</span> <span class="p">{</span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">Utils</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 
-  <span class="cp">#ifndef DOXYGEN_SHOULD_SKIP_THIS</span>
-  <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="p">;</span>
-  <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">;</span>
-  <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="p">;</span>
-  <span class="cp">#endif</span>
+<span class="w">  </span><span class="cp">#ifndef DOXYGEN_SHOULD_SKIP_THIS</span>
+<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="cp">#endif</span>
 
 
-  <span class="k">extern</span> <span class="n">mutex</span> <span class="n">MallocMutex</span><span class="p">;</span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="n">mutex</span><span class="w"> </span><span class="n">MallocMutex</span><span class="p">;</span><span class="w"></span>
 
-  <span class="k">extern</span> <span class="kt">int64_t</span> <span class="n">CountAlloc</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="kt">int64_t</span> <span class="n">CountFreed</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="kt">int64_t</span> <span class="n">AllocatedBytes</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="kt">int64_t</span> <span class="n">MaximumAllocatedBytes</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="kt">bool</span>    <span class="n">MallocDebug</span><span class="p">;</span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">CountAlloc</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">CountFreed</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">AllocatedBytes</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">MaximumAllocatedBytes</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w">    </span><span class="n">MallocDebug</span><span class="p">;</span><span class="w"></span>
 
-  <span class="n">string</span> <span class="nf">outBytes</span><span class="p">(</span> <span class="kt">size_t</span> <span class="n">nb</span> <span class="p">);</span>
+<span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="nf">outBytes</span><span class="p">(</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">nb</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
 
-  <span class="cm">/*\</span>
+<span class="w">  </span><span class="cm">/*\</span>
 <span class="cm">  :|:   __  __       _ _</span>
 <span class="cm">  :|:  |  \/  | __ _| | | ___   ___</span>
 <span class="cm">  :|:  | |\/| |/ _` | | |/ _ \ / __|</span>
 <span class="cm">  :|:  | |  | | (_| | | | (_) | (__</span>
 <span class="cm">  :|:  |_|  |_|\__,_|_|_|\___/ \___|</span>
-<span class="cm">  \*/</span>
+<span class="cm">  \*/</span><span class="w"></span>
 
-  <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="o">&gt;</span>
-  <span class="k">class</span> <span class="nc">Malloc</span> <span class="p">{</span>
-  <span class="k">public</span><span class="o">:</span>
-    <span class="k">typedef</span> <span class="n">T</span> <span class="n">valueType</span><span class="p">;</span>
+<span class="w">  </span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="o">&gt;</span><span class="w"></span>
+<span class="w">  </span><span class="k">class</span> <span class="nc">Malloc</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="k">typedef</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="n">valueType</span><span class="p">;</span><span class="w"></span>
 
-  <span class="k">private</span><span class="o">:</span>
+<span class="w">  </span><span class="k">private</span><span class="o">:</span><span class="w"></span>
 
-    <span class="n">string</span>      <span class="n">m_name</span><span class="p">;</span>
-    <span class="kt">size_t</span>      <span class="n">m_numTotValues</span><span class="p">;</span>
-    <span class="kt">size_t</span>      <span class="n">m_numTotReserved</span><span class="p">;</span>
-    <span class="kt">size_t</span>      <span class="n">m_numAllocated</span><span class="p">;</span>
-    <span class="n">valueType</span> <span class="o">*</span> <span class="n">m_pMalloc</span><span class="p">;</span>
+<span class="w">    </span><span class="n">string</span><span class="w">      </span><span class="n">m_name</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">      </span><span class="n">m_numTotValues</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">      </span><span class="n">m_numTotReserved</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">      </span><span class="n">m_numAllocated</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">valueType</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m_pMalloc</span><span class="p">;</span><span class="w"></span>
 
-    <span class="n">Malloc</span><span class="p">(</span><span class="n">Malloc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="k">const</span> <span class="o">&amp;</span><span class="p">)</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span> <span class="c1">// blocco costruttore di copia</span>
-    <span class="n">Malloc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="k">const</span> <span class="o">&amp;</span> <span class="k">operator</span> <span class="o">=</span> <span class="p">(</span><span class="n">Malloc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="p">)</span> <span class="k">const</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span> <span class="c1">// blocco copia</span>
+<span class="w">    </span><span class="n">Malloc</span><span class="p">(</span><span class="n">Malloc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">&amp;</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">delete</span><span class="p">;</span><span class="w"> </span><span class="c1">// blocco costruttore di copia</span>
+<span class="w">    </span><span class="n">Malloc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="k">operator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">Malloc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">delete</span><span class="p">;</span><span class="w"> </span><span class="c1">// blocco copia</span>
 
-    <span class="kt">void</span> <span class="nf">allocate_internal</span><span class="p">(</span> <span class="kt">size_t</span> <span class="n">n</span> <span class="p">);</span>
-    <span class="kt">void</span> <span class="nf">memory_exausted</span><span class="p">(</span> <span class="kt">size_t</span> <span class="n">sz</span> <span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">allocate_internal</span><span class="p">(</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">memory_exausted</span><span class="p">(</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">sz</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
 
-  <span class="k">public</span><span class="o">:</span>
+<span class="w">  </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
 
-    <span class="k">explicit</span>
-    <span class="n">Malloc</span><span class="p">(</span> <span class="n">string</span> <span class="k">const</span> <span class="o">&amp;</span> <span class="n">name</span> <span class="p">);</span>
+<span class="w">    </span><span class="k">explicit</span><span class="w"></span>
+<span class="w">    </span><span class="n">Malloc</span><span class="p">(</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
 
-    <span class="o">~</span><span class="n">Malloc</span><span class="p">()</span> <span class="p">{</span> <span class="n">hard_free</span><span class="p">();</span> <span class="p">}</span>
+<span class="w">    </span><span class="o">~</span><span class="n">Malloc</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">hard_free</span><span class="p">();</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 
-    <span class="kt">void</span> <span class="n">allocate</span><span class="p">(</span> <span class="kt">size_t</span> <span class="n">n</span> <span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">allocate</span><span class="p">(</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
 
-    <span class="kt">void</span> <span class="nf">reallocate</span><span class="p">(</span> <span class="kt">size_t</span> <span class="n">n</span> <span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">reallocate</span><span class="p">(</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
 
-    <span class="kt">void</span> <span class="nf">free</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span> <span class="n">m_numTotValues</span> <span class="o">=</span> <span class="n">m_numAllocated</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">}</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">free</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">m_numTotValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_numAllocated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 
-    <span class="kt">void</span> <span class="nf">hard_free</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">hard_free</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w"></span>
 
-    <span class="kt">size_t</span> <span class="nf">size</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">m_numTotValues</span><span class="p">;</span> <span class="p">}</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">m_numTotValues</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">T</span> <span class="o">*</span> <span class="nf">operator</span> <span class="p">()</span> <span class="p">(</span> <span class="kt">size_t</span> <span class="n">sz</span> <span class="p">)</span> <span class="p">{</span>
-      <span class="kt">size_t</span> <span class="n">offs</span> <span class="o">=</span> <span class="n">m_numAllocated</span><span class="p">;</span>
-      <span class="n">m_numAllocated</span> <span class="o">+=</span> <span class="n">sz</span><span class="p">;</span>
-      <span class="k">if</span> <span class="p">(</span> <span class="n">m_numAllocated</span> <span class="o">&gt;</span> <span class="n">m_numTotValues</span> <span class="p">)</span> <span class="n">memory_exausted</span><span class="p">(</span> <span class="n">sz</span> <span class="p">);</span>
-      <span class="k">return</span> <span class="n">m_pMalloc</span> <span class="o">+</span> <span class="n">offs</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="n">T</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nf">operator</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">sz</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="kt">size_t</span><span class="w"> </span><span class="n">offs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_numAllocated</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="n">m_numAllocated</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">sz</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">m_numAllocated</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">m_numTotValues</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">memory_exausted</span><span class="p">(</span><span class="w"> </span><span class="n">sz</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">m_pMalloc</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">offs</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">T</span> <span class="o">*</span> <span class="nf">malloc</span><span class="p">(</span> <span class="kt">size_t</span> <span class="n">n</span> <span class="p">);</span>
-    <span class="n">T</span> <span class="o">*</span> <span class="nf">realloc</span><span class="p">(</span> <span class="kt">size_t</span> <span class="n">n</span> <span class="p">);</span>
+<span class="w">    </span><span class="n">T</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nf">malloc</span><span class="p">(</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">T</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nf">realloc</span><span class="p">(</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
 
-    <span class="kt">bool</span> <span class="nf">is_empty</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">m_numAllocated</span> <span class="o">&gt;=</span> <span class="n">m_numTotValues</span><span class="p">;</span> <span class="p">}</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="nf">is_empty</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">m_numAllocated</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">m_numTotValues</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 
-    <span class="kt">void</span> <span class="nf">must_be_empty</span><span class="p">(</span> <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span> <span class="k">const</span> <span class="n">where</span> <span class="p">)</span> <span class="k">const</span><span class="p">;</span>
-  <span class="p">};</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">must_be_empty</span><span class="p">(</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">where</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">};</span><span class="w"></span>
 
-  <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">uint16_t</span><span class="o">&gt;</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">int16_t</span><span class="o">&gt;</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">uint32_t</span><span class="o">&gt;</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">uint64_t</span><span class="o">&gt;</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">int64_t</span><span class="o">&gt;</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">uint16_t</span><span class="o">&gt;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">int16_t</span><span class="o">&gt;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">uint32_t</span><span class="o">&gt;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">uint64_t</span><span class="o">&gt;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">int64_t</span><span class="o">&gt;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">;</span><span class="w"></span>
 
-  <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">*&gt;</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">uint16_t</span><span class="o">*&gt;</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">int16_t</span><span class="o">*&gt;</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">uint32_t</span><span class="o">*&gt;</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">*&gt;</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">uint64_t</span><span class="o">*&gt;</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">int64_t</span><span class="o">*&gt;</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">*&gt;</span><span class="p">;</span>
-  <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">*&gt;</span><span class="p">;</span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">*&gt;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">uint16_t</span><span class="o">*&gt;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">int16_t</span><span class="o">*&gt;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">uint32_t</span><span class="o">*&gt;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">*&gt;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">uint64_t</span><span class="o">*&gt;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">int64_t</span><span class="o">*&gt;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">*&gt;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="k">class</span> <span class="nc">Malloc</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">*&gt;</span><span class="p">;</span><span class="w"></span>
 
-<span class="p">}</span>
+<span class="p">}</span><span class="w"></span>
 
 <span class="cp">#endif</span>
 </pre></div>
 </div>
-</div>
+</section>
 
 
 
@@ -225,7 +226,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -280,7 +281,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Enrico Bertolazzi.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
     </div>
     <!-- cloud_sptheme 1.4 -->
   </body>

@@ -6,16 +6,17 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Z-stream &#8212; Utils v1.0
 </title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/cloud.css" />
     <link rel="stylesheet" type="text/css" href="_static/table_styling.css" />
     <link rel="stylesheet" type="text/css" href="_static/collapsible-lists/css/tree_view.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noticia+Text:400,i,b,bi|Open+Sans:400,i,b,bi|Roboto+Mono:400,i,b,bi&amp;display=swap" type="text/css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -74,7 +75,7 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="z-stream">
+  <section id="z-stream">
 <h1>Z-stream<a class="headerlink" href="#z-stream" title="Permalink to this headline">¶</a>
 </h1>
 <div class="admonition note">
@@ -89,25 +90,25 @@ streams like any other STL ostream/istream.</p>
 <p>To give you an idea, consider following snippet
 that prints “Hello World”:</p>
 <div class="highlight-cpp notranslate">
-<div class="highlight"><pre><span></span><span class="n">ostringstream</span> <span class="n">output_buffer</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><span class="n">ostringstream</span><span class="w"> </span><span class="n">output_buffer</span><span class="p">;</span><span class="w"></span>
 <span class="c1">// writing data</span>
-<span class="n">output_buffer</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello world"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span> <span class="p">;</span>
+<span class="n">output_buffer</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Hello world"</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Now, the same snippet but with zipped output using zlib:</p>
 <div class="highlight-cpp notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// zip_ostream uses output_buffer as output buffer :)</span>
-<span class="n">ozstream</span> <span class="nf">zipper</span><span class="p">(</span> <span class="n">output_buffer</span> <span class="p">);</span>
+<span class="n">ozstream</span><span class="w"> </span><span class="nf">zipper</span><span class="p">(</span><span class="w"> </span><span class="n">output_buffer</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
 
 <span class="c1">// writing data as usual</span>
-<span class="n">zipper</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello world"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+<span class="n">zipper</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Hello world"</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Or, to create gzipped files:</p>
 <div class="highlight-cpp notranslate">
-<div class="highlight"><pre><span></span><span class="n">ofstream</span> <span class="nf">file</span><span class="p">(</span><span class="s">"hello_world.txt.gz"</span><span class="p">);</span>
-<span class="n">ogzstream</span> <span class="nf">gzfile</span><span class="p">(</span><span class="n">file</span><span class="p">);</span>
-<span class="n">gzfile</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello world "</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><span class="n">ofstream</span><span class="w"> </span><span class="nf">file</span><span class="p">(</span><span class="s">"hello_world.txt.gz"</span><span class="p">);</span><span class="w"></span>
+<span class="n">ogzstream</span><span class="w"> </span><span class="nf">gzfile</span><span class="p">(</span><span class="n">file</span><span class="p">);</span><span class="w"></span>
+<span class="n">gzfile</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Hello world "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -124,7 +125,7 @@ To summarize, let’s see some quick facts about zstream:</p>
 <li><p>support custom allocators</p></li>
 </ul>
 </div>
-</div>
+</section>
 
 
 
@@ -141,7 +142,7 @@ To summarize, let’s see some quick facts about zstream:</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -202,7 +203,7 @@ To summarize, let’s see some quick facts about zstream:</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Enrico Bertolazzi.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
     </div>
     <!-- cloud_sptheme 1.4 -->
   </body>

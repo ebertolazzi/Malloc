@@ -14,10 +14,19 @@ set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(CMAKE_INSTALL_MESSAGE NEVER)
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
-project(Utils 
-  VERSION 1.0
-  HOMEPAGE_URL "https://ebertolazzi.github.io/Utils/")
+if(ENABLE_CTEST)
+  enable_testing()
+endif()
 
+# get version from the git tag
+execute_process(COMMAND git describe --tags --abbrev=0 OUTPUT_VARIABLE VERSION)
+string(REGEX REPLACE "\n$" "" VERSION "${VERSION}")
+
+project(
+  Utils 
+  VERSION ${VERSION}
+  HOMEPAGE_URL "https://ebertolazzi.github.io/Utils/"
+)
 
 # NOTE: Predictable target name
 set(STATIC_PROJECT "${PROJECT_NAME}Static")
@@ -48,7 +57,8 @@ set(CMAKE_C_FLAGS_DEBUG   ${CMAKE_CXX_FLAGS_DEBUG})
 # manually in order to rebuild cmake-cache automatically.
 # Ref: https://cmake.org/cmake/help/v3.15/command/file.html?highlight=glob#filesystem
 set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
-set(SOURCES
+set(
+  SOURCES
   "${SOURCE_DIR}/Console.cc"
   "${SOURCE_DIR}/CPUinfo.cc"
   "${SOURCE_DIR}/fmt.cc"
@@ -58,38 +68,49 @@ set(SOURCES
   "${SOURCE_DIR}/Table.cc"
   "${SOURCE_DIR}/TicToc.cc"
   "${SOURCE_DIR}/Trace.cc"
-  "${SOURCE_DIR}/Utils.cc")
+  "${SOURCE_DIR}/Utils.cc"
+)
 
 # Utils Static Library
 add_library(${STATIC_PROJECT} STATIC ${SOURCES})
-target_include_directories(${STATIC_PROJECT} PUBLIC
+target_include_directories(
+  ${STATIC_PROJECT} PUBLIC
   "$<BUILD_INTERFACE:${SOURCE_DIR}>"
   "$<BUILD_INTERFACE:${SOURCE_DIR}/Utils>"
   "$<BUILD_INTERFACE:${SOURCE_DIR}/Eigen>"
   "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
   "$<INSTALL_INTERFACE:include/${PROJECT_NAME}/Utils>"
-  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}/Eigen>")
-set_target_properties(${STATIC_PROJECT} PROPERTIES 
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}/Eigen>"
+)
+set_target_properties(
+  ${STATIC_PROJECT} PROPERTIES 
   OUTPUT_NAME "${PROJECT_NAME}${ARTIFACTS_STATIC_SUFFIX}"
-  POSITION_INDEPENDENT_CODE ON)
+  POSITION_INDEPENDENT_CODE ON
+)
 
 # Utils Dynamic Library
 if(BUILD_SHARED)
   add_library(${DYNAMIC_PROJECT} SHARED ${SOURCES})
-  target_include_directories(${DYNAMIC_PROJECT} PRIVATE
+  target_include_directories(
+    ${DYNAMIC_PROJECT} PRIVATE
     "${SOURCE_DIR}"
     "${SOURCE_DIR}/Utils"
-    "${SOURCE_DIR}/Eigen")
-  set_target_properties(${DYNAMIC_PROJECT} PROPERTIES 
+    "${SOURCE_DIR}/Eigen"
+  )
+  set_target_properties(
+    ${DYNAMIC_PROJECT} PROPERTIES 
     OUTPUT_NAME "${PROJECT_NAME}${ARTIFACTS_DYNAMIC_SUFFIX}"
-    POSITION_INDEPENDENT_CODE ON)
+    POSITION_INDEPENDENT_CODE ON
+  )
   if (WIN32)
-    set_target_properties(${DYNAMIC_PROJECT} PROPERTIES 
-      WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+    set_target_properties(
+      ${DYNAMIC_PROJECT} PROPERTIES 
+      WINDOWS_EXPORT_ALL_SYMBOLS TRUE
+    )
   endif()
 endif()
 
-if(BUILD_EXECUTABLE)
+if(BUILD_EXECUTABLE OR ENABLE_CTEST)
   enable_testing()
   set(EXELISTBIN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bin")
   set(EXELISTCPP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src_tests")
@@ -107,18 +128,19 @@ if(BUILD_EXECUTABLE)
 
   file(MAKE_DIRECTORY ${EXELISTBIN_DIR})
 
-  set(EXELISTCPP 
+  set(
+    EXELISTCPP 
     test_Malloc 
     test_Quaternion 
     test_rang 
     test_table 
     test_Thread 
     test_trace 
-    test_zstream)
+    test_zstream
+  )
 
   foreach(S ${EXELISTCPP})
-    add_executable( ${S} 
-      "${EXELISTCPP_DIR}/${S}.cc")
+    add_executable( ${S} "${EXELISTCPP_DIR}/${S}.cc")
     target_include_directories(${S} PRIVATE ${ZLIB_INCLUDE_DIRS})
     target_link_libraries(${S} PRIVATE ${STATIC_PROJECT} ${ZLIB_LIBRARIES})
     if(UNIX AND NOT APPLE)
