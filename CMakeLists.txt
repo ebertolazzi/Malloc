@@ -44,10 +44,10 @@ endif()
 
 message(STATUS "Compiler used: ${CMAKE_CXX_COMPILER_ID}")
 if(NOT UNIX)
-  message(STATUS "YEAR = ${YEAR}" )
-  message(STATUS "BITS = ${BITS}" )
+  message( STATUS "YEAR = ${YEAR}" )
+  message( STATUS "BITS = ${BITS}" )
 endif()
-message(STATUS "BASE SUFFIXES = ${ARTIFACTS_STATIC_SUFFIX} ${ARTIFACTS_DYNAMIC_SUFFIX}")
+message( STATUS "BASE SUFFIXES = ${ARTIFACTS_STATIC_SUFFIX} ${ARTIFACTS_DYNAMIC_SUFFIX}")
 
 # FIXME: This should be applied to target
 set(CMAKE_C_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
