@@ -98,7 +98,8 @@ task :build_win, [:year, :bits] do |t, args|
   FileUtils.mkdir_p "../lib/dll"
   FileUtils.mkdir_p "../lib/include"
 
-  cmd_cmake = win_vs(args.bits,args.year) + cmd_cmake_build
+  #cmd_cmake = win_vs(args.bits,args.year) + cmd_cmake_build
+  cmd_cmake = 'cmake -G "NMake Makefiles" ' + cmd_cmake_build
 
   puts "run CMAKE for UTILS".yellow
   sh cmd_cmake + ' ..'
