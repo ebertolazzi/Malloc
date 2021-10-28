@@ -3,17 +3,19 @@ require "fileutils"
 
 require_relative "../../Rakefile_common.rb"
 
+VER = "3.4.0"
+
 desc "install Eigen3"
 task :install do
-  if File.exist?('eigen-3.3.9.zip') then
+  if File.exist?("eigen-#{VER}.zip") then
   else
-    url_download( 'https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.zip', 'eigen-3.3.9.zip' )
+    url_download( "https://gitlab.com/libeigen/eigen/-/archive/#{VER}/eigen-#{VER}.zip", "eigen-#{VER}.zip" )
   end
-  if Dir.exist?('eigen-3.3.9/Eigen') then
+  if Dir.exist?("eigen-#{VER}/Eigen") then
   else
-    extract_zip('eigen-3.3.9.zip');
+    extract_zip("eigen-#{VER}.zip");
   end
-  FileUtils.cp_r 'eigen-3.3.9/Eigen', '../../src'
+  FileUtils.cp_r "eigen-#{VER}/Eigen", '../../src'
 end
 
 task :install_osx => :install do
