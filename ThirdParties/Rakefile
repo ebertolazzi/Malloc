@@ -1,7 +1,26 @@
 require "rake"
 require_relative "../Rakefile_common.rb"
 
-task :default => [:install_osx] do
+case RUBY_PLATFORM
+when /darwin/
+  OS = :mac
+when /linux/
+  OS = :linux
+when /cygwin|mswin|mingw|bccwin|wince|emx/
+  OS = :win
+end
+
+task :default => :install
+
+task :install do
+  case OS
+  when :mac
+    Rake::Task[:install_osx].invoke()
+  when :linux
+    Rake::Task[:install_linux].invoke()
+  when :win
+    Rake::Task[:install_win].invoke()
+  end
 end
 
 desc "install 3rd parties for OSX"
@@ -35,6 +54,18 @@ task :install_win, [:year, :bits] do |t,args|
   FileUtils.cp "zlib/lib/zlibd.lib",       "../lib3rd/lib"
   FileUtils.cp "zlib/lib/zlibstatic.lib",  "../lib3rd/lib"
   FileUtils.cp "zlib/lib/zlibstaticd.lib", "../lib3rd/lib"
+end
+
+desc "clean 3rd parties"
+task :clean do
+  case OS
+  when :mac
+    Rake::Task[:clean_osx].invoke
+  when :linux
+    Rake::Task[:clean_linux].invoke
+  when :win
+    Rake::Task[:clean_win].invoke
+  end
 end
 
 desc "clean 3rd parties for OSX"

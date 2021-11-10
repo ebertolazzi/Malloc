@@ -7,6 +7,15 @@
   end
 end
 
+case RUBY_PLATFORM
+when /darwin/
+  OS = :mac
+when /linux/
+  OS = :linux
+when /cygwin|mswin|mingw|bccwin|wince|emx/
+  OS = :win
+end
+
 require_relative "./Rakefile_common.rb"
 
 file_base = File.expand_path(File.dirname(__FILE__)).to_s
@@ -23,13 +32,14 @@ else
   cmd_cmake_build += ' -DBUILD_SHARED:VAR=false '
 end
 if COMPILE_DEBUG then
-  cmd_cmake_build += ' -DCMAKE_BUILD_TYPE:VAR=Debug --loglevel=WARNING '
+  cmd_cmake_build += ' -DCMAKE_BUILD_TYPE:VAR=Debug --loglevel=STATUS '
 else
-  cmd_cmake_build += ' -DCMAKE_BUILD_TYPE:VAR=Release --loglevel=WARNING '
+  cmd_cmake_build += ' -DCMAKE_BUILD_TYPE:VAR=Release --loglevel=STATUS '
 end
 cmd_cmake_build += " -DINSTALL_HERE:VAR=true "
 
-task :default => [:build]
+desc "default task --> build"
+task :default => :build
 
 TESTS = [
   "test_Malloc",
@@ -41,42 +51,43 @@ TESTS = [
   "test_zstream"
 ]
 
-desc "run tests on linux/osx"
+desc "run tests"
 task :run do
-  TESTS.each do |cmd|
-    sh "./bin/#{cmd}"
-  end
-end
-
-desc "run tests (Release) on windows"
-task :run_win do
-  TESTS.each do |cmd|
-    sh "bin\\Release\\#{cmd}.exe"
-  end
-end
-
-desc "run tests (Debug) on windows"
-task :run_win_debug do
-  TESTS.each do |cmd|
-    sh "bin\\Debug\\#{cmd}.exe"
+  puts "UTILS run tests".green
+  case OS
+  when :mac,:linux
+    TESTS.each do |cmd|
+      exe = "./bin/#{cmd}"
+      next unless File.exist?(exe)
+      puts "execute #{exe}".yellow
+      sh exe
+    end
+  when :win
+    TESTS.each do |cmd|
+      exe = "bin\\#{cmd}.exe"
+      next unless File.exist?(exe)
+      puts "execute #{exe}".yellow
+      sh exe
+    end
   end
 end
 
 desc "build lib"
 task :build do
-  sh "make config"
-  sh "make --jobs=8 install_local"
-end
-
-def ChangeOnFile( file, text_to_replace, text_to_put_in_place )
-  text = File.read file
-  File.open(file, 'w+') do |f|
-    f << text.gsub(text_to_replace, text_to_put_in_place)
+  puts "UTILS build".green
+  case OS
+  when :mac
+    Rake::Task[:build_osx].invoke
+  when :linux
+    Rake::Task[:build_linux].invoke
+  when :win
+    Rake::Task[:build_win].invoke
   end
 end
 
 desc "compile for Visual Studio [default year=2017, bits=x64]"
 task :build_win, [:year, :bits] do |t, args|
+  puts "UTILS build on windows".green
 
   FileUtils.cd "ThirdParties"
     sh "rake install_win[#{args.year},#{args.bits}]"
@@ -113,10 +124,11 @@ task :build_win, [:year, :bits] do |t, args|
 end
 
 desc 'compile for OSX'
-task :build_osx do |t, args|
+task :build_osx do
+  puts "UTILS build (osx/linux)".green
 
   FileUtils.cd "ThirdParties"
-    sh "rake install_osx"
+    sh "rake install"
   FileUtils.cd ".."
 
   FileUtils.rm_rf 'lib'
@@ -141,33 +153,7 @@ task :build_osx do |t, args|
 end
 
 desc 'compile for LINUX'
-task :build_linux do |t, args|
-
-  FileUtils.cd "ThirdParties"
-    sh "rake install_linux"
-  FileUtils.cd ".."
-
-  FileUtils.rm_rf 'lib'
-
-  dir = "build"
-
-  FileUtils.rm_rf   dir
-  FileUtils.mkdir_p dir
-  FileUtils.cd      dir
-
-  cmd_cmake = "cmake " + cmd_cmake_build
-
-  puts "run CMAKE for UTILS".yellow
-  sh cmd_cmake + ' ..'
-  puts "compile with CMAKE for UTILS".yellow
-  if COMPILE_DEBUG then
-    sh 'cmake --build . --config Debug --target install '+PARALLEL+QUIET
-  else
-    sh 'cmake --build . --config Release --target install '+PARALLEL+QUIET
-  end
-
-  FileUtils.cd '..'
-end
+task :build_linux => :build_osx
 
 desc "clean for OSX"
 task :clean_osx do
@@ -176,10 +162,7 @@ task :clean_osx do
 end
 
 desc "clean for LINUX"
-task :clean_linux do
-  FileUtils.rm_rf 'lib'
-  sh "make clean"
-end
+task :clean_linux => :clean_osx
 
 desc "clean for WINDOWS"
 task :clean_win do

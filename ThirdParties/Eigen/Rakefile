@@ -7,6 +7,7 @@ VER = "3.4.0"
 
 desc "install Eigen3"
 task :install do
+  puts "Copy Eigen3 source".yellow
   if File.exist?("eigen-#{VER}.zip") then
   else
     url_download( "https://gitlab.com/libeigen/eigen/-/archive/#{VER}/eigen-#{VER}.zip", "eigen-#{VER}.zip" )
@@ -18,20 +19,10 @@ task :install do
   FileUtils.cp_r "eigen-#{VER}/Eigen", '../../src'
 end
 
-task :install_osx => :install do
-end
-
-task :install_linux => :install do
-end
-
-task :install_win => :install do
-end
-
-task :clean_osx do
-end
-
-task :clean_linux do
-end
-
-task :clean_win do
-end
+task :install_osx => :install
+task :install_linux => :install
+task :install_win => :install
+task :clean
+task :clean_osx
+task :clean_linux
+task :clean_win

@@ -11,10 +11,6 @@ else()
   set(PROJECT_PUBLIC_HEADER_DESTINATION "${INSTALL_PREFIX}/include/${PROJECT_NAME}")
 endif()
 
-MESSAGE( STATUS "\n\n\nCMAKE_HOME_DIRECTORY     = ${CMAKE_HOME_DIRECTORY}\n\n\n")
-MESSAGE( STATUS "\n\n\nCMAKE_CURRENT_SOURCE_DIR = ${CMAKE_CURRENT_SOURCE_DIR}\n\n\n")
-MESSAGE( STATUS "\n\n\nINSTALL_PREFIX           = ${INSTALL_PREFIX}\n\n\n")
-
 file(GLOB HDR       ./src/*.h*)
 file(GLOB HDR1      ./src/Utils/*.h*)
 file(GLOB HDR_FMT   ./src/Utils/fmt/*.h*)

@@ -18,13 +18,7 @@ COMPILE AND TEST
 
 **On linux**
 
-.. code-block:: bash
-
-    make clean
-    make
-    make run
-
-or using rake
+using rake
 
 .. code-block:: bash
 
@@ -32,15 +26,7 @@ or using rake
 
 **On windows**
 
-using MINGW on a bash shell
-
-.. code-block:: bash
-
-    make clean
-    make
-    make run
-
-or using Visual Studio
+using Visual Studio
 
 .. code-block:: bash
 
@@ -51,6 +37,4 @@ or using Visual Studio
 
 .. code-block:: bash
 
-    make clean
-    make
-    make run
+    rake build_osx
