@@ -84,10 +84,6 @@ set( DYNAMIC_PROJECT_EXPORT "${PROJECT_NAME}" )
 set( STATIC_PROJECT         "${EB_NAMESPACE}${STATIC_PROJECT_EXPORT}" )
 set( DYNAMIC_PROJECT        "${EB_NAMESPACE}${DYNAMIC_PROJECT_EXPORT}" )
 
-# NOTE: Predictable target name
-####set(STATIC_PROJECT "${PROJECT_NAME}Static")
-####set(DYNAMIC_PROJECT "${PROJECT_NAME}")
-
 # FIXME: This should refer to functions that acts on targets
 include(./CMakeLists-cflags.txt)
 include(./CMakeUtilities.txt)
@@ -164,7 +160,13 @@ if(BUILD_SHARED)
       WINDOWS_EXPORT_ALL_SYMBOLS TRUE
     )
   endif()
+
+  # ALIASES
+  add_library("${EB_NAMESPACE}::${DYNAMIC_PROJECT_EXPORT}" ALIAS ${DYNAMIC_PROJECT})
 endif()
+
+# ALIASES
+add_library("${EB_NAMESPACE}::${STATIC_PROJECT_EXPORT}" ALIAS ${STATIC_PROJECT})
 
 if(BUILD_EXECUTABLE OR ENABLE_CTEST)
   enable_testing()
