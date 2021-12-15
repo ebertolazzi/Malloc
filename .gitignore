@@ -17,3 +17,4 @@ docs_build/sphinx/api-cpp
 ThirdParties/Eigen/eigen-3.3.9
 eigen-3.3.9.zip
 ThirdParties/Eigen/eigen-3.4.0
+ThirdParties/fmt/fmt-8.0.1

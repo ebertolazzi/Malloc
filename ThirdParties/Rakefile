@@ -27,6 +27,8 @@ desc "install 3rd parties for OSX"
 task :install_osx do
   FileUtils.cd "Eigen"
   sh "rake install_osx"
+  FileUtils.cd "../fmt"
+  sh "rake install_osx"
   FileUtils.cd ".."
 end
 
@@ -34,14 +36,17 @@ desc "install 3rd parties for LINUX"
 task :install_linux do
   FileUtils.cd "Eigen"
   sh "rake install_linux"
+  FileUtils.cd "../fmt"
+  sh "rake install_linux"
   FileUtils.cd ".."
 end
 
 desc "install 3rd parties for WINDOWS"
-task :install_win, [:year, :bits] do |t,args|
-  args.with_defaults(:year => "2017", :bits => "x64" )
+task :install_win do
   FileUtils.cd "Eigen"
-  sh "rake install_win[#{args.year},#{args.bits}]"
+  sh "rake install_win"
+  FileUtils.cd "../fmt"
+  sh "rake install_win"
   FileUtils.cd ".."
   FileUtils.mkdir_p "../lib3rd/include"
   FileUtils.mkdir_p "../lib3rd/lib"

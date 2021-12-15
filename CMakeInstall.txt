@@ -13,7 +13,6 @@ endif()
 
 file(GLOB HDR       ./src/*.h*)
 file(GLOB HDR1      ./src/Utils/*.h*)
-file(GLOB HDR_FMT   ./src/Utils/fmt/*.h*)
 file(GLOB HDR_ZS    ./src/Utils/zstream/*.h*)
 file(GLOB HDR_MINGW ./src/Utils/mingw-std-threads/*.h* ./src/Utils/mingw-std-threads/README.* ./src/Utils/mingw-std-threads/LICENSE)
 file(GLOB HDR_ZLIB  ./lib3rd/include/*.h*)
@@ -37,11 +36,11 @@ install(
 
 install(FILES ${HDR}       DESTINATION ${PROJECT_PUBLIC_HEADER_DESTINATION})
 install(FILES ${HDR1}      DESTINATION ${PROJECT_PUBLIC_HEADER_DESTINATION}/Utils)
-install(FILES ${HDR_FMT}   DESTINATION ${PROJECT_PUBLIC_HEADER_DESTINATION}/Utils/fmt)
 install(FILES ${HDR_ZS}    DESTINATION ${PROJECT_PUBLIC_HEADER_DESTINATION}/Utils/zstream)
 install(FILES ${HDR_MINGW} DESTINATION ${PROJECT_PUBLIC_HEADER_DESTINATION}/Utils/mingw-std-threads)
 install(FILES ${HDR_ZLIB}  DESTINATION ${PROJECT_PUBLIC_HEADER_DESTINATION})
-install(DIRECTORY ./src/Eigen DESTINATION ${PROJECT_PUBLIC_HEADER_DESTINATION} )
+install(DIRECTORY ./src/Eigen     DESTINATION ${PROJECT_PUBLIC_HEADER_DESTINATION} )
+install(DIRECTORY ./src/Utils/fmt DESTINATION ${PROJECT_PUBLIC_HEADER_DESTINATION}/Utils )
 
 install(FILES ${LIB_ZLIB}  DESTINATION ${INSTALL_PREFIX}/lib)
 install(FILES ${DLL_ZLIB}  DESTINATION ${INSTALL_PREFIX}/dll)
