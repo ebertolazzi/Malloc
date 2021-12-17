@@ -49,7 +49,7 @@ foreach (F ${S})
   list( APPEND HEADERS ${SOURCE_DIR}/${RF} )
 endforeach(F ${S})
 
-include_directories( ${SOURCE_DIR} ${SOURCE_DIR}/Utils )
+include_directories( ${SOURCE_DIR} ${SOURCE_DIR}/Utils ./lib3rd/include )
 
 # define target
 ebertolazzi_setup_target( ${PROJECT_NAME} "${SOURCE_DIR}" "${SOURCES}" "${HEADERS}" )
@@ -117,9 +117,19 @@ install(
   DESTINATION "${INSTALL_PREFIX}/include/Eigen"
 )
 
-#file(GLOB LIB_ZLIB  ./lib3rd/lib/*.*)
-#file(GLOB DLL_ZLIB  ./lib3rd/dll/*.*)
-#install(FILES ${LIB_ZLIB}  DESTINATION ${INSTALL_PREFIX}/lib)
-#install(FILES ${DLL_ZLIB}  DESTINATION ${INSTALL_PREFIX}/dll)
+if ( WIN32 )
+  install(
+    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/include"
+    DESTINATION "${INSTALL_PREFIX}/"
+  )
+  install(
+    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll"
+    DESTINATION "${INSTALL_PREFIX}/"
+  )
+  install(
+    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib"
+    DESTINATION "${INSTALL_PREFIX}/"
+  )
+endif()
 
 ebertolazzi_final_messages()
