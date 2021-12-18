@@ -15,7 +15,7 @@ option( EB_BUILD_SHARED "Enable shared option compilation"      ON )
 option( EB_TWEAK_VERSION_IS_TIMESTAMP "Sets tweak version to timestamp" OFF )
 
 set( EB_NAMESPACE "ebertolazzi" CACHE STRING "Sets the namespace used for exports" )
-set( TARGET_TO_BE_INSTALLED )
+set( TARGETS_TO_BE_INSTALLED )
 
 #
 # DEFAULT SETTINGS

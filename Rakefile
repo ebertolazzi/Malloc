@@ -117,14 +117,18 @@ task :build_win, [:year, :bits] do |t, args|
   if COMPILE_DEBUG then
     sh 'cmake --build . --config Debug --target install '+PARALLEL+QUIET
   else
-    sh 'cmake  --build . --config Release  --target install '+PARALLEL+QUIET
+    sh 'cmake --build . --config Release --target install '+PARALLEL+QUIET
   end
+
+  puts "run CPACK for UTILS".yellow
+  sh 'cpack -G DEB'
+  #sh 'cpack -C CPackConfig.cmake'
+  #sh 'cpack -C CPackSourceConfig.cmake'
 
   FileUtils.cd '..'
 end
 
-desc 'compile for OSX'
-task :build_osx do
+task :build_osx_linux do
   puts "UTILS build (osx/linux)".green
 
   FileUtils.cd "ThirdParties"
@@ -149,11 +153,27 @@ task :build_osx do
   else
     sh 'cmake --build . --config Release --target install '+PARALLEL+QUIET
   end
+
   FileUtils.cd '..'
 end
 
+desc 'compile for OSX'
+task :build_osx => :build_osx_linux do
+  FileUtils.cd "build"
+  puts "run CPACK for UTILS".yellow
+  sh 'cpack -G productbuild -C CPackConfig.cmake'
+  sh 'cpack -G productbuild -C CPackSourceConfig.cmake'
+  FileUtils.cd ".."
+end
+
 desc 'compile for LINUX'
-task :build_linux => :build_osx
+task :build_linux => :build_osx_linux do
+  FileUtils.cd "build"
+  #puts "run CPACK for UTILS".yellow
+  #sh 'cpack -C CPackConfig.cmake'
+  #sh 'cpack -C CPackSourceConfig.cmake'
+  FileUtils.cd ".."
+end
 
 desc "clean for OSX"
 task :clean_osx do

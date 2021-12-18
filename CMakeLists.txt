@@ -11,7 +11,7 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-include( ./CMakeLists-common.txt )
+include(./cmake/CMakeLists-common.txt)
 
 project(
   Utils
@@ -21,8 +21,8 @@ project(
 
 message("UTILS current version = v${EB_PROJECT_VERSION}")
 
-include(./CMakeLists-cflags.txt)
-include(./CMakeLists-utilities.txt)
+include(./cmake/CMakeLists-cflags.txt)
+include(./cmake/CMakeLists-utilities.txt)
 
 # Evaluating the suffix to append to target built by this CMake file
 ebertolazzi_artifacts_suffix(ARTIFACTS_STATIC_SUFFIX TRUE)
@@ -33,27 +33,74 @@ endif()
 message( STATUS "Compiler used: ${CMAKE_CXX_COMPILER_ID}" )
 message( STATUS "BASE SUFFIXES = ${ARTIFACTS_STATIC_SUFFIX} ${ARTIFACTS_DYNAMIC_SUFFIX}" )
 
+#   ___
+#  / __| ___ _  _ _ _ __ ___ ___
+#  \__ \/ _ \ || | '_/ _/ -_|_-<
+#  |___/\___/\_,_|_| \__\___/__/
+#
 set( SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src" )
 
 set( SOURCES )
 file( GLOB S ${SOURCE_DIR}/*.cc )
 foreach(F ${S})
+  # build relative path respect to source directory
   file( RELATIVE_PATH RF ${SOURCE_DIR} "${F}" )
-  list( APPEND SOURCES ${SOURCE_DIR}/${RF} )
+  list( APPEND SOURCES ${RF} )
 endforeach(F ${S})
 
-set( HEADERS )
-file( GLOB S ${SOURCE_DIR}/*.h* ${SOURCE_DIR}/*/*.h* )
+#   _  _             _
+#  | || |___ __ _ __| |___ _ _ ___
+#  | __ / -_) _` / _` / -_) '_(_-<
+#  |_||_\___\__,_\__,_\___|_| /__/
+#
+set( PUBLIC_HEADERS )
+file( GLOB S ${SOURCE_DIR}/*.h* ${SOURCE_DIR}/**/*.h* )
 foreach (F ${S})
+  # build relative path respect to source directory
   file( RELATIVE_PATH RF ${SOURCE_DIR} "${F}" )
-  list( APPEND HEADERS ${SOURCE_DIR}/${RF} )
+  list( APPEND PUBLIC_HEADERS ${RF} )
 endforeach(F ${S})
 
-include_directories( ${SOURCE_DIR} ${SOURCE_DIR}/Utils ./lib3rd/include )
+set( PRIVATE_HEADERS )
+# no private headers
 
+#list(FILTER HEADERS EXCLUDE REGEX "src\/Eigen\/\.DS")
+
+# extra include directory for compilation
+include_directories( ${SOURCE_DIR}/Utils ./lib3rd/include )
+
+#   _____                  _
+#  |_   _|_ _ _ _ __ _ ___| |_ ___
+#    | |/ _` | '_/ _` / -_)  _(_-<
+#    |_|\__,_|_| \__, \___|\__/__/
+#                |___/
+#
 # define target
-ebertolazzi_setup_target( ${PROJECT_NAME} "${SOURCE_DIR}" "${SOURCES}" "${HEADERS}" )
+ebertolazzi_setup_target(
+  ${PROJECT_NAME}
+  TRUE # build static
+  "${SOURCE_DIR}"
+  "${SOURCES}"
+  "${PUBLIC_HEADERS}"
+  "${PRIVATE_HEADERS}"
+)
 
+if ( BUILD_SHARED )
+  ebertolazzi_setup_target(
+    ${PROJECT_NAME}
+    FALSE # build dynamic
+    "${SOURCE_DIR}"
+    "${SOURCES}"
+    "${PUBLIC_HEADERS}"
+    "${PRIVATE_HEADERS}"
+  )
+endif()
+
+#   _____       _
+#  |_   _|__ __| |_ ___
+#    | |/ -_|_-<  _(_-<
+#    |_|\___/__/\__/__/
+#
 if ( BUILD_EXECUTABLE OR ENABLE_CTEST )
 
   enable_testing()
@@ -99,37 +146,37 @@ if ( BUILD_EXECUTABLE OR ENABLE_CTEST )
   endforeach()
 endif()
 
+#   ___         _        _ _
+#  |_ _|_ _  __| |_ __ _| | |
+#   | || ' \(_-<  _/ _` | | |
+#  |___|_||_/__/\__\__,_|_|_|
+#
 install(
-  TARGETS ${TARGET_TO_BE_INSTALLED}
-  RUNTIME DESTINATION ${INSTALL_PREFIX}/bin
+  TARGETS ${TARGETS_TO_BE_INSTALLED}
+  # EXPORT (da definire)
   LIBRARY DESTINATION ${INSTALL_PREFIX}/dll
   ARCHIVE DESTINATION ${INSTALL_PREFIX}/lib
+  RUNTIME DESTINATION ${INSTALL_PREFIX}/bin
   PUBLIC_HEADER DESTINATION ${PROJECT_PUBLIC_HEADER_DESTINATION}
 )
-install(
-  DIRECTORY "${SOURCE_DIR}/" # source directory
-  DESTINATION "${INSTALL_PREFIX}/include" # target directory
-  FILES_MATCHING # install only matched files
-  PATTERN "*.h*" # select header files
-)
-install(
-  DIRECTORY "${SOURCE_DIR}/Eigen"
-  DESTINATION "${INSTALL_PREFIX}/include/Eigen"
-)
+
+# copy Eigen header only library
+install( DIRECTORY "${SOURCE_DIR}/Eigen" DESTINATION ${PROJECT_PUBLIC_HEADER_DESTINATION} )
 
 if ( WIN32 )
-  install(
-    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/include"
-    DESTINATION "${INSTALL_PREFIX}/"
-  )
-  install(
-    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll"
-    DESTINATION "${INSTALL_PREFIX}/"
-  )
-  install(
-    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib"
-    DESTINATION "${INSTALL_PREFIX}/"
-  )
+  set( DIR3RD ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd )
+  install( DIRECTORY "${DIR3RD}/include" DESTINATION "${INSTALL_PREFIX}/" )
+  install( DIRECTORY "${DIR3RD}/dll"     DESTINATION "${INSTALL_PREFIX}/" )
+  install( DIRECTORY "${DIR3RD}/lib"     DESTINATION "${INSTALL_PREFIX}/" )
 endif()
+
+#   ___         _
+#  | _ \__ _ __| |____ _ __ _ ___
+#  |  _/ _` / _| / / _` / _` / -_)
+#  |_| \__,_\__|_\_\__,_\__, \___|
+#                       |___/
+#
+
+include( ./cmake/CMakeLists-cpack.txt )
 
 ebertolazzi_final_messages()
