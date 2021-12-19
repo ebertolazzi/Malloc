@@ -36,7 +36,7 @@ if COMPILE_DEBUG then
 else
   cmd_cmake_build += ' -DCMAKE_BUILD_TYPE:VAR=Release --loglevel=STATUS '
 end
-cmd_cmake_build += " -DINSTALL_LOCAL:VAR=true "
+cmd_cmake_build += " -DEB_INSTALL_LOCAL=ON "
 
 desc "default task --> build"
 task :default => :build
@@ -121,10 +121,8 @@ task :build_win, [:year, :bits] do |t, args|
   end
 
   puts "run CPACK for UTILS".yellow
-  sh 'cpack -G DEB'
-  #sh 'cpack -C CPackConfig.cmake'
-  #sh 'cpack -C CPackSourceConfig.cmake'
-
+  sh 'cpack -C CPackConfig.cmake'
+  sh 'cpack s-C CPackSourceConfig.cmake'
   FileUtils.cd '..'
 end
 
@@ -161,17 +159,17 @@ desc 'compile for OSX'
 task :build_osx => :build_osx_linux do
   FileUtils.cd "build"
   puts "run CPACK for UTILS".yellow
-  sh 'cpack -G productbuild -C CPackConfig.cmake'
-  sh 'cpack -G productbuild -C CPackSourceConfig.cmake'
+  sh 'cpack -C CPackConfig.cmake'
+  sh 'cpack -C CPackSourceConfig.cmake'
   FileUtils.cd ".."
 end
 
 desc 'compile for LINUX'
 task :build_linux => :build_osx_linux do
   FileUtils.cd "build"
-  #puts "run CPACK for UTILS".yellow
-  #sh 'cpack -C CPackConfig.cmake'
-  #sh 'cpack -C CPackSourceConfig.cmake'
+  puts "run CPACK for UTILS".yellow
+  sh 'cpack -C CPackConfig.cmake'
+  sh 'cpack -C CPackSourceConfig.cmake'
   FileUtils.cd ".."
 end
 

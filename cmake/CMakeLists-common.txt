@@ -9,9 +9,10 @@
 #                                                                          #
 ############################################################################
 
-option( EB_GIT_VERSION  "Get version from GIT command"          ON )
-option( EB_ENABLE_TESTS "Enable compilation of testing targets" ON )
-option( EB_BUILD_SHARED "Enable shared option compilation"      ON )
+option( EB_GIT_VERSION   "Get version from GIT command"           ON )
+option( EB_ENABLE_TESTS  "Enable compilation of testing targets"  ON )
+option( EB_BUILD_SHARED  "Enable shared option compilation"       ON )
+option( EB_INSTALL_LOCAL "Enable installation on local directory" ON )
 option( EB_TWEAK_VERSION_IS_TIMESTAMP "Sets tweak version to timestamp" OFF )
 
 set( EB_NAMESPACE "ebertolazzi" CACHE STRING "Sets the namespace used for exports" )
@@ -32,8 +33,8 @@ set( CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE )
 #
 # C++ compiler
 #
-set( CMAKE_CXX_STANDARD_REQUIRED   ON )
-set( CMAKE_CXX_STANDARD            11 )
+set( CMAKE_CXX_STANDARD_REQUIRED ON )
+set( CMAKE_CXX_STANDARD          11 )
 # Fixes RPath Problem for Linux dependencies and sub dependencies (easy fix, works in 99% of cases)
 if ( NOT APPLE )
   set( CMAKE_INSTALL_RPATH $ORIGIN )
@@ -73,27 +74,20 @@ else()
   set( EB_PROJECT_VERSION "${EB_CURRENT_VERSION}.${EB_BUILD_TIMESTAMP}" )
 endif()
 
-if ( INSTALL_LOCAL )
+if ( EB_INSTALL_LOCAL )
   # install in the home of the whole project
   if ( ${CMAKE_HOME_DIRECTORY} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR} )
-    set( INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/lib" )
+    set( INSTALL_PREFIX "lib" )
   else()
-    set( INSTALL_PREFIX "${CMAKE_HOME_DIRECTORY}/lib3rd" )
+    set( INSTALL_PREFIX "lib3rd" )
   endif()
   set( PROJECT_PUBLIC_HEADER_DESTINATION "${INSTALL_PREFIX}/include" )
   add_custom_target( post_build_target )
-  if ( CMAKE_BUILD_TYPE STREQUAL "Debug" )
-    add_custom_command(
-      TARGET post_build_target POST_BUILD
-      COMMAND cmake  --build . --config Debug --target install
-    )
-  else()
-    add_custom_command(
-      TARGET post_build_target POST_BUILD
-      COMMAND cmake  --build . --config Release --target install
-    )
-  endif()
+  add_custom_command(
+    TARGET post_build_target POST_BUILD
+    COMMAND cmake --build . --config ${CMAKE_BUILD_TYPE} --target install
+  )
 else()
-  set( INSTALL_PREFIX                    "${CMAKE_INSTALL_PREFIX}" )
+  set( INSTALL_PREFIX                    "lib" )
   set( PROJECT_PUBLIC_HEADER_DESTINATION "${INSTALL_PREFIX}/include/${PROJECT_NAME}" )
 endif()

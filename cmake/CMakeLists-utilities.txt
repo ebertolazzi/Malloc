@@ -90,7 +90,7 @@ function(
 
   set( TARGETS_TO_BE_INSTALLED ${TARGETS_TO_BE_INSTALLED} ${TARGET_S} PARENT_SCOPE )
 
-  if ( INSTALL_LOCAL )
+  if ( EQ_INSTALL_LOCAL )
     add_dependencies( post_build_target ${TARGET_S} )
   endif()
 
@@ -117,5 +117,14 @@ function(ebertolazzi_final_messages)
   endif()
   message(STATUS "SOURCES = ${SOURCES}")
   message(STATUS "HEADERS = ${HEADERS}")
-  message(STATUS "TARGETS_TO_BE_INSTALLED = ${TARGETS_TO_BE_INSTALLED}")
+  message(STATUS "TARGETS_TO_BE_INSTALLED  = ${TARGETS_TO_BE_INSTALLED}")
+  message(STATUS "CMAKE_HOME_DIRECTORY     = ${CMAKE_HOME_DIRECTORY}")
+  message(STATUS "CMAKE_CURRENT_SOURCE_DIR = ${CMAKE_CURRENT_SOURCE_DIR}")
+  message(STATUS "CMAKE_INSTALL_PREFIX     = ${CMAKE_INSTALL_PREFIX}")
+  
+  message(STATUS "EB_GIT_VERSION   = ${EB_GIT_VERSION}")
+  message(STATUS "EB_ENABLE_TESTS  = ${EB_ENABLE_TESTS}")
+  message(STATUS "EB_BUILD_SHARED  = ${EB_BUILD_SHARED}")
+  message(STATUS "EB_INSTALL_LOCAL = ${EB_INSTALL_LOCAL}")
+
 endfunction()

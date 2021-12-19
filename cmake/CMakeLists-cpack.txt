@@ -28,9 +28,19 @@ configure_file(
 # Set the name of the generated installation package
 set(CPACK_PACKAGE_NAME "${EB_NAMESPACE}-${PROJECT_NAME}")
 # Set the control that supports the specified installation directory to on
-set(CPACK_SET_DESTDIR ON)
+if ( WIN32 )
+  set(CPACK_GENERATOR "NSIS64")
+  set(CPACK_SET_DESTDIR OFF)
+  SET(CPACK_NSIS_MODIFY_PATH ON)
+  set(CPACK_PACKAGE_INSTALL_DIRECTORY "CPack Component Example")
+elseif(APPLE)
+  set(CPACK_GENERATOR "productbuild")
+  set(CPACK_SET_DESTDIR ON)
+elseif(UNIX)
+  set(CPACK_GENERATOR "DEB")
+  set(CPACK_SET_DESTDIR ON)
+endif()
 # Set the directory path to install to
-#set(CPACK_INSTALL_PREFIX "/home/vesoft/install")
 # This is the version number information for the generated installation
 set(CPACK_PACKAGE_VERSION "${EB_PROJECT_VERSION}")
 

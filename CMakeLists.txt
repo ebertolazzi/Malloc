@@ -19,6 +19,10 @@ project(
   HOMEPAGE_URL "https://ebertolazzi.github.io/Utils/"
 )
 
+if ( EB_INSTALL_LOCAL )
+  set( CMAKE_INSTALL_PREFIX ${CMAKE_HOME_DIRECTORY} )
+endif()
+
 message("UTILS current version = v${EB_PROJECT_VERSION}")
 
 include(./cmake/CMakeLists-cflags.txt)
