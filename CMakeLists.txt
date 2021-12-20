@@ -58,7 +58,12 @@ endforeach(F ${S})
 #  |_||_\___\__,_\__,_\___|_| /__/
 #
 set( PUBLIC_HEADERS )
-file( GLOB S ${SOURCE_DIR}/*.h* ${SOURCE_DIR}/**/*.h* )
+file(
+  GLOB S
+  ${SOURCE_DIR}/*.h*
+  ${SOURCE_DIR}/*/*.h*
+  ${SOURCE_DIR}/*/*/*.h*
+)
 foreach (F ${S})
   # build relative path respect to source directory
   file( RELATIVE_PATH RF ${SOURCE_DIR} "${F}" )
