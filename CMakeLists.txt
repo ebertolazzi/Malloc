@@ -11,10 +11,11 @@
 
 cmake_minimum_required(VERSION 3.14)
 
+project( Utils )
 include(./cmake/CMakeLists-common.txt)
 
 project(
-  Utils
+  ${PROJECT_NAME}
   VERSION ${EB_PROJECT_VERSION}
   HOMEPAGE_URL "https://ebertolazzi.github.io/Utils/"
 )

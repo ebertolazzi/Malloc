@@ -87,6 +87,9 @@ end
 
 desc "compile for Visual Studio [default year=2017, bits=x64]"
 task :build_win, [:year, :bits] do |t, args|
+
+  args.with_defaults( :year => "2017", :bits => "x64" )
+
   puts "UTILS build on windows".green
 
   FileUtils.cd "ThirdParties"
@@ -94,8 +97,6 @@ task :build_win, [:year, :bits] do |t, args|
   FileUtils.cd ".."
 
   FileUtils.rm_rf 'lib'
-
-  args.with_defaults( :year => "2017", :bits => "x64" )
 
   dir = "vs_#{args.year}_#{args.bits}"
 
@@ -176,7 +177,6 @@ end
 desc "clean for OSX"
 task :clean_osx do
   FileUtils.rm_rf 'lib'
-  sh "make clean"
 end
 
 desc "clean for LINUX"
