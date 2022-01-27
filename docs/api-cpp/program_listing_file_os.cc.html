@@ -100,19 +100,17 @@
 <span class="cp">#    endif</span>
 <span class="cp">#</span><span class="w">    </span><span class="cp">include</span><span class="w"> </span><span class="cpf">&lt;io.h&gt;</span><span class="cp"></span>
 
-<span class="cp">#    define O_CREAT _O_CREAT</span>
-<span class="cp">#    define O_TRUNC _O_TRUNC</span>
-
 <span class="cp">#    ifndef S_IRUSR</span>
 <span class="cp">#      define S_IRUSR _S_IREAD</span>
 <span class="cp">#    endif</span>
-
 <span class="cp">#    ifndef S_IWUSR</span>
 <span class="cp">#      define S_IWUSR _S_IWRITE</span>
 <span class="cp">#    endif</span>
-
-<span class="cp">#    ifdef __MINGW32__</span>
-<span class="cp">#      define _SH_DENYNO 0x40</span>
+<span class="cp">#    ifndef S_IRGRP</span>
+<span class="cp">#      define S_IRGRP 0</span>
+<span class="cp">#    endif</span>
+<span class="cp">#    ifndef S_IROTH</span>
+<span class="cp">#      define S_IROTH 0</span>
 <span class="cp">#    endif</span>
 <span class="cp">#  endif  </span><span class="c1">// _WIN32</span>
 <span class="cp">#endif    </span><span class="c1">// FMT_USE_FCNTL</span>
@@ -287,7 +285,10 @@
 
 <span class="cp">#if FMT_USE_FCNTL</span>
 <span class="n">file</span><span class="o">::</span><span class="n">file</span><span class="p">(</span><span class="n">cstring_view</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">oflag</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">S_IRUSR</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">S_IWUSR</span><span class="p">;</span><span class="w"></span>
+<span class="cp">#  ifdef _WIN32</span>
+<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="kt">mode_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">;</span><span class="w"></span>
+<span class="cp">#  endif</span>
+<span class="w">  </span><span class="kt">mode_t</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">S_IRUSR</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">S_IWUSR</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">S_IRGRP</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">S_IROTH</span><span class="p">;</span><span class="w"></span>
 <span class="cp">#  if defined(_WIN32) &amp;&amp; !defined(__MINGW32__)</span>
 <span class="w">  </span><span class="n">fd_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="n">FMT_POSIX_CALL</span><span class="p">(</span><span class="n">sopen_s</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fd_</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="n">oflag</span><span class="p">,</span><span class="w"> </span><span class="n">_SH_DENYNO</span><span class="p">,</span><span class="w"> </span><span class="n">mode</span><span class="p">));</span><span class="w"></span>

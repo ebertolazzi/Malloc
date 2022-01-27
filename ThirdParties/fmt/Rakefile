@@ -3,7 +3,7 @@ require "fileutils"
 
 require_relative "../../Rakefile_common.rb"
 
-VER = "8.0.1"
+VER = "8.1.1"
 
 desc "install FMT"
 task :install do
@@ -11,14 +11,15 @@ task :install do
   if not Dir.exist?("fmt-#{VER}") then
     extract_zip("fmt-#{VER}.zip");
   end
+  #FileUtils.cp   "fmt-#{VER}/src/fmt.cc",    '../../src'
   FileUtils.cp   "fmt-#{VER}/src/format.cc", '../../src'
   FileUtils.cp   "fmt-#{VER}/src/os.cc",     '../../src'
   FileUtils.cp_r "fmt-#{VER}/include/fmt",   '../../src/Utils'
 end
 
-task :install_osx => :install
+task :install_osx   => :install
 task :install_linux => :install
-task :install_win => :install
+task :install_win   => :install
 task :clean
 task :clean_osx
 task :clean_linux

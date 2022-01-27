@@ -94,8 +94,10 @@
 
 <span class="cp">#pragma once</span>
 
+<span class="cp">#ifndef DOXYGEN_SHOULD_SKIP_THIS</span>
 <span class="cp">#ifndef UTILS_dot_HXX</span>
 <span class="cp">#define UTILS_dot_HXX</span>
+<span class="cp">#endif</span>
 
 <span class="c1">// select computer architecture</span>
 <span class="cp">#if defined(__APPLE__) &amp;&amp; defined(__MACH__)</span>
@@ -142,9 +144,11 @@
 <span class="w">  </span><span class="cp">#define UTILS_CONSTEXPR</span>
 <span class="cp">#endif</span>
 
+<span class="cp">#ifndef DOXYGEN_SHOULD_SKIP_THIS</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"fmt/printf.h"</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"fmt/chrono.h"</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"fmt/ostream.h"</span><span class="cp"></span>
+<span class="cp">#endif</span>
 
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
@@ -181,6 +185,7 @@
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"ThreadPool.hxx"</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"Quaternion.hxx"</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"Table.hxx"</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"Token.hxx"</span><span class="cp"></span>
 
 <span class="k">namespace</span><span class="w"> </span><span class="nn">Utils</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 

@@ -20,23 +20,27 @@ project(
   HOMEPAGE_URL "https://ebertolazzi.github.io/Utils/"
 )
 
-if ( EB_INSTALL_LOCAL )
-  set( CMAKE_INSTALL_PREFIX ${CMAKE_HOME_DIRECTORY} )
-endif()
-
-message("UTILS current version = v${EB_PROJECT_VERSION}")
-
 include(./cmake/CMakeLists-cflags.txt)
 include(./cmake/CMakeLists-utilities.txt)
 
 # Evaluating the suffix to append to target built by this CMake file
 ebertolazzi_artifacts_suffix(ARTIFACTS_STATIC_SUFFIX TRUE)
-if(BUILD_SHARED)
+if( EB_BUILD_SHARED )
   ebertolazzi_artifacts_suffix(ARTIFACTS_DYNAMIC_SUFFIX FALSE)
 endif()
 
 message( STATUS "Compiler used: ${CMAKE_CXX_COMPILER_ID}" )
 message( STATUS "BASE SUFFIXES = ${ARTIFACTS_STATIC_SUFFIX} ${ARTIFACTS_DYNAMIC_SUFFIX}" )
+
+if (APPLE)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DLUA_USE_MACOSX")
+elseif(LINUX OR UNIX)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DLUA_USE_LINUX")
+else()
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+endif()
+
+set(LUALIB Lua)
 
 #   ___
 #  / __| ___ _  _ _ _ __ ___ ___
@@ -46,7 +50,10 @@ message( STATUS "BASE SUFFIXES = ${ARTIFACTS_STATIC_SUFFIX} ${ARTIFACTS_DYNAMIC_
 set( SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src" )
 
 set( SOURCES )
-file( GLOB S ${SOURCE_DIR}/*.cc )
+file(
+  GLOB S
+  ${SOURCE_DIR}/*.cc
+)
 foreach(F ${S})
   # build relative path respect to source directory
   file( RELATIVE_PATH RF ${SOURCE_DIR} "${F}" )
@@ -60,24 +67,20 @@ endforeach(F ${S})
 #
 set( PUBLIC_HEADERS )
 file(
-  GLOB S
+  GLOB_RECURSE S
   ${SOURCE_DIR}/*.h*
-  ${SOURCE_DIR}/*/*.h*
-  ${SOURCE_DIR}/*/*/*.h*
+  ${SOURCE_DIR}/Eigen/*
 )
 foreach (F ${S})
   # build relative path respect to source directory
-  file( RELATIVE_PATH RF ${SOURCE_DIR} "${F}" )
+  file( RELATIVE_PATH RF "${SOURCE_DIR}" "${F}" )
   list( APPEND PUBLIC_HEADERS ${RF} )
 endforeach(F ${S})
 
-set( PRIVATE_HEADERS )
-# no private headers
-
-#list(FILTER HEADERS EXCLUDE REGEX "src\/Eigen\/\.DS")
+list(FILTER PUBLIC_HEADERS EXCLUDE REGEX "\.DS")
 
 # extra include directory for compilation
-include_directories( ${SOURCE_DIR}/Utils ./lib3rd/include )
+include_directories( ./src ./src/Utils )
 
 #   _____                  _
 #  |_   _|_ _ _ _ __ _ ___| |_ ___
@@ -91,18 +94,17 @@ ebertolazzi_setup_target(
   TRUE # build static
   "${SOURCE_DIR}"
   "${SOURCES}"
+  "${SOURCE_DIR}"
   "${PUBLIC_HEADERS}"
-  "${PRIVATE_HEADERS}"
 )
-
-if ( BUILD_SHARED )
+if ( EB_BUILD_SHARED )
   ebertolazzi_setup_target(
     ${PROJECT_NAME}
     FALSE # build dynamic
     "${SOURCE_DIR}"
     "${SOURCES}"
+    "${SOURCE_DIR}"
     "${PUBLIC_HEADERS}"
-    "${PRIVATE_HEADERS}"
   )
 endif()
 
@@ -111,12 +113,9 @@ endif()
 #    | |/ -_|_-<  _(_-<
 #    |_|\___/__/\__/__/
 #
-if ( BUILD_EXECUTABLE OR ENABLE_CTEST )
+if ( EB_ENABLE_TESTS )
 
   enable_testing()
-
-  set( EXELISTBIN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bin" )
-  set( EXELISTCPP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src_tests" )
 
   if(APPLE OR UNIX)
     find_package( ZLIB REQUIRED )
@@ -129,31 +128,35 @@ if ( BUILD_EXECUTABLE OR ENABLE_CTEST )
     set( ZLIB_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/zlib/include ")
   endif()
 
-  file( MAKE_DIRECTORY ${EXELISTBIN_DIR} )
+  set( EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin )
+  set( LIBS ${EB_NAMESPACE}_${PROJECT_NAME}_Static ${ZLIB_LIBRARIES} ${CMAKE_DL_LIBS} )
 
-  set(
-    EXELISTCPP
-    test_Malloc
-    test_Quaternion
-    test_rang
-    test_table
-    test_Thread
-    test_trace
-    test_zstream
+  if( UNIX AND NOT APPLE )
+    set( THREADS_PREFER_PTHREAD_FLAG ON )
+    find_package( Threads REQUIRED )
+    set( LIBS ${LIBS} Threads::Threads )
+  endif()
+
+  set( EXELISTCPP )
+  file(
+    GLOB S
+    ${CMAKE_CURRENT_SOURCE_DIR}/src_tests/*.cc
   )
+  foreach(F ${S})
+    file( RELATIVE_PATH RF "${CMAKE_CURRENT_SOURCE_DIR}/src_tests/" "${F}" )
+    get_filename_component( RFF ${RF} NAME_WLE )
+    list( APPEND EXELISTCPP ${RFF} )
+  endforeach(F ${S})
 
-  foreach(S ${EXELISTCPP})
-    add_executable( ${S} "${EXELISTCPP_DIR}/${S}.cc")
-    target_include_directories( ${S} PRIVATE ${ZLIB_INCLUDE_DIRS} )
-    target_link_libraries( ${S} PRIVATE ebertolazzi::${PROJECT_NAME}_Static ${ZLIB_LIBRARIES} )
-    if( UNIX AND NOT APPLE )
-      set( THREADS_PREFER_PTHREAD_FLAG ON )
-      find_package( Threads REQUIRED )
-      target_link_libraries( ${S} PRIVATE ${CMAKE_DL_LIBS} Threads::Threads )
-    endif()
-    add_test( ${S} ${CMAKE_CURRENT_SOURCE_DIR}/bin/${S} )
-    set_target_properties( ${S} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXELISTBIN_DIR}" )
+  add_custom_target( "${PROJECT_NAME}_all_tests" ALL )
+
+  foreach( S ${EXELISTCPP} )
+    add_executable( ${S} ${CMAKE_CURRENT_SOURCE_DIR}/src_tests/${S}.cc )
+    target_link_libraries( ${S} ${LIBS} )
+    add_test( NAME "${S}" COMMAND ./bin/${S} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
+    add_dependencies( "${PROJECT_NAME}_all_tests" ${S} )
   endforeach()
+
 endif()
 
 #   ___         _        _ _
@@ -169,16 +172,6 @@ install(
   RUNTIME DESTINATION ${INSTALL_PREFIX}/bin
   PUBLIC_HEADER DESTINATION ${PROJECT_PUBLIC_HEADER_DESTINATION}
 )
-
-# copy Eigen header only library
-install( DIRECTORY "${SOURCE_DIR}/Eigen" DESTINATION ${PROJECT_PUBLIC_HEADER_DESTINATION} )
-
-if ( WIN32 )
-  set( DIR3RD ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd )
-  install( DIRECTORY "${DIR3RD}/include" DESTINATION "${INSTALL_PREFIX}/" )
-  install( DIRECTORY "${DIR3RD}/dll"     DESTINATION "${INSTALL_PREFIX}/" )
-  install( DIRECTORY "${DIR3RD}/lib"     DESTINATION "${INSTALL_PREFIX}/" )
-endif()
 
 #   ___         _
 #  | _ \__ _ __| |____ _ __ _ ___
