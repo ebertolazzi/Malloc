@@ -120,9 +120,12 @@ task :build_win, [:year, :bits] do |t, args|
     sh 'cmake --build . --config Release --target install '+PARALLEL+QUIET
   end
 
-  puts "run CPACK for UTILS".yellow
-  sh 'cpack -C CPackConfig.cmake'
-  sh 'cpack s-C CPackSourceConfig.cmake'
+  if RUN_CPACK then
+    puts "run CPACK for UTILS".yellow
+    sh 'cpack -C CPackConfig.cmake'
+    sh 'cpack -C CPackSourceConfig.cmake'
+  end
+
   FileUtils.cd '..'
 end
 
@@ -158,18 +161,22 @@ end
 desc 'compile for OSX'
 task :build_osx => :build_osx_linux do
   FileUtils.cd "build"
-  puts "run CPACK for UTILS".yellow
-  sh 'cpack -C CPackConfig.cmake'
-  sh 'cpack -C CPackSourceConfig.cmake'
+  if RUN_CPACK then
+    puts "run CPACK for UTILS".yellow
+    sh 'cpack -C CPackConfig.cmake'
+    sh 'cpack -C CPackSourceConfig.cmake'
+  end
   FileUtils.cd ".."
 end
 
 desc 'compile for LINUX'
 task :build_linux => :build_osx_linux do
   FileUtils.cd "build"
-  puts "run CPACK for UTILS".yellow
-  sh 'cpack -C CPackConfig.cmake'
-  sh 'cpack -C CPackSourceConfig.cmake'
+  if RUN_CPACK then
+    puts "run CPACK for UTILS".yellow
+    sh 'cpack -C CPackConfig.cmake'
+    sh 'cpack -C CPackSourceConfig.cmake'
+  end
   FileUtils.cd ".."
 end
 
