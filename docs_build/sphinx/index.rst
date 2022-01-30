@@ -15,7 +15,7 @@ my software developing.
 
 - `{fmt} <https://fmt.dev/latest/index.html>`__
 - `rang <https://github.com/agauniyal/rang>`__
-- `Z-stream <http://www.codeproject.com/Articles/4457/zipstream-bzip-stream-iostream-wrappers-for-the-zl>`__.
+- `zstr <https://github.com/mateidavid/zstr>`__.
 - `Eigen <https://eigen.tuxfamily.org>`__.
 
 Contents
@@ -25,7 +25,7 @@ Contents
   :maxdepth: 2
 
   rang.rst
-  zstream.rst
+  zstr.rst
   api-cpp/root.rst
 
 .. include:: author.rst

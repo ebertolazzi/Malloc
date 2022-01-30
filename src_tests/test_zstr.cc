@@ -18,7 +18,7 @@
 \*--------------------------------------------------------------------------*/
 
 #include "Utils.hh"
-#include "Utils_zstream.hh"
+#include "Utils_zstr.hh"
 
 #include <fstream>
 #include <string>
@@ -29,26 +29,27 @@ main() {
     // WRITE
     {
       std::ofstream file("test.txt.gz");
-      zstream::ogzstream gzfile(file); 
-      gzfile << "pippo\n";
-      gzfile << "pluto\n";
-      gzfile << "paperino\n";
-      gzfile << "paperone\n";
-      gzfile << "nonna papera\n";
-      gzfile.close();
+      zstr::ostream gzfile(file); 
+      for ( int i = 0; i < 10; ++i ) {
+        gzfile << "pippo\n";
+        gzfile << "pluto\n";
+        gzfile << "paperino\n";
+        gzfile << "paperone\n";
+        gzfile << "nonna papera\n";
+      }
+      gzfile.flush(); // must be done before close!
       file.close();
     }
     // READ
     {
       std::cout << "read compressed file----------------\n";
       std::ifstream file("test.txt.gz");
-      zstream::igzstream gzfile(file);
+      zstr::istream gzfile(file);
       while( gzfile.good() ) {
         std::string line;
         std::getline( gzfile, line );
         std::cout << line << '\n';
       }
-      //gzfile.close();
       file.close();
       std::cout << "done--------------------------------\n";
     }

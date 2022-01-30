@@ -47,7 +47,7 @@ TESTS = [
   "test_table",
   "test_Thread",
   "test_trace",
-  "test_zstream"
+  "test_zstr"
 ]
 
 desc "run tests"

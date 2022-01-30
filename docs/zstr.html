@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Z-stream &#8212; Utils v1.0
+    <title>Zstr &#8212; Utils v1.2
 </title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/cloud.css" />
@@ -64,7 +64,7 @@
              accesskey="P">previous</a> &nbsp; &nbsp;</li>
     <li><a href="index.html">Utils</a> &#187;</li>
 
-        <li class="nav-item nav-item-this"><a href="">Z-stream</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Zstr</a></li> 
       </ul>
     </div>
     </div>
@@ -75,55 +75,33 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="z-stream">
-<h1>Z-stream<a class="headerlink" href="#z-stream" title="Permalink to this headline">¶</a>
+  <section id="zstr">
+<h1>Zstr<a class="headerlink" href="#zstr" title="Permalink to this headline">¶</a>
 </h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Based on the work of <a class="reference external" href="https://www.codeproject.com/Members/Jonathan-de-Halleux">Jonathan de Halleux</a>,
-published on CodeProject
-<a class="reference external" href="http://www.codeproject.com/Articles/4457/zipstream-bzip-stream-iostream-wrappers-for-the-zl">here</a>.</p>
+<p>A C++ ZLib wrapper by <a class="reference external" href="https://github.com/mateidavid">Matei David</a>,
+published on GITHUB
+<a class="reference external" href="https://github.com/mateidavid/zstr">here</a>.</p>
 </div>
 <p>STL iostream implementation using the library zlib.
 This means that you can easily manipulate zipped
 streams like any other STL ostream/istream.</p>
 <p>To give you an idea, consider following snippet
-that prints “Hello World”:</p>
+that create a gzipped files:</p>
 <div class="highlight-cpp notranslate">
-<div class="highlight"><pre><span></span><span class="n">ostringstream</span><span class="w"> </span><span class="n">output_buffer</span><span class="p">;</span><span class="w"></span>
-<span class="c1">// writing data</span>
-<span class="n">output_buffer</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Hello world"</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
-</pre></div>
-</div>
-<p>Now, the same snippet but with zipped output using zlib:</p>
-<div class="highlight-cpp notranslate">
-<div class="highlight"><pre><span></span><span class="c1">// zip_ostream uses output_buffer as output buffer :)</span>
-<span class="n">ozstream</span><span class="w"> </span><span class="nf">zipper</span><span class="p">(</span><span class="w"> </span><span class="n">output_buffer</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
-
-<span class="c1">// writing data as usual</span>
-<span class="n">zipper</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Hello world"</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
-</pre></div>
-</div>
-<p>Or, to create gzipped files:</p>
-<div class="highlight-cpp notranslate">
-<div class="highlight"><pre><span></span><span class="n">ofstream</span><span class="w"> </span><span class="nf">file</span><span class="p">(</span><span class="s">"hello_world.txt.gz"</span><span class="p">);</span><span class="w"></span>
-<span class="n">ogzstream</span><span class="w"> </span><span class="nf">gzfile</span><span class="p">(</span><span class="n">file</span><span class="p">);</span><span class="w"></span>
-<span class="n">gzfile</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Hello world "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">ofstream</span><span class="w"> </span><span class="nf">file</span><span class="p">(</span><span class="s">"hello_world.txt.gz"</span><span class="p">);</span><span class="w"></span>
+<span class="n">zstr</span><span class="o">::</span><span class="n">ostream</span><span class="w"> </span><span class="nf">gzfile</span><span class="p">(</span><span class="n">file</span><span class="p">);</span><span class="w"></span>
+<span class="n">gzfile</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Hello world</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span><span class="w"></span>
+<span class="n">gzfile</span><span class="p">.</span><span class="n">flush</span><span class="p">();</span><span class="w"> </span><span class="c1">// must be flushed before close stream</span>
+<span class="n">file</span><span class="p">.</span><span class="n">close</span><span class="p">();</span><span class="w"></span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>From original documentation:</p>
 <p>As you can see adding zipped buffers into your existing applications
-is quite straightforward.
-To summarize, let’s see some quick facts about zstream:</p>
-<ul class="simple">
-<li><p>STL compliant,</p></li>
-<li><p>any-stream-to-any-stream support,</p></li>
-<li><p>char, wchar_t support,</p></li>
-<li><p>fining tuning of compression properties,</p></li>
-<li><p>support custom allocators</p></li>
-</ul>
+is quite straightforward.</p>
 </div>
 </section>
 
@@ -152,7 +130,7 @@ To summarize, let’s see some quick facts about zstream:</p>
 <h3><a href="index.html">Table of Contents</a></h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="rang.html">rang - Colors for your Terminal</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Z-stream</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Zstr</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api-cpp/root.html">C++ API</a></li>
 </ul>
 </div>
@@ -196,7 +174,7 @@ To summarize, let’s see some quick facts about zstream:</p>
              >previous</a> &nbsp; &nbsp;</li>
     <li><a href="index.html">Utils</a> &#187;</li>
 
-        <li class="nav-item nav-item-this"><a href="">Z-stream</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Zstr</a></li> 
       </ul>
     </div>
     </div>
