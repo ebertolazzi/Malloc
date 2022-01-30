@@ -21,19 +21,37 @@
 #include "Utils_zstream.hh"
 
 #include <fstream>
+#include <string>
 
 int
 main() {
   try {
-    std::ofstream file("test.txt.gz");;
-    zstream::ogzstream gzfile(file); 
-    gzfile << "pippo\n";
-    gzfile << "pluto\n";
-    gzfile << "paperino\n";
-    gzfile << "paperone\n";
-    gzfile << "nonna papera\n";
-    gzfile.close();
-    file.close();
+    // WRITE
+    {
+      std::ofstream file("test.txt.gz");
+      zstream::ogzstream gzfile(file); 
+      gzfile << "pippo\n";
+      gzfile << "pluto\n";
+      gzfile << "paperino\n";
+      gzfile << "paperone\n";
+      gzfile << "nonna papera\n";
+      gzfile.close();
+      file.close();
+    }
+    // READ
+    {
+      std::cout << "read compressed file----------------\n";
+      std::ifstream file("test.txt.gz");
+      zstream::igzstream gzfile(file);
+      while( gzfile.good() ) {
+        std::string line;
+        std::getline( gzfile, line );
+        std::cout << line << '\n';
+      }
+      //gzfile.close();
+      file.close();
+      std::cout << "done--------------------------------\n";
+    }
   } catch ( std::exception const & exc ) {
     std::cout << "Error: " << exc.what() << '\n';
   } catch ( ... ) {
