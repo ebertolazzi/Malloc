@@ -53,6 +53,7 @@ set( SOURCES )
 file(
   GLOB S
   ${SOURCE_DIR}/*.cc
+  ${SOURCE_DIR}/Utils/miniz/*.c
 )
 foreach(F ${S})
   # build relative path respect to source directory

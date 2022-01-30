@@ -13,7 +13,7 @@
 #include <sstream>
 // Workaround for UTILS (begin)
 #ifdef UTILS_OS_WINDOWS
-  #include "zlib.h"
+  #include "../zlib-ng/zlib.h"
 #else
   #include <zlib.h>
 #endif
@@ -444,7 +444,7 @@ public:
     bool is_open() const {
         return _fs.is_open();
     }
-    virtual ~ifstream()
+    ~ifstream() override
     {
         if (_fs.is_open()) close();
         if (rdbuf()) delete rdbuf();
@@ -487,7 +487,7 @@ public:
         _fs.flush();
         return *this;
     }
-    virtual ~ofstream()
+    ~ofstream() override
     {
         if (_fs.is_open()) close();
         if (rdbuf()) delete rdbuf();

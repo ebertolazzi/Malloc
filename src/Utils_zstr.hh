@@ -50,7 +50,6 @@
 #endif
 
 #include "Utils/Utils.hxx"
-
 #include "Utils/zstr/zstr.hpp"
 
 #ifdef __clang__

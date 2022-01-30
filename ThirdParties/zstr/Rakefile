@@ -32,11 +32,15 @@ task :install do
         '#include <zlib.h>',
         wb+
         '#ifdef UTILS_OS_WINDOWS'+"\n"+
-        '  #include "zlib.h"'+"\n"+
+        '  #include "../zlib-ng/zlib.h"'+"\n"+
         '#else'+"\n"+
         '  #include <zlib.h>'+"\n"+
         '#endif'+we
       );
+      line.gsub!('virtual ~ifstream()','~ifstream() override');
+      line.gsub!('virtual ~ofstream()','~ofstream() override');
+      line.gsub!('virtual ~ifstreambuf()','~ifstreambuf() override');
+      line.gsub!('virtual ~ofstreambuf()','~ofstreambuf() override');
       out.puts line
     end
   end
