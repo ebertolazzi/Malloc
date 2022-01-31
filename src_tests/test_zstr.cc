@@ -28,13 +28,14 @@ main() {
   try {
     // WRITE
     {
-      std::ofstream file("test.txt.gz");
+      std::ofstream file("test.txt.gz",std::ios::binary);
       zstr::ostream gzfile(file); 
-      for ( int i = 0; i < 10; ++i ) {
-        gzfile << "pippo\n";
-        gzfile << "pluto\n";
-        gzfile << "paperino\n";
-        gzfile << "paperone\n";
+      for ( int i = 0; i < 100; ++i ) {
+        gzfile << i << " ";
+        gzfile << "pippo ";
+        gzfile << "pluto ";
+        gzfile << "paperino ";
+        gzfile << "paperone ";
         gzfile << "nonna papera\n";
       }
       gzfile.flush(); // must be done before close!
@@ -43,11 +44,12 @@ main() {
     // READ
     {
       std::cout << "read compressed file----------------\n";
-      std::ifstream file("test.txt.gz");
+      std::ifstream file("test.txt.gz",std::ios::binary);
       zstr::istream gzfile(file);
       while( gzfile.good() ) {
         std::string line;
         std::getline( gzfile, line );
+        Utils::to_upper(line);
         std::cout << line << '\n';
       }
       file.close();
