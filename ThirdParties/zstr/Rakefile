@@ -32,7 +32,7 @@ task :install do
         '#include <zlib.h>',
         wb+
         '#ifdef UTILS_OS_WINDOWS'+"\n"+
-        '  #include "../zlib-ng/zlib.h"'+"\n"+
+        '  #include "zlib.h"'+"\n"+
         '#else'+"\n"+
         '  #include <zlib.h>'+"\n"+
         '#endif'+we

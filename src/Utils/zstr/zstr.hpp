@@ -13,7 +13,7 @@
 #include <sstream>
 // Workaround for UTILS (begin)
 #ifdef UTILS_OS_WINDOWS
-  #include "../zlib-ng/zlib.h"
+  #include "zlib.h"
 #else
   #include <zlib.h>
 #endif
