@@ -40,6 +40,30 @@ else()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
 endif()
 
+#   ____                                _     _ _
+#  |  _ \ _ __ ___ _ __ ___  __ _ _   _(_)___(_) |_ ___
+#  | |_) | '__/ _ \ '__/ _ \/ _` | | | | / __| | __/ _ \
+#  |  __/| | |  __/ | |  __/ (_| | |_| | \__ \ | ||  __/
+#  |_|   |_|  \___|_|  \___|\__, |\__,_|_|___/_|\__\___|
+#                              |_|
+# MUST be executed before the build of the header list
+message( STATUS "Execute rake install for ThirdParties" )
+if (UNIX)
+  execute_process(
+    COMMAND bash "-c" "rake install_3rd"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    COMMAND_ECHO STDOUT
+    ECHO_OUTPUT_VARIABLE
+  )
+else()
+  execute_process(
+    COMMAND cmd /c "rake install_3rd"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    COMMAND_ECHO STDOUT
+    ECHO_OUTPUT_VARIABLE
+  )
+endif()
+
 #   ___
 #  / __| ___ _  _ _ _ __ ___ ___
 #  \__ \/ _ \ || | '_/ _/ -_|_-<
@@ -104,23 +128,6 @@ if ( EB_BUILD_SHARED )
     "${SOURCES}"
     "${SOURCE_DIR}"
     "${PUBLIC_HEADERS}"
-  )
-endif()
-
-message( STATUS "Execute rake install for ThirdParties" )
-if (UNIX)
-  execute_process(
-    COMMAND bash "-c" "rake install_3rd"
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMAND_ECHO STDOUT
-    ECHO_OUTPUT_VARIABLE
-  )
-else()
-  execute_process(
-    COMMAND cmd /c "rake install_3rd"
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMAND_ECHO STDOUT
-    ECHO_OUTPUT_VARIABLE
   )
 endif()
 
