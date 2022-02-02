@@ -28,7 +28,7 @@ static
 void
 fun5( char const str[] ) {
   std::cout << "fun3: " << str << '\n';
-  Utils::printTrace(__LINE__,__FILE__,"in fun3",std::cerr);
+  Utils::print_trace(__LINE__,__FILE__,"in fun3",std::cerr);
 }
 
 static

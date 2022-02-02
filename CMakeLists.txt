@@ -40,8 +40,6 @@ else()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
 endif()
 
-set(LUALIB Lua)
-
 #   ___
 #  / __| ___ _  _ _ _ __ ___ ___
 #  \__ \/ _ \ || | '_/ _/ -_|_-<
@@ -106,6 +104,23 @@ if ( EB_BUILD_SHARED )
     "${SOURCES}"
     "${SOURCE_DIR}"
     "${PUBLIC_HEADERS}"
+  )
+endif()
+
+message( STATUS "Execute rake install for ThirdParties" )
+if (UNIX)
+  execute_process(
+    COMMAND bash "-c" "rake install_3rd"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    COMMAND_ECHO STDOUT
+    ECHO_OUTPUT_VARIABLE
+  )
+else()
+  execute_process(
+    COMMAND cmd /c "rake install_3rd"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    COMMAND_ECHO STDOUT
+    ECHO_OUTPUT_VARIABLE
   )
 endif()
 

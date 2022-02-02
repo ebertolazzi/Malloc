@@ -19,17 +19,17 @@ main() {
       {"To be continued ..."}
     };
 
-    style.paddingLeft(3);
-    style.paddingRight(2);
+    style.padding_left(3);
+    style.padding_right(2);
 
     table.setup( style, rows );
     table.title("A simple Test-Table");
     table.headings({"Name", "Birthday", "Tags", "Adress"});
-    table.alignColumn(1, Utils::Table::Alignment::RIGHT);
-    table.alignColumn(2, Utils::Table::Alignment::CENTER);
-    table[2][0].colSpan(4);
-    table[7][0].colSpan(3);
-    table.alignColumn(5-1, Utils::Table::Alignment::RIGHT);
+    table.align_column(1, Utils::Table::Alignment::RIGHT);
+    table.align_column(2, Utils::Table::Alignment::CENTER);
+    table[2][0].col_span(4);
+    table[7][0].col_span(3);
+    table.align_column(5-1, Utils::Table::Alignment::RIGHT);
 
   } catch ( std::exception const & e ) {
     std::cerr << e.what() << std::endl;

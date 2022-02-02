@@ -71,17 +71,25 @@ task :run do
   end
 end
 
-desc "build lib"
+desc "build UTILS"
 task :build do
-  puts "UTILS build".green
   case OS
   when :mac
+    puts "UTILS build (osx)".green
     Rake::Task[:build_osx].invoke
   when :linux
+    puts "UTILS build (linux)".green
     Rake::Task[:build_linux].invoke
   when :win
+    puts "UTILS build (windows)".green
     Rake::Task[:build_win].invoke
   end
+end
+
+task :install_3rd do
+  FileUtils.cd "ThirdParties"
+    sh "rake install"
+  FileUtils.cd ".."
 end
 
 desc "compile for Visual Studio [default year=2017, bits=x64]"
@@ -91,17 +99,10 @@ task :build_win, [:year, :bits] do |t, args|
 
   puts "UTILS build on windows".green
 
-  FileUtils.cd "ThirdParties"
-    sh "rake install_win[#{args.year},#{args.bits}]"
-  FileUtils.cd ".."
-
-  FileUtils.rm_rf 'lib'
-
-  dir = "vs_#{args.year}_#{args.bits}"
-
-  FileUtils.rm_rf   dir
-  FileUtils.mkdir_p dir
-  FileUtils.cd      dir
+  FileUtils.rm_rf   'lib'
+  FileUtils.rm_rf   'build'
+  FileUtils.mkdir_p 'build'
+  FileUtils.cd      'build'
 
   FileUtils.mkdir_p "../lib/lib"
   FileUtils.mkdir_p "../lib/bin"
@@ -132,17 +133,10 @@ end
 task :build_osx_linux do
   puts "UTILS build (osx/linux)".green
 
-  FileUtils.cd "ThirdParties"
-    sh "rake install"
-  FileUtils.cd ".."
-
-  FileUtils.rm_rf 'lib'
-
-  dir = "build"
-
-  FileUtils.rm_rf   dir
-  FileUtils.mkdir_p dir
-  FileUtils.cd      dir
+  FileUtils.rm_rf   'lib'
+  FileUtils.rm_rf   'build'
+  FileUtils.mkdir_p 'build'
+  FileUtils.cd      'build'
 
   cmd_cmake = "cmake " + cmd_cmake_build
 
@@ -155,41 +149,30 @@ task :build_osx_linux do
     sh 'cmake --build . --config Release --target install '+PARALLEL+QUIET
   end
 
+  if RUN_CPACK then
+    puts "run CPACK for UTILS".yellow
+    sh 'cpack -C CPackConfig.cmake'
+    sh 'cpack -C CPackSourceConfig.cmake'
+  end
+
   FileUtils.cd '..'
 end
 
 desc 'compile for OSX'
-task :build_osx => :build_osx_linux do
-  FileUtils.cd "build"
-  if RUN_CPACK then
-    puts "run CPACK for UTILS".yellow
-    sh 'cpack -C CPackConfig.cmake'
-    sh 'cpack -C CPackSourceConfig.cmake'
-  end
-  FileUtils.cd ".."
-end
+task :build_osx => :build_osx_linux
 
 desc 'compile for LINUX'
-task :build_linux => :build_osx_linux do
-  FileUtils.cd "build"
-  if RUN_CPACK then
-    puts "run CPACK for UTILS".yellow
-    sh 'cpack -C CPackConfig.cmake'
-    sh 'cpack -C CPackSourceConfig.cmake'
-  end
-  FileUtils.cd ".."
+task :build_linux => :build_osx_linux
+
+task :clean do
+  FileUtils.rm_rf 'lib'
 end
 
 desc "clean for OSX"
-task :clean_osx do
-  FileUtils.rm_rf 'lib'
-end
+task :clean_osx => :clean
 
 desc "clean for LINUX"
-task :clean_linux => :clean_osx
+task :clean_linux => :clean
 
 desc "clean for WINDOWS"
-task :clean_win do
-  FileUtils.rm_rf 'lib'
-  FileUtils.rm_rf 'vs_*'
-end
+task :clean_linux => :clean
