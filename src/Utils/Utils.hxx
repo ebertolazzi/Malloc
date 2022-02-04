@@ -23,10 +23,8 @@
 
 #pragma once
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef UTILS_dot_HXX
 #define UTILS_dot_HXX
-#endif
 
 // select computer architecture
 #if defined(__APPLE__) && defined(__MACH__)

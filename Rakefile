@@ -40,30 +40,18 @@ end
 desc "default task --> build"
 task :default => :build
 
-TESTS = [
-  "test_Malloc",
-  "test_Quaternion",
-  "test_rang",
-  "test_table",
-  "test_Thread",
-  "test_trace",
-  "test_zstr"
-]
-
 desc "run tests"
 task :run do
   puts "UTILS run tests".green
   case OS
   when :mac,:linux
-    TESTS.each do |cmd|
-      exe = "./bin/#{cmd}"
+    Dir.glob('./bin/test_*').each do |exe|
       next unless File.exist?(exe)
       puts "execute #{exe}".yellow
       sh exe
     end
   when :win
-    TESTS.each do |cmd|
-      exe = "bin\\#{cmd}.exe"
+    Dir.glob('./bin/test_*.exe').each do |exe|
       next unless File.exist?(exe)
       puts "execute #{exe}".yellow
       sh exe

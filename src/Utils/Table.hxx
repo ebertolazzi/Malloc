@@ -45,10 +45,8 @@
 
 #pragma once
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef UTILS_TABLE_dot_HXX
 #define UTILS_TABLE_dot_HXX
-#endif
 
 namespace Utils {
 

@@ -23,10 +23,8 @@
 
 #pragma once
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef UTILS_NUMBERS_dot_HXX
 #define UTILS_NUMBERS_dot_HXX
-#endif
 
 namespace Utils {
 

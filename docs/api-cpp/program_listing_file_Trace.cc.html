@@ -136,7 +136,7 @@
 <span class="w">  </span><span class="cp">#ifdef UTILS_OS_WINDOWS</span>
 
 <span class="w">  </span><span class="kt">void</span><span class="w"></span>
-<span class="w">  </span><span class="nf">printTrace</span><span class="p">(</span><span class="w"></span>
+<span class="w">  </span><span class="nf">print_trace</span><span class="p">(</span><span class="w"></span>
 <span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">line</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w">  </span><span class="n">file</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="k">const</span><span class="w">      </span><span class="o">&amp;</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"></span>
@@ -192,7 +192,7 @@
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
 
 <span class="w">  </span><span class="kt">void</span><span class="w"></span>
-<span class="w">  </span><span class="nf">printTrace</span><span class="p">(</span><span class="w"></span>
+<span class="w">  </span><span class="nf">print_trace</span><span class="p">(</span><span class="w"></span>
 <span class="w">    </span><span class="kt">int</span><span class="w">                </span><span class="n">line</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">file</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="k">const</span><span class="w">     </span><span class="o">&amp;</span><span class="w"> </span><span class="n">reason</span><span class="p">,</span><span class="w"></span>
@@ -251,7 +251,7 @@
 <span class="w">    </span><span class="kt">int</span><span class="w">                </span><span class="n">line</span><span class="w"></span>
 <span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="n">ostringstream</span><span class="w"> </span><span class="n">ost</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">printTrace</span><span class="p">(</span><span class="w"> </span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="n">file</span><span class="p">,</span><span class="w"> </span><span class="n">reason</span><span class="p">,</span><span class="w"> </span><span class="n">ost</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">print_trace</span><span class="p">(</span><span class="w"> </span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="n">file</span><span class="p">,</span><span class="w"> </span><span class="n">reason</span><span class="p">,</span><span class="w"> </span><span class="n">ost</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ost</span><span class="p">.</span><span class="n">str</span><span class="p">();</span><span class="w"></span>
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
 <span class="w">  </span><span class="cp">#endif</span>

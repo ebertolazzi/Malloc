@@ -117,14 +117,12 @@
 
 <span class="k">namespace</span><span class="w"> </span><span class="nn">Utils</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 
-<span class="w">  </span><span class="cp">#ifndef DOXYGEN_SHOULD_SKIP_THIS</span>
 <span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">exit</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="cp">#endif</span>
 
 <span class="w">  </span><span class="n">mutex</span><span class="w"> </span><span class="n">MallocMutex</span><span class="p">;</span><span class="w"></span>
 
@@ -196,14 +194,14 @@
 <span class="w">        </span><span class="s">"Memory allocation failed: {}</span><span class="se">\n</span><span class="s">Try to allocate {} bytes for {}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"></span>
 <span class="w">        </span><span class="n">exc</span><span class="p">.</span><span class="n">what</span><span class="p">(),</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">m_name</span><span class="w"></span>
 <span class="w">      </span><span class="p">);</span><span class="w"></span>
-<span class="w">      </span><span class="n">printTrace</span><span class="p">(</span><span class="w"> </span><span class="n">__LINE__</span><span class="p">,</span><span class="w"> </span><span class="n">__FILE__</span><span class="p">,</span><span class="w"> </span><span class="n">reason</span><span class="p">,</span><span class="w"> </span><span class="n">cerr</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="n">print_trace</span><span class="p">(</span><span class="w"> </span><span class="n">__LINE__</span><span class="p">,</span><span class="w"> </span><span class="n">__FILE__</span><span class="p">,</span><span class="w"> </span><span class="n">reason</span><span class="p">,</span><span class="w"> </span><span class="n">cerr</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
 <span class="w">      </span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="p">}</span><span class="w"></span>
 <span class="w">    </span><span class="k">catch</span><span class="w"> </span><span class="p">(...)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">      </span><span class="n">string</span><span class="w"> </span><span class="n">reason</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="w"></span>
 <span class="w">        </span><span class="s">"Memory allocation failed for {}: memory exausted</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">m_name</span><span class="w"></span>
 <span class="w">      </span><span class="p">);</span><span class="w"></span>
-<span class="w">      </span><span class="n">printTrace</span><span class="p">(</span><span class="w"> </span><span class="n">__LINE__</span><span class="p">,</span><span class="w"> </span><span class="n">__FILE__</span><span class="p">,</span><span class="w"> </span><span class="n">reason</span><span class="p">,</span><span class="w"> </span><span class="n">cerr</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="n">print_trace</span><span class="p">(</span><span class="w"> </span><span class="n">__LINE__</span><span class="p">,</span><span class="w"> </span><span class="n">__FILE__</span><span class="p">,</span><span class="w"> </span><span class="n">reason</span><span class="p">,</span><span class="w"> </span><span class="n">cerr</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
 <span class="w">      </span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="p">}</span><span class="w"></span>
 <span class="w">    </span><span class="n">m_numTotValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"></span>
@@ -292,7 +290,7 @@
 <span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">reason</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="w"></span>
 <span class="w">      </span><span class="s">"nMalloc&lt;{}&gt;::operator () ({}) -- Memory EXAUSTED</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">m_name</span><span class="p">,</span><span class="w"> </span><span class="n">sz</span><span class="w"></span>
 <span class="w">    </span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">printTrace</span><span class="p">(</span><span class="w"> </span><span class="n">__LINE__</span><span class="p">,</span><span class="w"> </span><span class="n">__FILE__</span><span class="p">,</span><span class="w"> </span><span class="n">reason</span><span class="p">,</span><span class="w"> </span><span class="n">cerr</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">print_trace</span><span class="p">(</span><span class="w"> </span><span class="n">__LINE__</span><span class="p">,</span><span class="w"> </span><span class="n">__FILE__</span><span class="p">,</span><span class="w"> </span><span class="n">reason</span><span class="p">,</span><span class="w"> </span><span class="n">cerr</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
 
@@ -306,14 +304,14 @@
 <span class="w">        </span><span class="s">"in {} {}: not fully used!</span><span class="se">\n</span><span class="s">Unused: {} values</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"></span>
 <span class="w">        </span><span class="n">m_name</span><span class="p">,</span><span class="w"> </span><span class="n">where</span><span class="p">,</span><span class="w"> </span><span class="n">m_numTotValues</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">m_numAllocated</span><span class="w"></span>
 <span class="w">      </span><span class="p">);</span><span class="w"></span>
-<span class="w">      </span><span class="n">printTrace</span><span class="p">(</span><span class="w"> </span><span class="n">__LINE__</span><span class="p">,</span><span class="n">__FILE__</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">,</span><span class="w"> </span><span class="n">cerr</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="n">print_trace</span><span class="p">(</span><span class="w"> </span><span class="n">__LINE__</span><span class="p">,</span><span class="n">__FILE__</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">,</span><span class="w"> </span><span class="n">cerr</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="p">}</span><span class="w"></span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">m_numAllocated</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">m_numTotValues</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">      </span><span class="n">string</span><span class="w"> </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="w"></span>
 <span class="w">        </span><span class="s">"in {} {}: too much used!</span><span class="se">\n</span><span class="s">More used: {} values</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"></span>
 <span class="w">        </span><span class="n">m_name</span><span class="p">,</span><span class="w"> </span><span class="n">where</span><span class="p">,</span><span class="w"> </span><span class="n">m_numAllocated</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">m_numTotValues</span><span class="w"></span>
 <span class="w">      </span><span class="p">);</span><span class="w"></span>
-<span class="w">      </span><span class="n">printTrace</span><span class="p">(</span><span class="w"> </span><span class="n">__LINE__</span><span class="p">,</span><span class="n">__FILE__</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">,</span><span class="w"> </span><span class="n">cerr</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="n">print_trace</span><span class="p">(</span><span class="w"> </span><span class="n">__LINE__</span><span class="p">,</span><span class="n">__FILE__</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">,</span><span class="w"> </span><span class="n">cerr</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="p">}</span><span class="w"></span>
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
 

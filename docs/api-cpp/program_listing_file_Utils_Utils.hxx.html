@@ -94,10 +94,8 @@
 
 <span class="cp">#pragma once</span>
 
-<span class="cp">#ifndef DOXYGEN_SHOULD_SKIP_THIS</span>
 <span class="cp">#ifndef UTILS_dot_HXX</span>
 <span class="cp">#define UTILS_dot_HXX</span>
-<span class="cp">#endif</span>
 
 <span class="c1">// select computer architecture</span>
 <span class="cp">#if defined(__APPLE__) &amp;&amp; defined(__MACH__)</span>
@@ -197,7 +195,7 @@
 
 <span class="w">  </span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T_int</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span> <span class="nc">T_real</span><span class="o">&gt;</span><span class="w"></span>
 <span class="w">  </span><span class="kt">void</span><span class="w"></span>
-<span class="w">  </span><span class="n">searchInterval</span><span class="p">(</span><span class="w"></span>
+<span class="w">  </span><span class="n">search_interval</span><span class="p">(</span><span class="w"></span>
 <span class="w">    </span><span class="n">T_int</span><span class="w">                </span><span class="n">npts</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="n">T_real</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="n">T_real</span><span class="w">             </span><span class="o">&amp;</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"></span>
@@ -207,7 +205,7 @@
 <span class="w">  </span><span class="p">);</span><span class="w"></span>
 
 <span class="w">  </span><span class="cp">#ifndef DOXYGEN_SHOULD_SKIP_THIS</span>
-<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">searchInterval</span><span class="p">(</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">search_interval</span><span class="p">(</span><span class="w"></span>
 <span class="w">    </span><span class="kt">int32_t</span><span class="w">             </span><span class="n">npts</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="kt">float</span><span class="w">             </span><span class="o">&amp;</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"></span>
@@ -216,7 +214,7 @@
 <span class="w">    </span><span class="kt">bool</span><span class="w">                </span><span class="n">can_extend</span><span class="w"></span>
 <span class="w">  </span><span class="p">);</span><span class="w"></span>
 
-<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">searchInterval</span><span class="p">(</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">search_interval</span><span class="p">(</span><span class="w"></span>
 <span class="w">    </span><span class="kt">int32_t</span><span class="w">              </span><span class="n">npts</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="kt">double</span><span class="w">             </span><span class="o">&amp;</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"></span>
@@ -225,7 +223,7 @@
 <span class="w">    </span><span class="kt">bool</span><span class="w">                 </span><span class="n">can_extend</span><span class="w"></span>
 <span class="w">  </span><span class="p">);</span><span class="w"></span>
 
-<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">searchInterval</span><span class="p">(</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">search_interval</span><span class="p">(</span><span class="w"></span>
 <span class="w">    </span><span class="kt">int64_t</span><span class="w">             </span><span class="n">npts</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="kt">float</span><span class="w">             </span><span class="o">&amp;</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"></span>
@@ -234,7 +232,7 @@
 <span class="w">    </span><span class="kt">bool</span><span class="w">                </span><span class="n">can_extend</span><span class="w"></span>
 <span class="w">  </span><span class="p">);</span><span class="w"></span>
 
-<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">searchInterval</span><span class="p">(</span><span class="w"></span>
+<span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">search_interval</span><span class="p">(</span><span class="w"></span>
 <span class="w">    </span><span class="kt">int64_t</span><span class="w">              </span><span class="n">npts</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="kt">double</span><span class="w">             </span><span class="o">&amp;</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"></span>
@@ -243,6 +241,77 @@
 <span class="w">    </span><span class="kt">bool</span><span class="w">                 </span><span class="n">can_extend</span><span class="w"></span>
 <span class="w">  </span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="cp">#endif</span>
+
+<span class="w">  </span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T_int</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span> <span class="nc">T_real</span><span class="o">&gt;</span><span class="w"></span>
+<span class="w">  </span><span class="kr">inline</span><span class="w"></span>
+<span class="w">  </span><span class="kt">void</span><span class="w"></span>
+<span class="w">  </span><span class="n">searchInterval</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="n">T_int</span><span class="w">                </span><span class="n">npts</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">T_real</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">T_real</span><span class="w">             </span><span class="o">&amp;</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">T_int</span><span class="w">              </span><span class="o">&amp;</span><span class="w"> </span><span class="n">lastInterval</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="kt">bool</span><span class="w">                 </span><span class="n">closed</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="kt">bool</span><span class="w">                 </span><span class="n">can_extend</span><span class="w"></span>
+<span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">search_interval</span><span class="p">(</span><span class="w"> </span><span class="n">npts</span><span class="p">,</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">lastInterval</span><span class="p">,</span><span class="w"> </span><span class="n">closed</span><span class="p">,</span><span class="w"> </span><span class="n">can_extend</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">static</span><span class="w"></span>
+<span class="w">  </span><span class="kr">inline</span><span class="w"></span>
+<span class="w">  </span><span class="kt">void</span><span class="w"></span>
+<span class="w">  </span><span class="n">to_upper</span><span class="p">(</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">transform</span><span class="p">(</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">toupper</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">static</span><span class="w"></span>
+<span class="w">  </span><span class="kr">inline</span><span class="w"></span>
+<span class="w">  </span><span class="kt">void</span><span class="w"></span>
+<span class="w">  </span><span class="n">to_lower</span><span class="p">(</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">transform</span><span class="p">(</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">tolower</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">static</span><span class="w"></span>
+<span class="w">  </span><span class="kr">inline</span><span class="w"></span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"></span>
+<span class="w">  </span><span class="n">is_lower</span><span class="p">(</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">all_of</span><span class="p">(</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="n">islower</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">static</span><span class="w"></span>
+<span class="w">  </span><span class="kr">inline</span><span class="w"></span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"></span>
+<span class="w">  </span><span class="n">is_upper</span><span class="p">(</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">all_of</span><span class="p">(</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="n">isupper</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">static</span><span class="w"></span>
+<span class="w">  </span><span class="kr">inline</span><span class="w"></span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"></span>
+<span class="w">  </span><span class="n">is_alpha</span><span class="p">(</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">all_of</span><span class="p">(</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="n">isalpha</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">static</span><span class="w"></span>
+<span class="w">  </span><span class="kr">inline</span><span class="w"></span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"></span>
+<span class="w">  </span><span class="n">is_alphanum</span><span class="p">(</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">all_of</span><span class="p">(</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="n">isalnum</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">static</span><span class="w"></span>
+<span class="w">  </span><span class="kr">inline</span><span class="w"></span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"></span>
+<span class="w">  </span><span class="n">is_digits</span><span class="p">(</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">all_of</span><span class="p">(</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="n">isdigit</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">static</span><span class="w"></span>
+<span class="w">  </span><span class="kr">inline</span><span class="w"></span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"></span>
+<span class="w">  </span><span class="n">is_xdigits</span><span class="p">(</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">all_of</span><span class="p">(</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="n">isxdigit</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
 <span class="p">}</span><span class="w"></span>
 
 <span class="cp">#endif</span>

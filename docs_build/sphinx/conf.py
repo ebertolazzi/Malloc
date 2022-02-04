@@ -48,7 +48,7 @@ doxygen_common_stdin = """
         EXTRACT_PRIVATE       = NO
         PREDEFINED           += protected=private
         GENERATE_HTML         = NO
-        EXCLUDE_PATTERNS      = ../../src/Utils/fmt ../../src/Utils/os.cc ../../src/Utils/format.cc
+        EXCLUDE               = ../../src/Utils/fmt ../../src/os.cc ../../src/format.cc
 """
 
 doc_cpp = {

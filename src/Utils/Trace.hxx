@@ -101,11 +101,9 @@
 
 namespace Utils {
 
-  #ifndef DOXYGEN_SHOULD_SKIP_THIS
   using std::basic_ostream;
   using std::string;
   using std::runtime_error;
-  #endif
 
   typedef basic_ostream<char> ostream_type;
 

@@ -23,10 +23,8 @@
 
 #pragma once
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef UTILS_MALLOC_dot_HXX
 #define UTILS_MALLOC_dot_HXX
-#endif
 
 /*\
 :|:    ____            _       _             __

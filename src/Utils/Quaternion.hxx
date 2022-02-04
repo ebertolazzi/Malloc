@@ -23,10 +23,8 @@
 
 #pragma once
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef UTILS_QUATERNION_dot_HH
 #define UTILS_QUATERNION_dot_HH
-#endif
 
 namespace Utils {
 
