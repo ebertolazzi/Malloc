@@ -124,6 +124,13 @@ namespace Utils {
     void adjust_degree( void );
 
     //!
+    //! Count the sign variations of the polynomial
+    //! \f$ p(x) = \sum_{i=0}^n a_i x^i \f$ i.e. the number
+    //! of sign change of the sequance \f$ [a_0,a_1,\ldots,a_n] \f$.
+    //!
+    Integer sign_variations( void ) const;
+
+    //!
     //! Change the polynomial in such a way
     //! \f$ p(x) = x^n + \sum_{i=0}^{n-1} a_i x^i \f$.
     //!
@@ -191,7 +198,7 @@ namespace Utils {
     //!
     //! Conpute the sign variations of the stored Sturm sequence at \f$ x \f$.
     //!
-    Integer sign_variations( Real x ) const;
+    Integer sign_variations( Real x, bool & on_root ) const;
 
     //!
     //! Given an interval \f$ [a,b] \f$
@@ -351,7 +358,7 @@ namespace Utils {
 
       // se il coeff è 1 non lo stampo
       if ( c == 1 ) output << s << e; // stampa
-      else          output << s << c << e; // stampa
+      else          output << s << c << ' ' << e; // stampa
     }
     return output;
   }

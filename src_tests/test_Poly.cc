@@ -185,16 +185,17 @@ main() {
   fmt::print( "Sturm sequence\n{}\n", STURM );
 
   for ( auto const & xx : x ) {
-    int s0 = STURM.sign_variations( xx );
-    fmt::print("x = {:<10}, sign var = {}\n", xx, s0 );
+    bool on_root;
+    int s0 = STURM.sign_variations( xx, on_root );
+    fmt::print( "x = {:<10}, sign var = {}\n", xx, s0 );
   }
 
   STURM.refine_roots( 1e-18 );
 
-  fmt::print("ROOTS = {}\n", STURM.roots() );
+  fmt::print( "ROOTS = {}\n", STURM.roots() );
 
   for ( auto & x : STURM.roots() ) {
-    fmt::print("P({}) = {}\n", x, P.eval(x) );
+    fmt::print( "P({}) = {}\n", x, P.eval(x) );
   }
 
   Poly<double> const & SP = STURM.get(0);
