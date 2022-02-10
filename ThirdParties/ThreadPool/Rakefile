@@ -1,0 +1,23 @@
+require "rake"
+require "fileutils"
+
+require_relative "../../Rakefile_common.rb"
+
+NAME = "ThreadPool-1-master"
+
+desc "install THREAD-POOL"
+task :install do
+  puts "Copy THREAD-POOL source".yellow
+  if not Dir.exist?(NAME) then
+    extract_zip("#{NAME}.zip");
+  end
+  FileUtils.cp_r "#{NAME}/include/threadpool",   '../../src/Utils'
+end
+
+task :install_osx   => :install
+task :install_linux => :install
+task :install_win   => :install
+task :clean
+task :clean_osx
+task :clean_linux
+task :clean_win

@@ -422,12 +422,7 @@ namespace Utils {
     ThreadPool( ThreadPool const & ) = delete;
     ThreadPool & operator = ( ThreadPool const & ) = delete;
 
-    #if defined(UTILS_OS_WINDOWS)
-    void
-    setup() {
-      for ( auto & w: m_workers ) w.start();
-    }
-    #elif defined(UTILS_OS_LINUX)
+    #ifdef UTILS_OS_LINUX
     void
     setup() {
       sched_param sch;

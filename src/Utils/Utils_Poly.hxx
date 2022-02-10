@@ -500,6 +500,11 @@ namespace Utils {
     Integer R_degree = R.degree();
     M.set_order(dd+1);
 
+    UTILS_ASSERT0(
+      !isZero(lcQ),
+      "Poly::divide(p,q,M,R), leading coefficient of q(x) is 0!"
+    );
+
     while ( dd >= 0 && R_degree >= 0 ) {
       Real lcR = R(R_degree);
       Real bf  = lcR/lcQ;
@@ -562,8 +567,8 @@ namespace Utils {
     P.derivative( DP );
     m_sturm.clear();
     m_sturm.reserve(P.order());
-    m_sturm.push_back(P);
-    m_sturm.push_back(DP);
+    m_sturm.emplace_back(P);  m_sturm.back().adjust_degree();
+    m_sturm.emplace_back(DP); m_sturm.back().adjust_degree();
     Integer ns = 1;
     while ( true ) {
       divide( m_sturm[ns-1], m_sturm[ns], M, R );
@@ -721,7 +726,7 @@ namespace Utils {
       Real fb = P.eval( b );
       // controlla consistenza dati del problema
       UTILS_ASSERT( fa * fb <= 0, "ERRORE" );
-      Integer nok = 0;
+      Integer num_ok = 0;
       for ( Integer i = 0; i < m_max_iter; ++i ) {
         if ( std::abs(fa) < std::abs(fb) ) {
           dx = fa/P.eval_D(a);
@@ -731,16 +736,17 @@ namespace Utils {
           x  = b - dx;
         }
         // If Newton failed use bisection
-        if ( ! ( x > a && x < b ) ) x = (a+b)/2;
+        Real ba    = b-a;
+        Real a_min = a+0.1*ba;
+        Real b_max = b-0.1*ba;
+        if ( x < a_min || x > b_max ) { x = (a+b)/2; num_ok = 0; } // if using bisection reset quasi ok iteration count
+        //if ( ! ( x > a && x < b ) ) { x = (a+b)/2 }
         Real fx = P.eval( x );
         bool ok1 = std::abs(fx) < tol;
         bool ok2 = std::abs(dx) < tol;
         if ( ok1 && ok2 ) break;
-        if ( ok1 || ok2 ) {
-          if ( ++nok > 3 ) break;
-        } else {
-          nok = 0;
-        }
+        if ( ok1 || ok2 ) { if ( ++num_ok > 3 ) break; }
+        else              { num_ok = 0; }
         if ( fa*fx < 0 ) { b = x; fb = fx; } // interval [a,x]
         else             { a = x; fa = fx; } // interval [c,b]
       }
