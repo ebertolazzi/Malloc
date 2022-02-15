@@ -253,46 +253,44 @@ namespace threadpool {
 #include "impl/threadpool_impl_homogenous.h"
 
 namespace threadpool {
-  namespace impl {
 
-    /**
-     * Implementation of virtual thread pool.
-     *
-     * Implements the functionality of the virtual thread
-     * pool. Only provides an interface to run a generic
-     * VirtualTask. The convenience functions to run
-     * different types of callable objects should be implemented
-     * in a subclass.
-     *
-     * The template parameter is not used, only serves to make
-     * this a class template which can be instantiated in multiple
-     * compilation units without giving multiply defined symbol
-     * errors.
-     */
-    class VirtualThreadPoolImpl : public VirtualThreadPoolInterface {
-      HomogenousThreadPool<QueueElement> impl;
-    public:
-      explicit
-      VirtualThreadPoolImpl(
-        int         thread_count = -1,
-        std::size_t queue_size   = 0,
-        std::size_t maxpart      = 1
-      )
-      : impl(thread_count, queue_size, maxpart)
-      { }
+  /**
+   * Implementation of virtual thread pool.
+   *
+   * Implements the functionality of the virtual thread
+   * pool. Only provides an interface to run a generic
+   * VirtualTask. The convenience functions to run
+   * different types of callable objects should be implemented
+   * in a subclass.
+   *
+   * The template parameter is not used, only serves to make
+   * this a class template which can be instantiated in multiple
+   * compilation units without giving multiply defined symbol
+   * errors.
+   */
+  class VirtualThreadPoolImpl : public VirtualThreadPoolInterface {
+    HomogenousThreadPool<QueueElement> impl;
+  public:
+    explicit
+    VirtualThreadPoolImpl(
+      int         thread_count = -1,
+      std::size_t queue_size   = 0,
+      std::size_t maxpart      = 1
+    )
+    : impl(thread_count, queue_size, maxpart)
+    { }
 
-      void
-      run(std::unique_ptr<VirtualTask>&& t)
-      { impl.run(t.release()); }
+    void
+    run(std::unique_ptr<VirtualTask>&& t)
+    { impl.run(t.release()); }
 
-      void
-      run(VirtualTask* t)
-      { impl.run(t); }
+    void
+    run(VirtualTask* t)
+    { impl.run(t); }
 
-      void wait() { impl.wait(); }
-      void join() { impl.join(); }
-    };
-  } // End of namespace impl
+    void wait() { impl.wait(); }
+    void join() { impl.join(); }
+  };
 
 
   ThreadPool::ThreadPool(
@@ -300,7 +298,7 @@ namespace threadpool {
     std::size_t queue_size,
     std::size_t maxpart
   )
-  : pimpl(new threadpool::impl::VirtualThreadPoolImpl(thread_count, queue_size, maxpart))
+  : pimpl(new VirtualThreadPoolImpl(thread_count, queue_size, maxpart))
   {  }
 
   template <class Iterator, class Function>
@@ -315,5 +313,9 @@ namespace threadpool {
   }
 
 } // End of namespace threadpool
+
+#include "parallel_for_each.h"
+#include "parallel_transform.h"
+#include "make_iterator.h"
 
 #endif // !defined(THREADPOOL_THREADPOOL_H)
