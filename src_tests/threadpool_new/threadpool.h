@@ -306,10 +306,10 @@ namespace threadpool {
   void
   ThreadPool::for_each( Iterator first, Iterator const & last, Function && fun ) {
     while (first != last) {
-      typedef iterval_traits<Iterator> INTERVAL_TRAITS;
-      Wrap<typename INTERVAL_TRAITS::type> e(INTERVAL_TRAITS::copy(first));
+      typedef iterval_traits<Iterator> IT;
+      Wrap<typename IT::type> e(IT::copy(first));
       ++first;
-      run([&fun,e](){ fun(INTERVAL_TRAITS::pass(std::move(e.value))); });
+      run([&fun,e](){ fun(IT::pass(std::move(e.value))); });
     }
   }
 

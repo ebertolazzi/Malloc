@@ -13,134 +13,6 @@
 namespace threadpool {
 
   /*
-    The thread pool for arbitrary functions works fine, and can be
-    used to process elements of a container. But this means queuing
-    a task for each element, with each task executing the same
-    function on another element of the container. Certainly there
-    is the possibility for optimization.
-    Define a queue calling the same function for each object in an
-    iterator range. This means we do not need a true queue but just
-    an object using incremental values of an iterator until the end
-    of the range is reached.
-  */
-
-  /**
-   * Queue calling the function on single objects.
-   *
-   * @relates ForEachThreadPoolImpl
-   *	Conceptually ForEachThreadPoolImpl_Queue is a member
-   *	of class ForEachThreadPoolImpl, but the standard does
-   *	not allow template specialization inside classes. I
-   *	had to move it out of the class.
-   */
-  template<class Iterator, class Last, class Function, bool forward_iterator>
-  class ForEachThreadPoolImpl_Queue : public VirtualQueue {
-  protected:
-    Iterator   & current;
-    Last const & last;
-    Function   & fun;
-    std::mutex mutex; // Make sure threads do not access concurrently
-
-  public:
-
-    ForEachThreadPoolImpl_Queue(
-      Iterator   & first,
-      Last const & last,
-      Function   & fun,
-      std::size_t /*ignored*/ = 0
-    )
-    : current(first)
-    , last(last)
-    , fun(fun)
-    { }
-
-    void
-    work(bool /*ignored*/) override {
-      Last const & l(last);
-      for (;;) {
-        std::unique_lock<std::mutex> lock(mutex);
-        if (current == l) break;
-        typename iterval_traits<Iterator>::type v(iterval_traits<Iterator>::copy(current));
-        ++current;
-        lock.unlock();
-        fun(iterval_traits<Iterator>::pass(std::move(v)));
-      }
-    }
-
-    /**
-     * Shut the queue down, stop returning values
-     */
-    void
-    shutdown() override {
-      std::lock_guard<std::mutex> lock(mutex);
-      current = last;
-    }
-  };
-
-  /*
-    The queue just implemented would work fine. But if there are
-    a lot of tasks with each task taking a very short time, it may
-    cause a lot of overhead because each object is dequeued
-    separately. Wouldn't it be nice if we could deliver larger
-    tasks?
-  */
-
-  /**
-   * Run a function on objects from a container.
-   *
-   * Queue with `forward_iterator` == false takes groups of
-   * objects from the queue.
-   *
-   * This works only for random access iterators. The
-   * specialization is selected with template parameter
-   * forward_iterator = true. For all other iterators, use the
-   * general case of the template above.
-   *
-   * @relates ForEachThreadPoolImpl
-   *	Conceptually ForEachThreadPoolImpl_Queue is a member
-   *	of class ForEachThreadPoolImpl, but the standard does
-   *	not allow template specialization inside classes. I
-   *	had to move it out of the class.
-   */
-  template<class Iterator, class Last, class Function>
-  class ForEachThreadPoolImpl_Queue<Iterator, Last, Function, true> : public ForEachThreadPoolImpl_Queue<Iterator, Last, Function, false> {
-    typedef  ForEachThreadPoolImpl_Queue<Iterator, Last, Function, false> Base;
-    std::size_t const maxpart;
-    typename std::iterator_traits<Iterator>::difference_type remaining;
-  public:
-
-    ForEachThreadPoolImpl_Queue(
-      Iterator   & first,
-      Last const & last,
-      Function   & fun,
-      std::size_t maxpart
-    )
-    : Base(first, last, fun)
-    , maxpart(maxpart)
-    , remaining(std::distance(first, last))
-    { }
-
-    void
-    work(bool /*ignored*/) override {
-      Last const & last = this->last; // Does never change
-      for (;;) {
-        Iterator c, l;
-        {
-          std::lock_guard<std::mutex> lock(this->mutex);
-          if ((c = this->current) == last) break;
-          typename std::iterator_traits<Iterator>::difference_type stride = (maxpart == 0) ? 1 : remaining / maxpart;
-          if (stride <= 0) stride = 1;
-          l = c;
-          std::advance(l, stride);
-          this->current = l;
-          remaining -= stride;
-        }
-        while (c != l) { this->fun(*c); ++c; }
-      }
-    }
-  };
-
-  /*
     Now that the queue implementation is done, the definition of a
     thread pool for container processing is easy.
   */
@@ -162,7 +34,7 @@ namespace threadpool {
    */
   template<class Iterator, class Last, class Function>
   class ForEachThreadPoolImpl {
-    typedef ForEachThreadPoolImpl_Queue<
+    typedef ForEach_Queue<
       Iterator,
       Last,
       Function,

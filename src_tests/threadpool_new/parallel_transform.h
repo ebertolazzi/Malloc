@@ -101,6 +101,8 @@ namespace threadpool {
 
     void
     work(bool return_if_idle) override {
+      typedef iterval_traits<InputIterator> IT;
+
       std::unique_ptr<Results> results;
       Last const & last(this->last); // Does never change.
       for (;;) {
@@ -113,11 +115,11 @@ namespace threadpool {
           ctr              = input_counter;
           prvres           = previous_results;
           previous_results = &*results;
-          typename iterval_traits<InputIterator>::type v(iterval_traits<InputIterator>::copy(current));
+          typename IT::type v(IT::copy(current));
           ++current;
           input_counter = ctr + 1;
           lock.unlock();
-          results->result = fun(iterval_traits<InputIterator>::pass(std::move(v)));
+          results->result = fun(IT::pass(std::move(v)));
         }
         {
           /*

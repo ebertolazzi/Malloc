@@ -132,7 +132,7 @@ namespace threadpool {
   {
     typedef X type;
     static X const & copy( X const & r ) { return r; }
-    static auto pass(type&& v) -> decltype(*std::move(v)) { return *std::move(v); }
+    static auto pass( X && v ) -> decltype(*std::move(v)) { return *std::move(v); }
     //static const char* name() { return "forward"; }
   };
 
