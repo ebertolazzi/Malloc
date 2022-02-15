@@ -1,16 +1,16 @@
-/** @file threadpool/threadpool.h
+/**
+ * \file threadpool/threadpool.h
  *
  * Threadpool for C++11, header for thread pool
  *
- * @copyright	2014 Ruediger Helsch, Ruediger.Helsch@t-online.de
- * @license	All rights reserved. Use however you want. No warranty at all.
- * $Revision: 2.0 $
- * $Date: 2014/05/14 16:56:58 $
+ * \copyright 2021 Enrico Bertolazzi
+ *
+ * based on the work of Ruediger Helsch, Ruediger.Helsch@t-online.de (2014)
+ * version 2.0 (https://github.com/RuedigerHelsch/ThreadPool)
  */
 
-#ifndef THREADPOOL_THREADPOOL_H
-#define THREADPOOL_THREADPOOL_H
-
+#ifndef THREADPOOL_dot_HH
+#define THREADPOOL_dot_HH
 
 #include <cstddef>
 #include <memory>
@@ -29,7 +29,6 @@
 #include <future>
 #include <condition_variable>
 
-#include "threadpool_config.h"
 #include "threadpool_utils.hxx"
 #include "threadpool_virtuals.hxx"
 #include "threadpool_queue.hxx"
@@ -78,7 +77,7 @@ namespace threadpool {
      */
     void
     join_workers() {
-      work();		// Instead of hanging around, help the workers!
+      work(); // Instead of hanging around, help the workers!
       for ( Worker & w : m_workers ) w.join();
     }
 
@@ -101,12 +100,12 @@ namespace threadpool {
      * \param queue
      *        The queue delivering the tasks.
      *
-     * \param thread_count The number of threads
-     *                     to use. If the thread count is not
-     *                     specified it defaults to the number of
-     *                     available hardware threads
-     *                     std::thread::hardware_concurrency(),
-     *                     as read through hardware_concurrency().
+     * \param thread_count
+     *        The number of threads to use.
+     *        If the thread count is not specified it defaults
+     *        to the number of available hardware threads
+     *        std::thread::hardware_concurrency(),
+     *        as read through hardware_concurrency().
      *
      */
     GenericThreadPool( Queue & queue, int thread_count )
@@ -293,187 +292,6 @@ namespace threadpool {
   };
 
   /**
-   * ThreadPool
-   *
-   * Builds a compiler firewall around VirtualThreadPoolImpl so
-   * that the thread pool can be used without seeing the
-   * internals.This also speeds up compilation because the
-   * compiler does not see the implementation.
-   *
-   * Defines only the implementation and not the usability
-   * member functions that make it easy to run tasks. The
-   * derived class ThreadPool defines these.
-   *
-   * This will only ever by used with template parameter 0. We
-   * could define the class directly, but then it would not be
-   * allowed to include the class definition in multiple
-   * separately compiled files. By making it a class *template*,
-   * we profit from the fact that multiple implicit
-   * instantiations of a template are allowed. This means when
-   * the user switches between header-only and library
-   * configuration he does not need to recompile everything, and
-   * the ODR is not violated.
-   */
-  class ThreadPool {
-
-    std::unique_ptr<ThreadPoolInterface> pimpl;
-
-  public:
-
-    explicit
-    ThreadPool(
-      int         thread_count = -1,
-      std::size_t queue_size   = 0,
-      std::size_t maxpart      = 1
-    );
-
-    void
-    run(std::unique_ptr<VirtualTask>&& t) {
-      pimpl->run(std::move(t));
-    }
-
-    void run(VirtualTask* t) { pimpl->run(t); }
-
-    /**
-     * Wrap void functions in a task and run them without
-     * exception handling.
-     */
-    template<class Function>
-    typename std::enable_if<!std::is_pointer<typename std::remove_reference<Function>::type>::value &&
-           std::is_void<decltype(std::declval<typename std::remove_pointer<typename std::remove_reference<Function>::type>::type>()())>::value
-    >::type
-    run( Function&& f ) {
-      typedef typename std::remove_reference<Function>::type function_type;
-      class WrappedFunction : public VirtualTask {
-        Function f;
-      public:
-        WrappedFunction(function_type&& f) : f(std::move(f)) { }
-        virtual void operator()() override { f(); delete this; }
-      };
-      run(new WrappedFunction(std::forward<Function>(f)));
-    }
-
-    /**
-     * For functions with nonvoid return type, catch exceptions
-     * and return a future.
-     */
-    template<class Function>
-    typename std::enable_if<!std::is_pointer<typename std::remove_reference<Function>::type>::value &&
-       !std::is_void<decltype(std::declval<typename std::remove_pointer<typename std::remove_reference<Function>::type>::type>()())>::value,
-       std::future<decltype(std::declval<typename std::remove_pointer<typename std::remove_reference<Function>::type>::type>()())>
-    >::type
-    run(Function&& f) {
-      typedef typename std::remove_reference<Function>::type function_type;
-      typedef typename std::result_of<Function()>::type return_type;
-
-      class WrappedFunction : public VirtualTask {
-        Function                  f;
-        std::promise<return_type> promise;
-      public:
-        WrappedFunction(function_type&& f) : f(std::move(f)) { }
-        WrappedFunction(function_type& f) : f(f) { }
-
-        std::future<return_type> get_future() { return promise.get_future(); }
-
-        virtual
-        void
-        operator()() override {
-          try {
-            promise.set_value(f());
-          } catch (...) {
-            promise.set_exception(std::current_exception());
-          }
-          delete this;
-        }
-      };
-
-      WrappedFunction* task(new WrappedFunction(std::forward<Function>(f)));
-      std::future<return_type> future(task->get_future());
-      run(task);
-      return future;
-    }
-
-    /**
-     * Run a function on all objects in an iterator range
-     *
-     * @param first
-     *			Start of the range
-     *
-     * @param last
-     *			End of the range
-     *
-     * @param fun
-     *			The function taking one parameter
-     *			by reference and returning void.
-     *
-     * Does not wait for all tasks to finish! Caller is
-     * responsible for wait()ing on the pool if necessary.
-     */
-    template <class Iterator, class Function>
-    void
-    for_each( Iterator first, const Iterator& last, Function&& fun );
-
-    /**
-     * Run a function on all members of a container
-     *
-     * @param container
-     *			The container to process
-     *
-     * @param fun
-     *			The function taking one parameter
-     *			by reference and returning void.
-     *
-     * Does not wait for all tasks to finish! Caller is
-     * responsible for wait()ing on the pool if necessary.
-     */
-    template<class Container, class Function>
-    void
-    for_each( Container&& container, Function&& fun ) {
-      for ( auto & e: container ) run([&fun,&e](){ fun(e); });
-    }
-
-
-
-    /**
-     * Wait for all active tasks to finish.
-     *
-     * Also throws an exception if one of the tasks has
-     * encountered an uncatched exception.
-     *
-     * Leaves the pool in a valid state ready to run more
-     * tasks, unless an exception has been thrown.
-     */
-    void wait() { pimpl->wait(); }
-
-
-
-    /**
-     * Discard all tasks from the queue that have not yet
-     * started and wait for all threads to return.
-     *
-     * Also throws an exception if one of the tasks has
-     * encountered an uncatched exception.
-     *
-     * Leaves the pool in a shutdown state not ready to run
-     * tasks, but ready for destruction.
-     */
-    void join() { pimpl->join(); }
-
-
-    /**
-     * Destroy the thread pool.
-     *
-     * Does the equivalent of wait() and join() before the
-     * thread pool is destructed. This means, the destructor
-     * can hang a long time and can throw an exception (unless
-     * wait() or join() have been called before the
-     * destructor).
-     */
-    ~ThreadPool() {}
-
-	};
-
-  /**
    * Implementation of virtual thread pool.
    *
    * Implements the functionality of the virtual thread
@@ -487,7 +305,7 @@ namespace threadpool {
    * compilation units without giving multiply defined symbol
    * errors.
    */
-  class VirtualThreadPoolImpl : public ThreadPoolInterface {
+  class ThreadPoolBase : public ThreadPoolInterface {
 
     typedef HQueue<QueueElement>     QUEUE;
     typedef GenericThreadPool<QUEUE> POOL;
@@ -497,7 +315,7 @@ namespace threadpool {
 
   public:
     explicit
-    VirtualThreadPoolImpl(
+    ThreadPoolBase(
       int         thread_count = -1,
       std::size_t queue_size   = 0,
       std::size_t maxpart      = 1
@@ -544,28 +362,185 @@ namespace threadpool {
     }
 
     virtual
-    ~VirtualThreadPoolImpl() { wait(); join(); }
+    ~ThreadPoolBase() { wait(); join(); }
   };
 
+  /**
+   * ThreadPool
+   *
+   * Builds a compiler firewall around ThreadPoolBase so
+   * that the thread pool can be used without seeing the
+   * internals.This also speeds up compilation because the
+   * compiler does not see the implementation.
+   *
+   * Defines only the implementation and not the usability
+   * member functions that make it easy to run tasks. The
+   * derived class ThreadPool defines these.
+   *
+   * This will only ever by used with template parameter 0. We
+   * could define the class directly, but then it would not be
+   * allowed to include the class definition in multiple
+   * separately compiled files. By making it a class *template*,
+   * we profit from the fact that multiple implicit
+   * instantiations of a template are allowed. This means when
+   * the user switches between header-only and library
+   * configuration he does not need to recompile everything, and
+   * the ODR is not violated.
+   */
+  class ThreadPool : public ThreadPoolBase {
+  public:
 
-  ThreadPool::ThreadPool(
-    int         thread_count,
-    std::size_t queue_size,
-    std::size_t maxpart
-  )
-  : pimpl(new VirtualThreadPoolImpl(thread_count, queue_size, maxpart))
-  {  }
+    using ThreadPoolBase::run;
 
-  template <class Iterator, class Function>
-  void
-  ThreadPool::for_each( Iterator first, Iterator const & last, Function && fun ) {
-    while (first != last) {
-      typedef iterval_traits<Iterator> IT;
-      Wrap<typename IT::type> e(IT::copy(first));
-      ++first;
-      run([&fun,e](){ fun(IT::pass(std::move(e.value))); });
+    explicit
+    ThreadPool(
+      int         thread_count = -1,
+      std::size_t queue_size   = 0,
+      std::size_t maxpart      = 1
+    )
+    : ThreadPoolBase( thread_count, queue_size, maxpart )
+    {}
+
+    /**
+     * Wrap void functions in a task and run them without
+     * exception handling.
+     */
+    template<class Function>
+    typename std::enable_if<!std::is_pointer<typename std::remove_reference<Function>::type>::value &&
+           std::is_void<decltype(std::declval<typename std::remove_pointer<typename std::remove_reference<Function>::type>::type>()())>::value
+    >::type
+    run( Function && f ) {
+      typedef typename std::remove_reference<Function>::type function_type;
+      class WrappedFunction : public VirtualTask {
+        Function f;
+      public:
+        WrappedFunction(function_type&& f) : f(std::move(f)) { }
+        virtual void operator()() override { f(); delete this; }
+      };
+      ThreadPoolBase::run(new WrappedFunction(std::forward<Function>(f)));
     }
-  }
+
+    /**
+     * For functions with nonvoid return type, catch exceptions
+     * and return a future.
+     */
+    template<class Function>
+    typename std::enable_if<!std::is_pointer<typename std::remove_reference<Function>::type>::value &&
+       !std::is_void<decltype(std::declval<typename std::remove_pointer<typename std::remove_reference<Function>::type>::type>()())>::value,
+       std::future<decltype(std::declval<typename std::remove_pointer<typename std::remove_reference<Function>::type>::type>()())>
+    >::type
+    run( Function && f ) {
+      typedef typename std::remove_reference<Function>::type function_type;
+      typedef typename std::result_of<Function()>::type return_type;
+
+      class WrappedFunction : public VirtualTask {
+        Function                  f;
+        std::promise<return_type> promise;
+      public:
+        WrappedFunction(function_type&& f) : f(std::move(f)) { }
+        WrappedFunction(function_type& f) : f(f) { }
+
+        std::future<return_type> get_future() { return promise.get_future(); }
+
+        virtual
+        void
+        operator()() override {
+          try {
+            promise.set_value(f());
+          } catch (...) {
+            promise.set_exception(std::current_exception());
+          }
+          delete this;
+        }
+      };
+
+      WrappedFunction* task(new WrappedFunction(std::forward<Function>(f)));
+      std::future<return_type> future(task->get_future());
+      ThreadPoolBase::run(task);
+      return future;
+    }
+
+    /**
+     * Run a function on all objects in an iterator range
+     *
+     * @param first
+     *			Start of the range
+     *
+     * @param last
+     *			End of the range
+     *
+     * @param fun
+     *			The function taking one parameter
+     *			by reference and returning void.
+     *
+     * Does not wait for all tasks to finish! Caller is
+     * responsible for wait()ing on the pool if necessary.
+     */
+    template <class Iterator, class Function>
+    void
+    for_each( Iterator first, const Iterator& last, Function&& fun ) {
+      while (first != last) {
+        typedef iterval_traits<Iterator> IT;
+        Wrap<typename IT::type> e(IT::copy(first));
+        ++first;
+        run([&fun,e](){ fun(IT::pass(std::move(e.value))); });
+      }
+    }
+
+    /**
+     * Run a function on all members of a container
+     *
+     * @param container
+     *			The container to process
+     *
+     * @param fun
+     *			The function taking one parameter
+     *			by reference and returning void.
+     *
+     * Does not wait for all tasks to finish! Caller is
+     * responsible for wait()ing on the pool if necessary.
+     */
+    template<class Container, class Function>
+    void
+    for_each( Container&& container, Function && fun ) {
+      for ( auto & e: container ) run([&fun,&e](){ fun(e); });
+    }
+
+    /**
+     * Wait for all active tasks to finish.
+     *
+     * Also throws an exception if one of the tasks has
+     * encountered an uncatched exception.
+     *
+     * Leaves the pool in a valid state ready to run more
+     * tasks, unless an exception has been thrown.
+     */
+    using ThreadPoolBase::wait;
+
+    /**
+     * Discard all tasks from the queue that have not yet
+     * started and wait for all threads to return.
+     *
+     * Also throws an exception if one of the tasks has
+     * encountered an uncatched exception.
+     *
+     * Leaves the pool in a shutdown state not ready to run
+     * tasks, but ready for destruction.
+     */
+    using ThreadPoolBase::join;
+
+    /**
+     * Destroy the thread pool.
+     *
+     * Does the equivalent of wait() and join() before the
+     * thread pool is destructed. This means, the destructor
+     * can hang a long time and can throw an exception (unless
+     * wait() or join() have been called before the
+     * destructor).
+     */
+    ~ThreadPool() {}
+
+	};
 
 } // End of namespace threadpool
 
