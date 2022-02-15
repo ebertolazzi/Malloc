@@ -12,260 +12,6 @@
 
 namespace threadpool {
 
-  /*
-    Now write a parallel version of std::transform().
-    We could reuse a few parts from the parallel for_each
-    implementation, but this would not save much and create a
-    dependence. Better to keep parallel_transform self-standing.
-  */
-
-  /**
-   * Run a function on objects from a container, store the return
-   * values in a result container.
-   *
-   * General case for arbitrary iterators. This is the difficult
-   * case to implement, because the worker threads must synchronize
-   * after they have done their work, and must make sure they write
-   * the results in the order of the input objects and not in the
-   * order the threads are finished. But this is the thing that
-   * makes parallel_transform interesting for the users. They don't
-   * need to synchronize, the algorithm makes it for them.
-   *
-   * @tparam InputIterator
-   *		Type of the input iterator. In this
-   *		specialization with forward_iterator = false,
-   *		an arbitrary input iterator type.
-   *
-   * @tparam OutputIterator
-   *		Type of the result iterator. In this
-   *		specialization with forward_iterator = false,
-   *		an arbitrary output iterator type.
-   *
-   * @tparam Function
-   *		Type of the function to be called with
-   *		successive elements from the input
-   *		iterator. The function must return a result
-   *		which is stored through the result iterator.
-   *
-   * @tparam forward_iterator
-   *		A bool selecting the specialization. The
-   *		general case for arbitrary input and output
-   *		iterators which is implemented here is
-   *		selected with forward_iterator = false. The
-   *		specialization for forward iterators follows
-   *		below.
-   *
-   * @relates TransformThreadPoolImpl
-   *	TransformThreadPoolImpl_Queue is conceptually a member
-   *	of class TransformThreadPoolImpl, but the standard
-   *	does not allow template specialization inside
-   *	classes. I had to move it out of the class.
-   */
-  template<class InputIterator, class Last,class OutputIterator, class Function, bool forward_iterator>
-  class TransformThreadPoolImpl_Queue : public VirtualQueue {
-    struct Results {
-      typename std::remove_reference<decltype(std::declval<Function&>()(*std::declval<InputIterator>()))>::type result;
-      std::unique_ptr<Results> next;
-    };
-
-    InputIterator& current;
-    const Last& last;
-    OutputIterator& result;
-    Function& fun;
-    bool do_shutdown = false;
-    std::mutex mutex;
-
-    typedef unsigned long long int counter_type;
-    counter_type input_counter = 1; // Counter of objects got from the queue
-    counter_type output_counter = 1; // Counter of objects written
-    Results* previous_results = nullptr;
-    counter_type max_output_queue_length = 1000; // This should be configurable
-    std::mutex output_mutex;
-    std::condition_variable output_queue;
-    std::size_t output_queue_waiters = 0;
-
-  public:
-
-    TransformThreadPoolImpl_Queue(
-      InputIterator  & first,
-      Last const     & last,
-      OutputIterator & result,
-      Function       & fun,
-      std::size_t
-    )
-    : current(first)
-    , last(last)
-    , result(result)
-    , fun(fun)
-    { }
-
-    void
-    work(bool return_if_idle) override {
-      typedef iterval_traits<InputIterator> IT;
-
-      std::unique_ptr<Results> results;
-      Last const & last(this->last); // Does never change.
-      for (;;) {
-        if (!results) results = std::unique_ptr<Results>(new Results);
-        counter_type ctr;
-        Results* prvres;
-        {
-          std::unique_lock<std::mutex> lock(mutex);
-          if (current == last) break;
-          ctr              = input_counter;
-          prvres           = previous_results;
-          previous_results = &*results;
-          typename IT::type v(IT::copy(current));
-          ++current;
-          input_counter = ctr + 1;
-          lock.unlock();
-          results->result = fun(IT::pass(std::move(v)));
-        }
-        {
-          /*
-            We must store the results in the order they had
-            in the input sequence, not in the order the
-            tasks finish. Just work together: whoever is
-            ready before his predecessor just leaves his
-            work for the predecessor to clean up.
-          */
-          std::unique_lock<std::mutex> lock(output_mutex);
-          while (ctr - output_counter > max_output_queue_length) {
-            if (do_shutdown) return;
-            if (return_if_idle) {
-              prvres->next = std::move(results);
-              return;
-            }
-            ++output_queue_waiters;
-            output_queue.wait(lock);
-            --output_queue_waiters;
-          }
-          if (output_counter == ctr) {
-            // Predecessor is done, we can store our things.
-            lock.unlock();
-            *result = std::move(results->result);
-            ++result;
-            ++ctr;
-            lock.lock();
-            // Now look whether our successors have left us their work.
-            while (results->next) {
-              results = std::move(results->next);
-              lock.unlock();
-              *result = std::move(results->result);
-              ++result;
-              ++ctr;
-              lock.lock();
-            }
-            output_counter = ctr;
-            if (output_queue_waiters) output_queue.notify_all(); // All because we do not know who is the right one.
-          } else {
-            // Predecessor still running, let him clean up.
-            prvres->next = std::move(results);
-          }
-        }
-      }
-    }
-
-    /**
-     * Shut the queue down, stop returning values
-     */
-    void
-    shutdown() override {
-      std::lock_guard<std::mutex> lock(mutex);
-      std::lock_guard<std::mutex> olock(output_mutex);
-      current = last;
-      do_shutdown = true;
-      output_queue.notify_all();
-    }
-  };
-
-  /**
-   * Run a function on objects from a container, store the return
-   * values in a result container.
-   *
-   * Specialization for forward iterators. It is used when
-   * template argument forward_iterator is true. For all other
-   * iterators, use the generic version above.
-   *
-   * @tparam InputIterator
-   *		Type of the input iterator. In this
-   *		specialization with forward_iterator = false,
-   *		an arbitrary input iterator type.
-   *
-   * @tparam OutputIterator
-   *		Type of the result iterator. In this
-   *		specialization with forward_iterator = false,
-   *		an arbitrary output iterator type.
-   *
-   * @tparam Function
-   *		Type of the function to be called with
-   *		successive elements from the input
-   *		iterator. The function must return a result
-   *		which is stored through the result iterator.
-   *
-   * @relates TransformThreadPoolImpl
-   *	TransformThreadPoolImpl_Queue is conceptually a member
-   *	of class TransformThreadPoolImpl, but the standard
-   *	does not allow template specialization inside
-   *	classes. I had to move it out of the class.
-   */
-  template<class InputIterator, class Last,class OutputIterator, class Function>
-  class TransformThreadPoolImpl_Queue<InputIterator, Last, OutputIterator, Function, true>: public VirtualQueue {
-    InputIterator   & current;
-    Last const      & last;
-    OutputIterator  & result;
-    Function        & fun;
-    std::mutex        mutex;
-    std::size_t const maxpart;
-    typename std::iterator_traits<InputIterator>::difference_type remaining;
-  public:
-    TransformThreadPoolImpl_Queue(
-      InputIterator  & first,
-      Last const     & last,
-      OutputIterator & result,
-      Function       & fun,
-      std::size_t      maxpart
-    )
-    : current(first)
-    , last(last)
-    , result(result)
-    , fun(fun)
-    , maxpart(maxpart)
-    , remaining(std::distance(first, last))
-    { }
-
-    void
-    work(bool) override {
-      Last const & last(this->last); // Does never change
-      for (;;) {
-        InputIterator c, l;
-        OutputIterator r;
-        {
-          std::lock_guard<std::mutex> lock(mutex);
-          if ((c = current) == last) break;
-          typename std::iterator_traits<InputIterator>::difference_type stride = (maxpart == 0) ? 1 : remaining / maxpart;
-          if (stride <= 0) stride = 1;
-          l = c;
-          std::advance(l, stride);
-          r = result;
-          this->current = l;
-          std::advance(result, stride);
-          remaining -= stride;
-        }
-        while (c != l) { *r = fun(*c); ++c; ++r; }
-      }
-    }
-
-    /**
-     * Shut the queue down, stop returning values
-     */
-    void
-    shutdown() override {
-      std::lock_guard<std::mutex> lock(mutex);
-      current = last;
-    }
-  };
-
   /**
    * A thread pool to be used as base for container processing.
    *
@@ -283,16 +29,22 @@ namespace threadpool {
    */
   template<class InputIterator, class Last,class OutputIterator, class Function>
   class TransformThreadPoolImpl {
-    typedef TransformThreadPoolImpl_Queue<
+    typedef Transform_Queue<
       InputIterator,
       Last,
       OutputIterator,
       Function,
-      std::is_base_of<std::forward_iterator_tag,
-        typename std::iterator_traits<InputIterator>::iterator_category>::value
-        &&
-        std::is_base_of<std::forward_iterator_tag,typename std::iterator_traits<OutputIterator>::iterator_category
-      >::value
+      is_forward_iterator<InputIterator>::value &&
+      is_forward_iterator<OutputIterator>::value
+      //std::is_base_of<
+      //  std::forward_iterator_tag,
+      //  typename std::iterator_traits<InputIterator>::iterator_category
+      //>::value
+      //&&
+      //std::is_base_of<
+      //  std::forward_iterator_tag,
+      //  typename std::iterator_traits<OutputIterator>::iterator_category
+      //>::value
     > Queue;
     Queue                 queue;
     GenericThreadPoolTmpl pool;

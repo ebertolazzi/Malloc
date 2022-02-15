@@ -1,5 +1,21 @@
 namespace threadpool {
 
+  template <class Iterator>
+  struct is_forward_iterator {
+    static const bool value = std::is_base_of<
+      std::forward_iterator_tag,
+      typename std::iterator_traits<Iterator>::iterator_category
+    >::value;
+  };
+
+  template <class Iterator>
+  struct is_input_iterator {
+    static const bool value = std::is_base_of<
+      std::input_iterator_tag,
+      typename std::iterator_traits<Iterator>::iterator_category
+    >::value;
+  };
+
   #ifndef __ICC
     #define THREADPOOL_IMPL_EXPRESSION_CHECKER(name, expression)           \
     template<class T>                                                      \
@@ -123,10 +139,11 @@ namespace threadpool {
   struct iterval_traits<
     X,
     typename std::enable_if<
-      std::is_base_of<
-        std::forward_iterator_tag,
-        typename std::iterator_traits<X>::iterator_category
-      >::value
+      is_forward_iterator<X>::value
+      //std::is_base_of<
+      //  std::forward_iterator_tag,
+      //  typename std::iterator_traits<X>::iterator_category
+      //>::value
     >::type
   >
   {
@@ -150,15 +167,17 @@ namespace threadpool {
   struct iterval_traits<
     X,
     typename std::enable_if<
-      !std::is_base_of<
-        std::forward_iterator_tag,
-        typename std::iterator_traits<X>::iterator_category
-      >::value
-      &&
-      std::is_base_of<
-        std::input_iterator_tag,
-        typename std::iterator_traits<X>::iterator_category
-      >::value
+      !is_forward_iterator<X>::value &&
+      is_input_iterator<X>::value
+      //!std::is_base_of<
+      //  std::forward_iterator_tag,
+      //  typename std::iterator_traits<X>::iterator_category
+      //>::value
+      //&&
+      //std::is_base_of<
+      //  std::input_iterator_tag,
+      //  typename std::iterator_traits<X>::iterator_category
+      //>::value
     >::type
   >
   {
@@ -169,8 +188,7 @@ namespace threadpool {
   };
 
   /**
-   * Generic output operators (e.g. output stream iterators,
-   * back inserters)
+   * Generic output operators (e.g. output stream iterators,back inserters)
    *
    * No use as source of algorithms.
    */
@@ -178,10 +196,11 @@ namespace threadpool {
   struct iterval_traits<
     X,
     typename std::enable_if<
-      !std::is_base_of<
-        std::input_iterator_tag,
-        typename std::iterator_traits<X>::iterator_category
-      >::value
+      !is_input_iterator<X>::value
+      //!std::is_base_of<
+      //  std::input_iterator_tag,
+      //  typename std::iterator_traits<X>::iterator_category
+      //>::value
     >::type
   >
   {
