@@ -54,11 +54,18 @@ namespace threadpool {
    */
   template<class Queue>
   class GenericThreadPool {
+
     class Worker {
       std::thread m_thread;
     public:
-      Worker & operator=(std::thread&& t) { m_thread = std::move(t); return *this; }
-      void join() { if (m_thread.joinable()) m_thread.join(); }
+
+      Worker &
+      operator = ( std::thread && t )
+      { m_thread = std::move(t); return *this; }
+
+      void
+      join()
+      { if (m_thread.joinable()) m_thread.join(); }
     };
 
     std::mutex          m_mutex;
@@ -67,14 +74,10 @@ namespace threadpool {
     unsigned const      m_thread_count; /// The number of threads
     std::vector<Worker> m_workers;
 
-    /**
-     * The main function of the thread.
-     */
+    //! The main function of the thread.
     void work() { help(false); }
 
-    /**
-     * Wait for all workers to finish.
-     */
+    //! Wait for all workers to finish.
     void
     join_workers() {
       work(); // Instead of hanging around, help the workers!
@@ -114,7 +117,7 @@ namespace threadpool {
     , m_thread_count(determine_thread_count(thread_count))
     , m_workers(this->m_thread_count)
     {
-      for (Worker& w: m_workers)
+      for ( Worker & w : m_workers )
         w = std::move(std::thread(std::bind(&GenericThreadPool::work, this)));
     }
 
@@ -126,12 +129,12 @@ namespace threadpool {
      */
     virtual
     void
-    help(bool return_if_idle) {
-      if (ignore_thread_pool_exceptions()) {
-        m_queue.work(return_if_idle);
+    help( bool return_if_idle ) {
+      if ( ignore_thread_pool_exceptions() ) {
+        m_queue.work( return_if_idle );
       } else {
         try {
-          m_queue.work(return_if_idle);
+          m_queue.work( return_if_idle );
         } catch (...) {
           {
             std::exception_ptr e = std::current_exception();
@@ -295,80 +298,6 @@ namespace threadpool {
   };
 
   /**
-   * Implementation of virtual thread pool.
-   *
-   * Implements the functionality of the virtual thread
-   * pool. Only provides an interface to run a generic
-   * VirtualTask. The convenience functions to run
-   * different types of callable objects should be implemented
-   * in a subclass.
-   *
-   * The template parameter is not used, only serves to make
-   * this a class template which can be instantiated in multiple
-   * compilation units without giving multiply defined symbol
-   * errors.
-   */
-  class ThreadPoolBase : public ThreadPoolInterface {
-
-    typedef HQueue<QueueElement>     QUEUE;
-    typedef GenericThreadPool<QUEUE> POOL;
-
-    QUEUE m_queue;
-    POOL  m_pool;
-
-  public:
-    explicit
-    ThreadPoolBase(
-      int         thread_count = -1,
-      std::size_t queue_size   = 0,
-      std::size_t maxpart      = 1
-    )
-    : m_queue(queue_size, (maxpart != 1) ? maxpart : 3 * (POOL::determine_thread_count(thread_count)+ 1))
-    , m_pool( this->m_queue, thread_count)
-    { }
-
-    void
-    run(std::unique_ptr<VirtualTask>&& t)
-    { m_queue.put(t.release()); }
-
-    void
-    run(VirtualTask* t)
-    { m_queue.put(t); }
-
-    void
-    wait() {
-      m_pool.help(true); 	// Help out instead of sitting around idly.
-      m_queue.wait();
-    }
-
-    void
-    join() {
-      m_queue.shutdown();
-      m_pool.join();
-    }
-
-    /**
-     * Run a function on all members of a container
-     *
-     * \param container
-     *        The container to process
-     * \param fun
-     *        The function taking one parameter by reference and returning void.
-     *
-     * Does not wait for all tasks to finish! Caller is
-     * responsible for wait()ing on the pool if necessary.
-     */
-    template<class Container, class F>
-    void
-    run_for_each( Container&& container, F&& fun ) {
-      for ( auto & e : container ) run([&fun,&e](){ fun(e); });
-    }
-
-    virtual
-    ~ThreadPoolBase() { wait(); join(); }
-  };
-
-  /**
    * ThreadPool
    *
    * Builds a compiler firewall around ThreadPoolBase so
@@ -390,19 +319,47 @@ namespace threadpool {
    * configuration he does not need to recompile everything, and
    * the ODR is not violated.
    */
-  class ThreadPool : public ThreadPoolBase {
+
+  /**
+   * Implementation of virtual thread pool.
+   *
+   * Implements the functionality of the virtual thread
+   * pool. Only provides an interface to run a generic
+   * VirtualTask. The convenience functions to run
+   * different types of callable objects should be implemented
+   * in a subclass.
+   *
+   * The template parameter is not used, only serves to make
+   * this a class template which can be instantiated in multiple
+   * compilation units without giving multiply defined symbol
+   * errors.
+   */
+  class ThreadPool : public ThreadPoolInterface {
+
+    typedef HQueue<QueueElement>     QUEUE;
+    typedef GenericThreadPool<QUEUE> POOL;
+
+    QUEUE m_queue;
+    POOL  m_pool;
+
   public:
-
-    using ThreadPoolBase::run;
-
     explicit
     ThreadPool(
       int         thread_count = -1,
       std::size_t queue_size   = 0,
       std::size_t maxpart      = 1
     )
-    : ThreadPoolBase( thread_count, queue_size, maxpart )
-    {}
+    : m_queue(queue_size, (maxpart != 1) ? maxpart : 3 * (POOL::determine_thread_count(thread_count)+ 1))
+    , m_pool( this->m_queue, thread_count)
+    { }
+
+    void
+    run(std::unique_ptr<VirtualTask>&& t)
+    { m_queue.put(t.release()); }
+
+    void
+    run(VirtualTask* t)
+    { m_queue.put(t); }
 
     /**
      * Wrap void functions in a task and run them without
@@ -420,7 +377,7 @@ namespace threadpool {
         WrappedFunction(function_type&& f) : f(std::move(f)) { }
         virtual void operator()() override { f(); delete this; }
       };
-      ThreadPoolBase::run(new WrappedFunction(std::forward<Function>(f)));
+      run(new WrappedFunction(std::forward<Function>(f)));
     }
 
     /**
@@ -459,7 +416,7 @@ namespace threadpool {
 
       WrappedFunction* task(new WrappedFunction(std::forward<Function>(f)));
       std::future<return_type> future(task->get_future());
-      ThreadPoolBase::run(task);
+      run(task);
       return future;
     }
 
@@ -510,6 +467,23 @@ namespace threadpool {
     }
 
     /**
+     * Run a function on all members of a container
+     *
+     * \param container
+     *        The container to process
+     * \param fun
+     *        The function taking one parameter by reference and returning void.
+     *
+     * Does not wait for all tasks to finish! Caller is
+     * responsible for wait()ing on the pool if necessary.
+     */
+    template<class Container, class F>
+    void
+    run_for_each( Container&& container, F&& fun ) {
+      for ( auto & e : container ) run([&fun,&e](){ fun(e); });
+    }
+
+    /**
      * Wait for all active tasks to finish.
      *
      * Also throws an exception if one of the tasks has
@@ -518,7 +492,11 @@ namespace threadpool {
      * Leaves the pool in a valid state ready to run more
      * tasks, unless an exception has been thrown.
      */
-    using ThreadPoolBase::wait;
+    void
+    wait() {
+      m_pool.help(true); 	// Help out instead of sitting around idly.
+      m_queue.wait();
+    }
 
     /**
      * Discard all tasks from the queue that have not yet
@@ -530,7 +508,12 @@ namespace threadpool {
      * Leaves the pool in a shutdown state not ready to run
      * tasks, but ready for destruction.
      */
-    using ThreadPoolBase::join;
+
+    void
+    join() {
+      m_queue.shutdown();
+      m_pool.join();
+    }
 
     /**
      * Destroy the thread pool.
@@ -541,9 +524,10 @@ namespace threadpool {
      * wait() or join() have been called before the
      * destructor).
      */
-    ~ThreadPool() {}
 
-	};
+    virtual
+    ~ThreadPool() { wait(); join(); }
+  };
 
 } // End of namespace threadpool
 
