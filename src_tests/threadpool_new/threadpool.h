@@ -260,88 +260,6 @@ namespace threadpool {
   };
 
   /**
-   * Thread pool with homogenous functions
-   *
-   * This thread pool is dependent on template parameter
-   * Function. Only one type of functions can be queued. For
-   * example if this thread pool is instantiated for a lambda
-   * function, only this exact lambda function can be run,
-   * since each lambda function has its own type separate from
-   * all other lambda functions.
-   *
-   * To make this thread pool more universally usable,
-   * instantiate it either with std::function<void()>, or use
-   * the virtual thread pool VirtualThreadPool.
-   *
-   * \tparam Function
-   *         The function type to be used for the
-   *         queue. All tasks to be queued must be of this
-   *         type. The class Function must support the
-   *         following interface:
-   *         - operator()(): the functions must be callable
-   *           with no parameters.
-   */
-  template<class Function>
-  class HomogenousThreadPool {
-
-    typedef HQueue<Function>         QUEUE;
-    typedef GenericThreadPool<QUEUE> POOL;
-
-    QUEUE queue;
-    POOL  pool;
-
-  public:
-
-    explicit
-    HomogenousThreadPool(
-      int         thread_count = -1,
-      std::size_t queue_size   = 0,
-      std::size_t maxpart      = 1
-    )
-    : queue(queue_size, (maxpart != 1) ? maxpart : 3 * (POOL::determine_thread_count(thread_count)+ 1))
-    , pool(queue, thread_count)
-    {
-    }
-
-    template<class F>
-    void
-    run(F&& f) { queue.put(std::forward<F>(f)); }
-
-    void
-    wait() {
-      pool.help(true); 	// Help out instead of sitting around idly.
-      queue.wait();
-    }
-
-    void
-    join() {
-      queue.shutdown();
-      pool.join();
-    }
-
-    virtual
-    ~HomogenousThreadPool() { wait(); join(); }
-
-    /**
-     * Run a function on all members of a container
-     *
-     * \param container
-     *        The container to process
-     * \param fun
-     *        The function taking one parameter by reference and returning void.
-     *
-     * Does not wait for all tasks to finish! Caller is
-     * responsible for wait()ing on the pool if necessary.
-     */
-    template<class Container, class F>
-    F
-    run_for_each(Container&& container, F&& fun) {
-      for (auto& e: container) run([&fun,&e](){ fun(e); });
-      return std::forward<F>(fun);
-    }
-  };
-
-  /**
    * Store pointers into the queue. Decorate the pointers
    * with an operator() to make them callable as needed by
    * HomogenousThreadPool.
@@ -368,8 +286,8 @@ namespace threadpool {
 
   public:
 
-    QueueElement(VirtualTask* t) : m_task(t) { }
-    QueueElement(QueueElement&& x) : m_task(x.m_task) { x.m_task = nullptr; }
+    QueueElement( VirtualTask * t ) : m_task(t) { }
+    QueueElement( QueueElement && x ) : m_task(x.m_task) { x.m_task = nullptr; }
     void operator()() { (*m_task)(); m_task = nullptr; }
     ~QueueElement() { if (m_task) delete m_task; }
   };
@@ -590,16 +508,11 @@ namespace threadpool {
 
     void
     run(std::unique_ptr<VirtualTask>&& t)
-    { run1(t.release()); }
+    { m_queue.put(t.release()); }
 
     void
     run(VirtualTask* t)
-    { run1(t); }
-
-    template<class F>
-    void
-    run1( F&& f )
-    { m_queue.put(std::forward<F>(f)); }
+    { m_queue.put(t); }
 
     void
     wait() {
