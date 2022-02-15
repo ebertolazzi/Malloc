@@ -32,6 +32,7 @@
 #include "threadpool_config.h"
 #include "threadpool_utils.hxx"
 #include "threadpool_virtuals.hxx"
+#include "threadpool_queue.hxx"
 
 namespace threadpool {
 

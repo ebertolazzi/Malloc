@@ -126,11 +126,17 @@ main( int argc, char *argv[] ) {
     ti0, ti1, accumulatore
   );
 
-  // Multithreaded for_each, std::vector
   std::vector<int> a = {0,1,2,3,4,5,6,7,8,9};
   threadpool::parallel::for_each(a, [](int&e){ e *= 2; });
   for ( int i = 0; i < a.size(); ++i )
     fmt::print( "a[{}] = {}\n", i, a[i] );
+
+  std::string s("hello");
+  threadpool::parallel::transform(s.begin(), s.end(), s.begin(),
+    [](unsigned char c) -> unsigned char { return std::toupper(c); }
+  );
+
+  fmt::print("s = {}\n",s);
 
   accumulatore = 0;
 
