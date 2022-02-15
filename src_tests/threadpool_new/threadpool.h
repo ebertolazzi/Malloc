@@ -53,7 +53,7 @@ namespace threadpool {
    *
    */
   template<class Queue>
-  class GenericThreadPool : public GenericThreadPoolInterface {
+  class GenericThreadPool {
     class Worker {
       std::thread m_thread;
     public:
@@ -124,8 +124,9 @@ namespace threadpool {
      * \param return_if_idle
      *        Never wait for work, return instead.
      */
+    virtual
     void
-    help(bool return_if_idle) override {
+    help(bool return_if_idle) {
       if (ignore_thread_pool_exceptions()) {
         m_queue.work(return_if_idle);
       } else {
@@ -145,8 +146,9 @@ namespace threadpool {
     /**
      * Rethrow a potentially pending exception from a worker thread.
      */
+    virtual
     void
-    rethrow_exception() override {
+    rethrow_exception() {
       if ( m_pending_exception && !std::uncaught_exception() ) {
         m_queue.shutdown();
         join_workers();
@@ -163,8 +165,9 @@ namespace threadpool {
      *
      * Leaves the thread pool ready for destruction.
      */
+    virtual
     void
-    join() override {
+    join() {
       join_workers();
       rethrow_exception();
     }
