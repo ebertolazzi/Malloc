@@ -33,7 +33,7 @@ namespace threadpool {
    * subclass.
    *
    */
-  class VirtualThreadPoolInterface {
+  class ThreadPoolInterface {
 	public:
 
     virtual void run(std::unique_ptr<VirtualTask>&& c) = 0;
@@ -68,7 +68,7 @@ namespace threadpool {
      * and can throw an exception (unless wait() or join() have been
      * called before the destructor).
      */
-    virtual ~VirtualThreadPoolInterface() { };
+    virtual ~ThreadPoolInterface() { };
   };
 
   /**

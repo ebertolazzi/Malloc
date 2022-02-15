@@ -40,8 +40,8 @@ namespace threadpool {
       Function,
       is_forward_iterator<Iterator>::value
     > Queue;
-    Queue                 queue;
-    GenericThreadPoolTmpl pool;
+    Queue                    queue;
+    GenericThreadPool<Queue> pool;
 
   public:
 
@@ -167,7 +167,13 @@ namespace threadpool {
       Last const & last,
       Function  && fun
     ) {
-      unsigned tc = GenericThreadPoolTmpl::determine_thread_count(thread_count);
+      typedef ForEach_Queue<
+        Iterator,
+        Last,
+        Function,
+        is_forward_iterator<Iterator>::value
+      > Queue;
+      unsigned tc = GenericThreadPool<Queue>::determine_thread_count(thread_count);
       if (tc <= 1) {
         return std::for_each(first, last, fun);
       } else {

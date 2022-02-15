@@ -7,6 +7,7 @@
  * $Revision: 2.0 $
  * $Date: 2014/05/14 16:56:58 $
  */
+
 #ifndef THREADPOOL_THREADPOOL_H
 #define THREADPOOL_THREADPOOL_H
 
@@ -28,147 +29,12 @@
 #include <future>
 #include <condition_variable>
 
-
 #include "threadpool_config.h"
 #include "threadpool_utils.hxx"
 #include "threadpool_virtuals.hxx"
 #include "threadpool_queue.hxx"
 
 namespace threadpool {
-
-  /**
-   * A thread pool reading its tasks from a VirtualQueue.
-   *
-   * The template parameter is ignored. This will only ever by
-   * used with template parameter 0. We could define a straight
-   * non-template class, but then it would not be possible to
-   * include the class definition in multiple separately
-   * compiled files. By making it a class *template*, we profit
-   * from the fact that multiple implicit instantiations of a
-   * template are allowed. This means when the user switches
-   * between header-only and library configuration he does not
-   * need to recompile everything, and the ODR is not violated.
-   */
-
-  class GenericThreadPoolTmpl : public GenericThreadPoolInterface {
-    std::unique_ptr<GenericThreadPoolInterface> pimpl;
-	public:
-
-    /**
-     * Create a generic thread pool.
-     *
-     * As soon as the pool is created the threads start
-     * running tasks from the queue until the queue is
-     * empty. When the queue is empty the threads return and
-     * are ready to be collected by join() or by the
-     * destructor.
-     *
-     * \param queue
-     *        The queue managing the tasks.
-     *
-     * \param thread_count
-     *        The number of threads to use.
-     *        If the thread count is not specified it
-     *        defaults to the number of available hardware
-     *        threads std::thread::hardware_concurrency(),
-     *        as read through hardware_concurrency().
-     *
-     */
-    GenericThreadPoolTmpl(VirtualQueue& queue, int thread_count = -1);
-
-    /**
-     * Help with the work.
-     *
-     * \param return_if_idle
-     *        Never wait for work, return instead.
-     */
-    void help(bool return_if_idle) override;
-
-    /**
-     * Rethrow a potentially pending exception from a worker thread.
-     */
-    void rethrow_exception() override;
-
-    /**
-     * Wait for all threads to finish and collect them.
-     *
-     * Leaves the thread pool ready for destruction.
-     */
-    void join() override;
-
-    /**
-     * Destroy the thread pool.
-     *
-     * Generally a destructor should not wait for a long time,
-     * and it should not throw any exceptions. Unfortunately
-     * threads are not abortable in C++.  The only way to make
-     * sure the threads have terminated is to wait for them to
-     * return by themselves.  If we would allow the
-     * destruction of the thread pool before the threads have
-     * returned, the threads would continue to access the
-     * memory of the destroyed thread pool, potentially
-     * clobbering other objects residing in the recycled
-     * memory.  We could allocate parts of the memory with
-     * new, and leave it behind for the threads after the
-     * thread pool is destructed.  But even then, the user
-     * supplied functions run by the threads might access
-     * memory that gets destroyed if the function that
-     * constructed the thread pool terminates.  The danger of
-     * undetected and undebuggable memory corruption is just
-     * too big.
-     *
-     * With regard to the exceptions rethrown in the destructor,
-     * it is better to signal the exception than to ignore it
-     * silently.
-     *
-     * If it is not acceptable for the destructor to wait or
-     * to throw an exception, just call join() before the pool
-     * is destructed.  After join() returns the destructor is
-     * guaranteed to run fast and without exceptions.
-     *
-     * If it should really be necessary to keep threads
-     * running after the function that created the thread pool
-     * returns, just create the thread pool on the heap with
-     * new. And if you want to make sure nobody destroys the
-     * thread pool, feel free to throw away the handle.
-     */
-    virtual ~GenericThreadPoolTmpl();
-
-    /**
-     * Cache the hardware concurrency so we are sure that it
-     * is cheap to get. Also this gives us a point to
-     * cheat. The cached value can be modified by a parameter.
-     *
-     * \param c
-     *        The hardware concurrency to use
-     */
-    static unsigned hardware_concurrency(int c = -1);
-
-    /**
-     * Determine thread count to use based on users
-     * specifications.
-     *
-     * \param thread_count
-     *        Runtime specified threadcount parameter.
-     *
-     * \returns
-     *           The number of threads to use. Returns always a
-     *           positive number, possibly 1 for
-     *           single-processor systems.
-     *
-     * This policy function does just some
-     * guesswork. Allocating a number of threads in the order
-     * of the hardware threads may be a good bet for CPU-bound
-     * work. For other tasks it depends.
-     */
-    static unsigned determine_thread_count(int thread_count = -1);
-
-    /**
-     * Switch exception handling off
-     */
-    static bool ignore_thread_pool_exceptions(bool i = true);
-
-	};
 
   /**
    * A thread pool reading its tasks from a generic queue.
@@ -188,7 +54,7 @@ namespace threadpool {
    *
    */
   template<class Queue>
-  class GenericThreadPoolImpl : public GenericThreadPoolInterface {
+  class GenericThreadPool : public GenericThreadPoolInterface {
     class Worker {
       std::thread m_thread;
     public:
@@ -217,10 +83,10 @@ namespace threadpool {
     }
 
     // Copying and moving are not supported.
-    GenericThreadPoolImpl(const GenericThreadPoolImpl&) = delete;
-    GenericThreadPoolImpl(GenericThreadPoolImpl&&) = delete;
-    GenericThreadPoolImpl& operator=(const GenericThreadPoolImpl&) = delete;
-    GenericThreadPoolImpl& operator=(GenericThreadPoolImpl&&) = delete;
+    GenericThreadPool( GenericThreadPool const & )             = delete;
+    GenericThreadPool( GenericThreadPool && )                  = delete;
+    GenericThreadPool& operator = (GenericThreadPool const & ) = delete;
+    GenericThreadPool& operator = (GenericThreadPool && )      = delete;
 
 	public:
 
@@ -243,14 +109,14 @@ namespace threadpool {
      *                     as read through hardware_concurrency().
      *
      */
-    GenericThreadPoolImpl(Queue& queue, int thread_count)
+    GenericThreadPool( Queue & queue, int thread_count )
     : m_pending_exception(nullptr)
     , m_queue(queue)
     , m_thread_count(determine_thread_count(thread_count))
     , m_workers(this->m_thread_count)
     {
       for (Worker& w: m_workers)
-        w = std::move(std::thread(std::bind(&GenericThreadPoolImpl::work, this)));
+        w = std::move(std::thread(std::bind(&GenericThreadPool::work, this)));
     }
 
     /**
@@ -341,7 +207,7 @@ namespace threadpool {
      * thread pool, feel free to throw away the handle.
      */
     virtual
-    ~GenericThreadPoolImpl() {
+    ~GenericThreadPool() {
       // Abort processing if destructor runs during exception handling.
       if (std::uncaught_exception()) m_queue.shutdown();
       join(); // Running threads would continue to access the destructed pool.
@@ -391,44 +257,7 @@ namespace threadpool {
       if (i) do_ignore_exceptions = i;
       return do_ignore_exceptions;
     }
-	};
-
-  GenericThreadPoolTmpl::GenericThreadPoolTmpl(
-    VirtualQueue& queue, int thread_count
-  ) : pimpl(new GenericThreadPoolImpl<VirtualQueue>(queue, thread_count))
-  { }
-
-  void
-  GenericThreadPoolTmpl::help(bool return_if_idle) {
-    pimpl->help(return_if_idle);
-  }
-
-  void
-  GenericThreadPoolTmpl::rethrow_exception() {
-    pimpl->rethrow_exception();
-  }
-
-  void
-  GenericThreadPoolTmpl::join() {
-    pimpl->join();
-  }
-
-  GenericThreadPoolTmpl::~GenericThreadPoolTmpl() { }
-
-  unsigned
-  GenericThreadPoolTmpl::hardware_concurrency(int c) {
-    return GenericThreadPoolImpl<VirtualQueue>::hardware_concurrency(c);
-  }
-
-  unsigned
-  GenericThreadPoolTmpl::determine_thread_count(int c) {
-    return GenericThreadPoolImpl<VirtualQueue>::determine_thread_count(c);
-  }
-
-  bool
-  GenericThreadPoolTmpl::ignore_thread_pool_exceptions(bool i) {
-    return GenericThreadPoolImpl<VirtualQueue>::ignore_thread_pool_exceptions(i);
-  }
+  };
 
   /**
    * Thread pool with homogenous functions
@@ -455,8 +284,11 @@ namespace threadpool {
   template<class Function>
   class HomogenousThreadPool {
 
-    HQueue<Function>      queue;
-    GenericThreadPoolTmpl pool;
+    typedef HQueue<Function>         QUEUE;
+    typedef GenericThreadPool<QUEUE> POOL;
+
+    QUEUE queue;
+    POOL  pool;
 
   public:
 
@@ -466,9 +298,10 @@ namespace threadpool {
       std::size_t queue_size   = 0,
       std::size_t maxpart      = 1
     )
-    : queue(queue_size, (maxpart != 1) ? maxpart : 3 * (GenericThreadPoolTmpl::determine_thread_count(thread_count)+ 1))
+    : queue(queue_size, (maxpart != 1) ? maxpart : 3 * (POOL::determine_thread_count(thread_count)+ 1))
     , pool(queue, thread_count)
-    { }
+    {
+    }
 
     template<class F>
     void
@@ -565,7 +398,7 @@ namespace threadpool {
    */
   class ThreadPool {
 
-    std::unique_ptr<VirtualThreadPoolInterface> pimpl;
+    std::unique_ptr<ThreadPoolInterface> pimpl;
 
   public:
 
@@ -736,8 +569,14 @@ namespace threadpool {
    * compilation units without giving multiply defined symbol
    * errors.
    */
-  class VirtualThreadPoolImpl : public VirtualThreadPoolInterface {
-    HomogenousThreadPool<QueueElement> impl;
+  class VirtualThreadPoolImpl : public ThreadPoolInterface {
+
+    typedef HQueue<QueueElement>     QUEUE;
+    typedef GenericThreadPool<QUEUE> POOL;
+
+    QUEUE m_queue;
+    POOL  m_pool;
+
   public:
     explicit
     VirtualThreadPoolImpl(
@@ -745,19 +584,54 @@ namespace threadpool {
       std::size_t queue_size   = 0,
       std::size_t maxpart      = 1
     )
-    : impl(thread_count, queue_size, maxpart)
+    : m_queue(queue_size, (maxpart != 1) ? maxpart : 3 * (POOL::determine_thread_count(thread_count)+ 1))
+    , m_pool( this->m_queue, thread_count)
     { }
 
     void
     run(std::unique_ptr<VirtualTask>&& t)
-    { impl.run(t.release()); }
+    { run1(t.release()); }
 
     void
     run(VirtualTask* t)
-    { impl.run(t); }
+    { run1(t); }
 
-    void wait() { impl.wait(); }
-    void join() { impl.join(); }
+    template<class F>
+    void
+    run1( F&& f )
+    { m_queue.put(std::forward<F>(f)); }
+
+    void
+    wait() {
+      m_pool.help(true); 	// Help out instead of sitting around idly.
+      m_queue.wait();
+    }
+
+    void
+    join() {
+      m_queue.shutdown();
+      m_pool.join();
+    }
+
+    /**
+     * Run a function on all members of a container
+     *
+     * \param container
+     *        The container to process
+     * \param fun
+     *        The function taking one parameter by reference and returning void.
+     *
+     * Does not wait for all tasks to finish! Caller is
+     * responsible for wait()ing on the pool if necessary.
+     */
+    template<class Container, class F>
+    void
+    run_for_each( Container&& container, F&& fun ) {
+      for ( auto & e : container ) run([&fun,&e](){ fun(e); });
+    }
+
+    virtual
+    ~VirtualThreadPoolImpl() { wait(); join(); }
   };
 
 
