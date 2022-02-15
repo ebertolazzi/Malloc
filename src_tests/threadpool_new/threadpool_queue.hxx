@@ -450,15 +450,16 @@ namespace threadpool {
         #ifdef _MSC_VER // Work around Visual C++ bug, does not like constructable objects in unions
         alignas(Function) char fun[sizeof(Function)];
         #else // Standard conforming, C++11 9.5
-        Function fun; // Only used between pop_ptr and push_ptr
+        Function m_fun; // Only used between pop_ptr and push_ptr
         #endif
         Fun() noexcept { }
         Fun( Fun const & ) noexcept { }
         Fun( Fun && ) noexcept { }
         ~Fun() noexcept { }
       };
-      std::vector<Fun> impl;
-      std::size_t push_ptr = 0, pop_ptr = 0;
+      std::vector<Fun> m_fun_vec;
+      std::size_t      m_push_ptr = 0;
+      std::size_t      m_pop_ptr  = 0;
 
       Queue( Queue const & )              = delete;
       Queue( Queue && )                   = delete;
@@ -467,42 +468,42 @@ namespace threadpool {
 
     public:
 
-      Queue(std::size_t s) : impl(s + 1) { }
+      Queue(std::size_t s) : m_fun_vec(s + 1) { }
 
       template<class F>
       void
-      push(F&& f) {
-        new (&impl[push_ptr].fun) Function(std::forward<F>(f));
-        if (++push_ptr == impl.size()) push_ptr = 0;
+      push( F && f ) {
+        new (&m_fun_vec[m_push_ptr].m_fun) Function(std::forward<F>(f));
+        if (++m_push_ptr == m_fun_vec.size()) m_push_ptr = 0;
       }
 
       Function
       pop() {
         #ifdef _MSC_VER // Work around Visual C++ bug, does not like constructable objects in unions
-        Function r = std::move(reinterpret_cast<Function&>(impl[pop_ptr].fun));
-        reinterpret_cast<Function&>(impl[pop_ptr].fun).~Function();
+        Function r = std::move(reinterpret_cast<Function&>(m_fun_vec[m_pop_ptr].m_fun));
+        reinterpret_cast<Function&>(m_fun_vec[pop_ptr].m_fun).~Function();
         #else
-        Function r = std::move(impl[pop_ptr].fun);
-        impl[pop_ptr].fun.~Function();
+        Function r = std::move(m_fun_vec[m_pop_ptr].m_fun);
+        m_fun_vec[m_pop_ptr].m_fun.~Function();
         #endif
-        if (++pop_ptr == impl.size()) pop_ptr = 0;
+        if (++m_pop_ptr == m_fun_vec.size()) m_pop_ptr = 0;
         return r;
       }
 
       std::size_t
       size() const {
-        std::size_t r = push_ptr + impl.size() - pop_ptr;
-        if (r >= impl.size()) r -= impl.size();
+        std::size_t r = m_push_ptr + m_fun_vec.size() - m_pop_ptr;
+        if (r >= m_fun_vec.size()) r -= m_fun_vec.size();
         return r;
       }
 
-      bool        empty() const { return push_ptr == pop_ptr; }
-      std::size_t capacity()    { return impl.size() - 1; }
+      bool        empty() const { return m_push_ptr == m_pop_ptr; }
+      std::size_t capacity()    { return m_fun_vec.size() - 1; }
 
       void
       reserve(std::size_t s) {
         assert(empty()); // Copying / moving of Fun not supported.
-        if (s >= impl.size()) impl.resize(s + 1);
+        if (s >= m_fun_vec.size()) m_fun_vec.resize(s + 1);
       }
 
       ~Queue() { while (!empty()) pop(); }
@@ -524,17 +525,17 @@ namespace threadpool {
         the queues fill level decreases.
     */
 
-    const std::size_t queue_size;
-    const std::size_t maxpart;
-    bool shutting_down;
-    unsigned int idle_workers;
-    unsigned int total_workers;
-    bool wakeup_is_pending;
-    Queue queue;
-    std::mutex pop_mutex;
-    std::mutex push_mutex;
-    std::condition_variable waiting_workers;
-    std::condition_variable waiters;
+    std::size_t const       m_queue_size;
+    std::size_t const       m_maxpart;
+    bool                    m_shutting_down;
+    unsigned                m_idle_workers;
+    unsigned                m_total_workers;
+    bool                    m_wakeup_is_pending;
+    Queue                   m_queue;
+    std::mutex              m_pop_mutex;
+    std::mutex              m_push_mutex;
+    std::condition_variable m_waiting_workers;
+    std::condition_variable m_waiters;
 
     /**
      * Get tasks and execute them. Return as soon as the queue
@@ -546,48 +547,48 @@ namespace threadpool {
       std::size_t min_queue_size = return_if_idle < 0 ? 0 : return_if_idle;
 
       // Increment total worker count, decrement again on scope exit
-      { std::lock_guard<std::mutex> lock(push_mutex); ++total_workers; }
+      { std::lock_guard<std::mutex> lock(m_push_mutex); ++m_total_workers; }
       //std::cerr << " total_workers(" << this->total_workers << ")";
       auto x1 = at_scope_exit([this](){
-        std::lock_guard<std::mutex> lock(push_mutex);
-        if (--this->total_workers == this->idle_workers)
-        this->waiters.notify_all();;
+        std::lock_guard<std::mutex> lock(this->m_push_mutex);
+        if (--this->m_total_workers == this->m_idle_workers)
+        this->m_waiters.notify_all();;
       });
 
       Queue functions(1);
 
       for (;;) {
-        std::unique_lock<std::mutex> lock(pop_mutex);
+        std::unique_lock<std::mutex> lock(m_pop_mutex);
         std::size_t queue_size;
 
         // Try to get the next task(s)
-        while ((queue_size = queue.size()) <= min_queue_size) {
+        while ((queue_size = m_queue.size()) <= min_queue_size) {
           if (static_cast<std::ptrdiff_t>(queue_size) <= return_if_idle) return;
           if (queue_size) break;
           // The queue is empty, wait for more tasks to be put()
           lock.unlock();
           {
-            std::unique_lock<std::mutex> lock(push_mutex);
-            while (queue.empty() && !shutting_down) {
-              if (++idle_workers == total_workers) waiters.notify_all();;
-              waiting_workers.wait(lock); // Wait for task to be queued
-              wakeup_is_pending = false;
-              --idle_workers;
+            std::unique_lock<std::mutex> lock(m_push_mutex);
+            while (m_queue.empty() && !m_shutting_down) {
+              if (++m_idle_workers == m_total_workers) m_waiters.notify_all();;
+              m_waiting_workers.wait(lock); // Wait for task to be queued
+              m_wakeup_is_pending = false;
+              --m_idle_workers;
             }
           }
-          if (shutting_down) return;
+          if (m_shutting_down) return;
           lock.lock();
         }
 
         // There is at least one task in the queue and the back is locked.
 
-        std::size_t stride = (maxpart == 0) ? 1 : queue_size / maxpart;
+        std::size_t stride = (m_maxpart == 0) ? 1 : queue_size / m_maxpart;
         if (stride <= 0) stride = 1;
         if (stride > functions.capacity()) functions.reserve(2 * stride);
-        while (stride--) functions.push(queue.pop());
+        while (stride--) functions.push(m_queue.pop());
         lock.unlock();
 
-        if (idle_workers && !wakeup_is_pending && queue_size) waiting_workers.notify_one();
+        if ( m_idle_workers && !m_wakeup_is_pending && queue_size ) m_waiting_workers.notify_one();
 
         while (!functions.empty()) functions.pop()();
       }
@@ -608,14 +609,14 @@ namespace threadpool {
 
   public:
 
-    HQueue(std::size_t queue_size, std::size_t maxpart)
-    : queue_size(queue_size ? queue_size : 10000)
-    , maxpart(maxpart)
-    , shutting_down(false)
-    , idle_workers(0)
-    , total_workers(0)
-    , wakeup_is_pending(false)
-    , queue(this->queue_size)
+    HQueue( std::size_t queue_size, std::size_t maxpart )
+    : m_queue_size(queue_size ? queue_size : 10000)
+    , m_maxpart(maxpart)
+    , m_shutting_down(false)
+    , m_idle_workers(0)
+    , m_total_workers(0)
+    , m_wakeup_is_pending(false)
+    , m_queue(this->m_queue_size)
     { }
 
     /**
@@ -633,61 +634,62 @@ namespace threadpool {
     template<class C>
     void
     put(C&& c) {
-      std::unique_lock<std::mutex> lock(push_mutex);
-      while (queue.size() >= queue_size) {
+      std::unique_lock<std::mutex> lock(m_push_mutex);
+      while ( m_queue.size() >= m_queue_size ) {
         // No space in the queue. Must wait for workers to advance.
         lock.unlock();
-        try_help(queue_size / 2);
+        try_help(m_queue_size / 2);
         lock.lock();
       }
       // Now there is space in the queue and we have locked the back.
 
       // Enqueue function.
-      if (shutting_down) {
+      if (m_shutting_down) {
         Function fun(std::forward<C>(c)); // Run Function destructor
       } else {
-      /*
-        Here we have exclusive access to the head of the
-        queue.
-      */
-      queue.push(std::forward<C>(c));
+        /*
+          Here we have exclusive access to the head of the
+          queue.
+        */
+        m_queue.push(std::forward<C>(c));
 
-      if (idle_workers && !wakeup_is_pending) {
-        wakeup_is_pending = true;
-        waiting_workers.notify_one();
+        if ( m_idle_workers && !m_wakeup_is_pending ) {
+          m_wakeup_is_pending = true;
+          m_waiting_workers.notify_one();
+        }
       }
     }
-  }
 
-  void
-  shutdown() override {
-    std::unique_lock<std::mutex> push_lock(push_mutex);
-    std::unique_lock<std::mutex> pop_lock(pop_mutex);
-    shutting_down = true;
-    while (!queue.empty()) queue.pop();
-    waiting_workers.notify_all();
-    waiters.notify_all();
-  }
+    void
+    shutdown() override {
+      std::unique_lock<std::mutex> push_lock(m_push_mutex);
+      std::unique_lock<std::mutex> pop_lock(m_pop_mutex);
+      m_shutting_down = true;
+      while (!m_queue.empty()) m_queue.pop();
+      m_waiting_workers.notify_all();
+      m_waiters.notify_all();
+    }
 
-  void
-  wait() {
-    if (std::uncaught_exception())
-    shutdown();
-    std::exception_ptr e;
-    std::unique_lock<std::mutex> lock(push_mutex);
-    while (!queue.empty() || idle_workers != total_workers) {
-      while (!queue.empty()) {
-        lock.unlock();
-        try {
-          try_help(0);
-        } catch (...) {
-          if (e == nullptr) e = std::current_exception();
+    void
+    wait() {
+      if (std::uncaught_exception())
+      shutdown();
+      std::exception_ptr e;
+      std::unique_lock<std::mutex> lock(m_push_mutex);
+      while ( !m_queue.empty() || m_idle_workers != m_total_workers ) {
+        while ( !m_queue.empty() ) {
+          lock.unlock();
+          try {
+            try_help(0);
+          } catch (...) {
+            if (e == nullptr) e = std::current_exception();
+          }
+          lock.lock();
         }
-        lock.lock();
+        while ( m_idle_workers != m_total_workers ) m_waiters.wait(lock);
       }
-      while (idle_workers != total_workers) waiters.wait(lock);
-      }
-      if (e != nullptr && !std::uncaught_exception()) std::rethrow_exception(std::move(e));
+      if (e != nullptr && !std::uncaught_exception())
+        std::rethrow_exception(std::move(e));
     }
   };
 
