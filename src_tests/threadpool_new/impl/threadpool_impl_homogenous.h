@@ -39,17 +39,15 @@ namespace threadpool {
      * are ready to be collected by join() or by the
      * destructor.
      *
-     * @param queue
-     *			The queue managing the tasks.
+     * \param queue
+     *        The queue managing the tasks.
      *
-     * @param thread_count
-     *			The number of threads to use. If the
-     *			thread count is not specified it
-     *			defaults to the number of available
-     *			hardware threads
-     *			std::thread::hardware_concurrency(),
-     *			as read through
-     *			hardware_concurrency().
+     * \param thread_count
+     *        The number of threads to use.
+     *        If the thread count is not specified it
+     *        defaults to the number of available hardware
+     *        threads std::thread::hardware_concurrency(),
+     *        as read through hardware_concurrency().
      *
      */
     GenericThreadPoolTmpl(VirtualQueue& queue, int thread_count = -1);
@@ -57,14 +55,13 @@ namespace threadpool {
     /**
      * Help with the work.
      *
-     * @param return_if_idle
-     *		Never wait for work, return instead.
+     * \param return_if_idle
+     *        Never wait for work, return instead.
      */
     void help(bool return_if_idle) override;
 
     /**
-     * Rethrow a potentially pending exception from a worker
-     * thread.
+     * Rethrow a potentially pending exception from a worker thread.
      */
     void rethrow_exception() override;
 
@@ -118,29 +115,29 @@ namespace threadpool {
      * is cheap to get. Also this gives us a point to
      * cheat. The cached value can be modified by a parameter.
      *
-     * @param c
-     *		The hardware concurrency to use
+     * \param c
+     *        The hardware concurrency to use
      */
-    static unsigned int hardware_concurrency(int c = -1);
+    static unsigned hardware_concurrency(int c = -1);
 
     /**
      * Determine thread count to use based on users
      * specifications.
      *
-     * @param thread_count
-     *		Runtime specified threadcount parameter.
+     * \param thread_count
+     *        Runtime specified threadcount parameter.
      *
-     * @returns
-     *		The number of threads to use. Returns always a
-     *		positive number, possibly 1 for
-     *		single-processor systems.
+     * \returns
+     *           The number of threads to use. Returns always a
+     *           positive number, possibly 1 for
+     *           single-processor systems.
      *
      * This policy function does just some
      * guesswork. Allocating a number of threads in the order
      * of the hardware threads may be a good bet for CPU-bound
      * work. For other tasks it depends.
      */
-    static unsigned int determine_thread_count(int thread_count = -1);
+    static unsigned determine_thread_count(int thread_count = -1);
 
     /**
      * Switch exception handling off
@@ -152,38 +149,34 @@ namespace threadpool {
   /**
    * A thread pool reading its tasks from a generic queue.
    *
-   * @tparam class Queue
-   *			The queue delivering the tasks.
+   * \tparam class Queue
+   *         The queue delivering the tasks.
    *
    *	Class Queue must provide the following members:
    *
    *	- void work()
-   *			Gets tasks and works until the end of
-   *			the queue is reached.
+   *    Gets tasks and works until the end of
+   *    the queue is reached.
    *
    *	- void shutdown()
-   *			Causes the queue to tell the threads
-   *			asking for work to return.
+   *    Causes the queue to tell the threads
+   *    asking for work to return.
    *
    */
   template<class Queue>
   class GenericThreadPoolImpl : public GenericThreadPoolInterface {
     class Worker {
-      std::thread thread;
+      std::thread m_thread;
     public:
-      Worker & operator=(std::thread&& t)
-      { thread = std::move(t); return *this; }
-
-      void join() { if (thread.joinable()) thread.join(); }
+      Worker & operator=(std::thread&& t) { m_thread = std::move(t); return *this; }
+      void join() { if (m_thread.joinable()) m_thread.join(); }
     };
 
-    std::mutex         mutex;
-    std::exception_ptr pending_exception;
-    Queue&             queue;
-
-    unsigned const thread_count; /// The number of threads
-
-    std::vector<Worker> workers;
+    std::mutex          m_mutex;
+    std::exception_ptr  m_pending_exception;
+    Queue&              m_queue;
+    unsigned const      m_thread_count; /// The number of threads
+    std::vector<Worker> m_workers;
 
     /**
      * The main function of the thread.
@@ -196,7 +189,7 @@ namespace threadpool {
     void
     join_workers() {
       work();		// Instead of hanging around, help the workers!
-      for (Worker& w: workers) w.join();
+      for ( Worker & w : m_workers ) w.join();
     }
 
     // Copying and moving are not supported.
@@ -215,63 +208,62 @@ namespace threadpool {
      * queue is empty the threads return and are ready to be
      * collected by join() or by the destructor.
      *
-     * @param queue
-     *			The queue delivering the tasks.
+     * \param queue
+     *        The queue delivering the tasks.
      *
-     * @param thread_count The number of threads
-     *			to use. If the thread count is not
-     *			specified it defaults to the number of
-     *			available hardware threads
-     *			std::thread::hardware_concurrency(),
-     *			as read through hardware_concurrency().
+     * \param thread_count The number of threads
+     *                     to use. If the thread count is not
+     *                     specified it defaults to the number of
+     *                     available hardware threads
+     *                     std::thread::hardware_concurrency(),
+     *                     as read through hardware_concurrency().
      *
      */
     GenericThreadPoolImpl(Queue& queue, int thread_count)
-    : pending_exception(nullptr)
-    , queue(queue)
-    , thread_count(determine_thread_count(thread_count))
-    , workers(this->thread_count)
+    : m_pending_exception(nullptr)
+    , m_queue(queue)
+    , m_thread_count(determine_thread_count(thread_count))
+    , m_workers(this->m_thread_count)
     {
-      for (Worker& w: workers)
+      for (Worker& w: m_workers)
         w = std::move(std::thread(std::bind(&GenericThreadPoolImpl::work, this)));
     }
 
     /**
      * Help with the work.
      *
-     * @param return_if_idle
-     *		Never wait for work, return instead.
+     * \param return_if_idle
+     *        Never wait for work, return instead.
      */
     void
     help(bool return_if_idle) override {
       if (ignore_thread_pool_exceptions()) {
-        queue.work(return_if_idle);
+        m_queue.work(return_if_idle);
       } else {
         try {
-          queue.work(return_if_idle);
+          m_queue.work(return_if_idle);
         } catch (...) {
           {
             std::exception_ptr e = std::current_exception();
-            std::lock_guard<std::mutex> lock(mutex);
-            if (!pending_exception) pending_exception = std::move(e);
+            std::lock_guard<std::mutex> lock(m_mutex);
+            if (!m_pending_exception) m_pending_exception = std::move(e);
           }
-          queue.shutdown();
+          m_queue.shutdown();
         }
       }
     }
 
     /**
-     * Rethrow a potentially pending exception from a worker
-     * thread.
+     * Rethrow a potentially pending exception from a worker thread.
      */
     void
     rethrow_exception() override {
-      if (pending_exception && !std::uncaught_exception()) {
-        queue.shutdown();
+      if ( m_pending_exception && !std::uncaught_exception() ) {
+        m_queue.shutdown();
         join_workers();
         if (!std::uncaught_exception()) {
-          std::exception_ptr e = pending_exception;
-          pending_exception = nullptr;
+          std::exception_ptr e = m_pending_exception;
+          m_pending_exception = nullptr;
           std::rethrow_exception(std::move(e));
         }
       }
@@ -327,7 +319,7 @@ namespace threadpool {
     virtual
     ~GenericThreadPoolImpl() {
       // Abort processing if destructor runs during exception handling.
-      if (std::uncaught_exception()) queue.shutdown();
+      if (std::uncaught_exception()) m_queue.shutdown();
       join(); // Running threads would continue to access the destructed pool.
     }
 
@@ -336,10 +328,10 @@ namespace threadpool {
      * is cheap to get. Also this gives us a point to
      * cheat. The cached value can be modified by a parameter.
      *
-     * @param c
-     *		The hardware concurrency to use
+     * \param c
+     *        The hardware concurrency to use
      */
-    static unsigned int hardware_concurrency(int c = -1) {
+    static unsigned hardware_concurrency(int c = -1) {
       static int cached_concurrency = -1;
       if (c != -1) cached_concurrency = c;
       if (cached_concurrency == -1)
@@ -351,18 +343,18 @@ namespace threadpool {
      * Determine thread count to use based on users
      * specifications.
      *
-     * @param thread_count
-     *		Runtime specified threadcount parameter.
+     * \param thread_count
+     *        Runtime specified threadcount parameter.
      *
-     * @returns
-     *		The number of threads to use.
+     * \returns
+     *        The number of threads to use.
      *
      * This policy function does just some
      * guesswork. Allocating a number of threads in the order
      * of the hardware threads may be a good bet for CPU-bound
      * work. For other tasks it depends.
      */
-    static unsigned int determine_thread_count(int thread_count = -1) {
+    static unsigned determine_thread_count(int thread_count = -1) {
       if (thread_count == -1 && !(thread_count = hardware_concurrency())) thread_count = 8;
       return thread_count;
     }
@@ -399,12 +391,12 @@ namespace threadpool {
 
   GenericThreadPoolTmpl::~GenericThreadPoolTmpl() { }
 
-  unsigned int
+  unsigned
   GenericThreadPoolTmpl::hardware_concurrency(int c) {
     return GenericThreadPoolImpl<VirtualQueue>::hardware_concurrency(c);
   }
 
-  unsigned int
+  unsigned
   GenericThreadPoolTmpl::determine_thread_count(int c) {
     return GenericThreadPoolImpl<VirtualQueue>::determine_thread_count(c);
   }
@@ -428,13 +420,13 @@ namespace threadpool {
    * instantiate it either with std::function<void()>, or use
    * the virtual thread pool VirtualThreadPool.
    *
-   * @tparam Function
-   *		The function type to be used for the
-   *		queue. All tasks to be queued must be of this
-   *		type. The class Function must support the
-   *		following interface:
-   *		- operator()(): the functions must be callable
-   *		  with no parameters.
+   * \tparam Function
+   *         The function type to be used for the
+   *         queue. All tasks to be queued must be of this
+   *         type. The class Function must support the
+   *         following interface:
+   *         - operator()(): the functions must be callable
+   *           with no parameters.
    */
   template<class Function>
   class HomogenousThreadPool {
@@ -476,11 +468,10 @@ namespace threadpool {
     /**
      * Run a function on all members of a container
      *
-     * @param container
-     * The container to process
-     * @param fun
-     * The function taking one parameter
-     * by reference and returning void.
+     * \param container
+     *        The container to process
+     * \param fun
+     *        The function taking one parameter by reference and returning void.
      *
      * Does not wait for all tasks to finish! Caller is
      * responsible for wait()ing on the pool if necessary.

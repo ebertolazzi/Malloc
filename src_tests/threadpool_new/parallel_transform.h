@@ -177,7 +177,7 @@ namespace threadpool {
       OutputIterator result,
       Function&&     fun
     ) {
-      unsigned int tc = GenericThreadPoolTmpl::determine_thread_count(thread_count);
+      unsigned tc = GenericThreadPoolTmpl::determine_thread_count(thread_count);
       if (tc <= 1) {
         return std::transform(first, last, result, fun);
       } else {
@@ -236,7 +236,7 @@ namespace threadpool {
      */
     template<
       int thread_count =-1,
-      unsigned int maxpart = 1,
+      unsigned maxpart = 1,
       class InputIterator, class Last, class OutputIterator, class Function,
       class = typename std::enable_if<!std::is_same<InputIterator,Last>::value &&
               std::is_integral<InputIterator>::value &&

@@ -230,7 +230,7 @@ namespace threadpool {
     Results *               m_previous_results = nullptr;
     counter_type            m_max_output_queue_length = 1000; // This should be configurable
     std::mutex              m_output_mutex;
-    std::condition_variable m_output_queue;
+    std::condition_variable m_output_queue_cond;
     std::size_t             m_output_queue_waiters = 0;
 
   public:
@@ -286,7 +286,7 @@ namespace threadpool {
               return;
             }
             ++m_output_queue_waiters;
-            m_output_queue.wait(lock);
+            m_output_queue_cond.wait(lock);
             --m_output_queue_waiters;
           }
           if (m_output_counter == ctr) {
@@ -306,7 +306,7 @@ namespace threadpool {
               lock.lock();
             }
             m_output_counter = ctr;
-            if (m_output_queue_waiters) m_output_queue.notify_all(); // All because we do not know who is the right one.
+            if (m_output_queue_waiters) m_output_queue_cond.notify_all(); // All because we do not know who is the right one.
           } else {
             // Predecessor still running, let him clean up.
             prvres->next = std::move(results);
@@ -320,11 +320,11 @@ namespace threadpool {
      */
     void
     shutdown() override {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      std::lock_guard<std::mutex> olock(m_output_mutex);
+      std::lock_guard<std::mutex> lock1(m_mutex);
+      std::lock_guard<std::mutex> lock2(m_output_mutex);
       m_current     = m_last;
       m_do_shutdown = true;
-      m_output_queue.notify_all();
+      m_output_queue_cond.notify_all();
     }
   };
 
@@ -534,8 +534,8 @@ namespace threadpool {
     Queue                   m_queue;
     std::mutex              m_pop_mutex;
     std::mutex              m_push_mutex;
-    std::condition_variable m_waiting_workers;
-    std::condition_variable m_waiters;
+    std::condition_variable m_waiting_workers_cond;
+    std::condition_variable m_waiters_cond;
 
     /**
      * Get tasks and execute them. Return as soon as the queue
@@ -552,7 +552,7 @@ namespace threadpool {
       auto x1 = at_scope_exit([this](){
         std::lock_guard<std::mutex> lock(this->m_push_mutex);
         if (--this->m_total_workers == this->m_idle_workers)
-        this->m_waiters.notify_all();;
+        this->m_waiters_cond.notify_all();;
       });
 
       Queue functions(1);
@@ -570,8 +570,8 @@ namespace threadpool {
           {
             std::unique_lock<std::mutex> lock(m_push_mutex);
             while (m_queue.empty() && !m_shutting_down) {
-              if (++m_idle_workers == m_total_workers) m_waiters.notify_all();;
-              m_waiting_workers.wait(lock); // Wait for task to be queued
+              if ( ++m_idle_workers == m_total_workers ) m_waiters_cond.notify_all();;
+              m_waiting_workers_cond.wait(lock); // Wait for task to be queued
               m_wakeup_is_pending = false;
               --m_idle_workers;
             }
@@ -588,7 +588,8 @@ namespace threadpool {
         while (stride--) functions.push(m_queue.pop());
         lock.unlock();
 
-        if ( m_idle_workers && !m_wakeup_is_pending && queue_size ) m_waiting_workers.notify_one();
+        if ( m_idle_workers && !m_wakeup_is_pending && queue_size )
+          m_waiting_workers_cond.notify_one();
 
         while (!functions.empty()) functions.pop()();
       }
@@ -647,15 +648,12 @@ namespace threadpool {
       if (m_shutting_down) {
         Function fun(std::forward<C>(c)); // Run Function destructor
       } else {
-        /*
-          Here we have exclusive access to the head of the
-          queue.
-        */
+        // Here we have exclusive access to the head of the queue.
         m_queue.push(std::forward<C>(c));
 
         if ( m_idle_workers && !m_wakeup_is_pending ) {
           m_wakeup_is_pending = true;
-          m_waiting_workers.notify_one();
+          m_waiting_workers_cond.notify_one();
         }
       }
     }
@@ -666,8 +664,8 @@ namespace threadpool {
       std::unique_lock<std::mutex> pop_lock(m_pop_mutex);
       m_shutting_down = true;
       while (!m_queue.empty()) m_queue.pop();
-      m_waiting_workers.notify_all();
-      m_waiters.notify_all();
+      m_waiting_workers_cond.notify_all();
+      m_waiters_cond.notify_all();
     }
 
     void
@@ -686,7 +684,7 @@ namespace threadpool {
           }
           lock.lock();
         }
-        while ( m_idle_workers != m_total_workers ) m_waiters.wait(lock);
+        while ( m_idle_workers != m_total_workers ) m_waiters_cond.wait(lock);
       }
       if (e != nullptr && !std::uncaught_exception())
         std::rethrow_exception(std::move(e));

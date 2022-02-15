@@ -167,7 +167,7 @@ namespace threadpool {
       Last const & last,
       Function  && fun
     ) {
-      unsigned int tc = GenericThreadPoolTmpl::determine_thread_count(thread_count);
+      unsigned tc = GenericThreadPoolTmpl::determine_thread_count(thread_count);
       if (tc <= 1) {
         return std::for_each(first, last, fun);
       } else {

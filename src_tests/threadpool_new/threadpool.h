@@ -54,19 +54,19 @@ namespace threadpool {
    * to leave an empty `pimpl` behind.
    */
   class QueueElement {
-    VirtualTask * pimpl;
+    VirtualTask * m_task;
 
-    QueueElement() = delete;
-    QueueElement(const QueueElement&) = delete;
-    QueueElement& operator=(const QueueElement&) = delete;
-    QueueElement& operator=(QueueElement&&) = delete;
+    QueueElement()                                     = delete;
+    QueueElement( QueueElement const & )               = delete;
+    QueueElement & operator = ( QueueElement const & ) = delete;
+    QueueElement & operator = ( QueueElement && )      = delete;
 
   public:
 
-    QueueElement(VirtualTask* t)	: pimpl(t) { }
-    QueueElement(QueueElement&& x) : pimpl(x.pimpl) { x.pimpl = nullptr; }
-    void operator()() { (*pimpl)(); pimpl = nullptr; }
-    ~QueueElement() { if (pimpl) delete pimpl; }
+    QueueElement(VirtualTask* t) : m_task(t) { }
+    QueueElement(QueueElement&& x) : m_task(x.m_task) { x.m_task = nullptr; }
+    void operator()() { (*m_task)(); m_task = nullptr; }
+    ~QueueElement() { if (m_task) delete m_task; }
   };
 
   /**
