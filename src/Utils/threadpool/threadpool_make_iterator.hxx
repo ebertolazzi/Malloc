@@ -1,22 +1,17 @@
-/** @file threadpool/make_iterator.h
+/**
+ * \copyright 2021 Enrico Bertolazzi
  *
- * Threadpool for C++11, make iterator from function
- *
- * @copyright	2014 Ruediger Helsch, Ruediger.Helsch@t-online.de
- * @license	All rights reserved. Use however you want. No warranty at all.
- * $Revision: 2.1 $
- * $Date: 2014/05/15 23:55:22 $
+ * based on the work of Ruediger Helsch, Ruediger.Helsch@t-online.de (2014)
+ * version 2.0 (https://github.com/RuedigerHelsch/ThreadPool)
  */
-#ifndef THREADPOOL_MAKE_ITERATOR_H
-#define THREADPOOL_MAKE_ITERATOR_H
 
 namespace threadpool {
 
   /**
    * An assignable value-type for reference types
    *
-   * @tparam T
-   *		The type to transport
+   * \tparam T
+   *		     The type to transport
    *
    * The ref_value is default-constructable, constructable and
    * assignable from T references, copy- and move- constructable
@@ -25,22 +20,22 @@ namespace threadpool {
    * lvalue references, move() falls back to an lvalue
    * reference.
    */
-  template<class T, class Enable = void> class ref_value;
+  template <class T, class Enable = void> class ref_value;
 
-  template<class T>
+  template <class T>
   class ref_value<T, typename std::enable_if<!std::is_reference<T>::value>::type> {
     typename std::remove_cv<T>::type value;
   public:
     ref_value() { }
-    ref_value(const T& x) : value(x) { }
-    ref_value(T&& x) : value(std::forward<T>(x)) { }
-    ref_value(const ref_value&) = default;
-    ref_value(ref_value&&) = default;
-    ref_value& operator=(const T& x) { value = x; return *this; }
-    ref_value& operator=(T&& x) { value = std::forward<T>(x); return *this; }
-    ref_value& operator=(const ref_value&) = default;
-    ref_value& operator=(ref_value&&) = default;
-    const typename std::remove_volatile<T>::type& get() const { return value; }
+    ref_value( T const & x ) : value(x) { }
+    ref_value( T&& x ) : value(std::forward<T>(x)) { }
+    ref_value( ref_value const & ) = default;
+    ref_value( ref_value&& ) = default;
+    ref_value& operator = ( T const & x ) { value = x; return *this; }
+    ref_value& operator = ( T&& x ) { value = std::forward<T>(x); return *this; }
+    ref_value& operator = ( const ref_value& ) = default;
+    ref_value& operator = ( ref_value&& ) = default;
+    typename std::remove_volatile<T>::type const & get() const { return value; }
     typename std::remove_cv<T>::type&& move() { return std::move(value); }
   };
 
@@ -50,7 +45,7 @@ namespace threadpool {
   public:
     ref_value() { }
     ref_value(T x) : value(&x) { }
-    ref_value& operator=(T x) { value = &x; return *this; }
+    ref_value& operator = (T x) { value = &x; return *this; }
     T get() const { return *value; }
     T move() { return *value; }
   };
@@ -61,8 +56,8 @@ namespace threadpool {
   public:
     ref_value() { }
     ref_value(T x) : value(&x) { }
-    ref_value& operator=(T x) { value = &x; return *this; }
-    const T& get() const { return std::move(*value); }
+    ref_value& operator = (T x) { value = &x; return *this; }
+    T const & get() const { return std::move(*value); }
     T move() { return std::move(*value); }
   };
 
@@ -80,18 +75,20 @@ namespace threadpool {
 
   template<class Function>
   class FunctionPtr<Function,typename std::enable_if<!std::is_reference<Function>::value>::type> {
-    std::shared_ptr<Function> fun;
+    std::shared_ptr<Function> m_fun;
   public:
-    explicit FunctionPtr(Function&& fun) : fun(new Function(std::forward<Function>(fun))) { }
-    Function& operator*() { return *fun; }
+    explicit
+    FunctionPtr(Function&& fun)
+    : m_fun(new Function(std::forward<Function>(fun))) { }
+    Function& operator*() { return *m_fun; }
   };
 
   template<class Function>
   class FunctionPtr<Function,typename std::enable_if< std::is_reference<Function>::value>::type> {
-    typename std::add_pointer<Function>::type fun;
+    typename std::add_pointer<Function>::type m_fun;
   public:
-    explicit FunctionPtr(Function& fun) : fun(&fun) { }
-    Function& operator*() { return *fun; }
+    explicit FunctionPtr(Function& fun) : m_fun(&fun) { }
+    Function& operator*() { return *m_fun; }
   };
 
   /**
@@ -206,13 +203,17 @@ namespace threadpool {
    */
   template<class Function>
   class FunctionOutputIterator : public std::iterator<std::output_iterator_tag, void, void, void, void> {
-    FunctionPtr<Function> fun;
+    FunctionPtr<Function> m_fun;
   public:
-    template<class Fun> explicit FunctionOutputIterator(Fun&& fun) : fun(std::forward<Fun>(fun)) { }
+    template<class Fun>
+    explicit
+    FunctionOutputIterator(Fun&& fun) : m_fun(std::forward<Fun>(fun)) { }
     FunctionOutputIterator& operator++() { return *this; }
     FunctionOutputIterator& operator++(int) { return *this; }
     FunctionOutputIterator& operator*() { return *this; }
-    template<class Arg> void operator=(Arg&& arg) { (*fun)(std::forward<Arg>(arg)); }
+    template<class Arg>
+    void operator=(Arg&& arg)
+    { (*m_fun)(std::forward<Arg>(arg)); }
   };
 
   /**
@@ -254,5 +255,3 @@ namespace threadpool {
     return FunctionOutputIterator<Function>(std::forward<Function>(fun));
   }
 } // End of namespace threadpool
-
-#endif // !THREADPOOL_MAKE_ITERATOR_H

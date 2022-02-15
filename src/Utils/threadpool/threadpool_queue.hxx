@@ -11,8 +11,8 @@ namespace threadpool {
      * work on, but more items could possible be added, then wait
      * for new items unless parameter return_if_idle is true.
      *
-     * @param return_if_idle
-     *		Return if there is no more work in the moment.
+     * \param return_if_idle
+     *        Return if there is no more work in the moment.
      */
     virtual void work(bool return_if_idle) = 0;
 
@@ -42,11 +42,11 @@ namespace threadpool {
   /**
    * Queue calling the function on single objects.
    *
-   * @relates ForEachThreadPoolImpl
-   *	Conceptually ForEach_Queue is a member
-   *	of class ForEachThreadPoolImpl, but the standard does
-   *	not allow template specialization inside classes. I
-   *	had to move it out of the class.
+   * \relates ForEachThreadPoolImpl
+   * Conceptually ForEach_Queue is a member
+   * of class ForEachThreadPoolImpl, but the standard does
+   * not allow template specialization inside classes. I
+   * had to move it out of the class.
    */
   template<class Iterator, class Last, class Function, bool forward_iterator>
   class ForEach_Queue : public VirtualQueue {
@@ -112,11 +112,11 @@ namespace threadpool {
    * forward_iterator = true. For all other iterators, use the
    * general case of the template above.
    *
-   * @relates ForEachThreadPoolImpl
-   *	Conceptually ForEach_Queue is a member
-   *	of class ForEachThreadPoolImpl, but the standard does
-   *	not allow template specialization inside classes. I
-   *	had to move it out of the class.
+   * \relates ForEachThreadPoolImpl
+   * Conceptually ForEach_Queue is a member
+   * of class ForEachThreadPoolImpl, but the standard does
+   * not allow template specialization inside classes. I
+   * had to move it out of the class.
    */
   template<class Iterator, class Last, class Function>
   class ForEach_Queue<Iterator, Last, Function, true> : public ForEach_Queue<Iterator, Last, Function, false> {

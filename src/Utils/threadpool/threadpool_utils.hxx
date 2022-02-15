@@ -51,25 +51,25 @@ namespace threadpool {
   template <class I>
   class IntegralIterator : public std::iterator<std::random_access_iterator_tag, I, I, I, I> {
     typedef std::iterator<std::random_access_iterator_tag, I, I, I, I> Base;
-    I i;
+    I m_i;
   public:
-    IntegralIterator() : i(0) { }
-    IntegralIterator(I i) : i(i) { }
-    IntegralIterator(const IntegralIterator& i) : i(i.i) { }
-    typename Base::value_type operator*() const { return i; }
-    IntegralIterator& operator++() { ++i; return *this; }
-    IntegralIterator operator++(int) { return IntegralIterator(i++); }
-    template<class T> IntegralIterator& operator+=(const T& t) { i += t; return *this; }
-    template<class T> IntegralIterator& operator-=(const T& t) { i += t; return *this; }
-    IntegralIterator operator+(const I& t) const { return IntegralIterator(i + t); }
-    IntegralIterator operator-(const I& t) const { return IntegralIterator(i - t); }
-    typename Base::difference_type operator-(const IntegralIterator& t) const { return i - t.i; }
-    bool operator==(const IntegralIterator& t) const { return i == t.i; }
-    bool operator!=(const IntegralIterator& t) const { return i != t.i; }
-    bool operator<(const IntegralIterator& t) const { return i < t.i; }
-    bool operator<=(const IntegralIterator& t) const { return i <= t.i; }
-    bool operator>=(const IntegralIterator& t) const { return i >= t.i; }
-    bool operator>(const IntegralIterator& t) const { return i > t.i; }
+    IntegralIterator() : m_i(0) { }
+    IntegralIterator(I i) : m_i(i) { }
+    IntegralIterator( IntegralIterator const & i ) : m_i(i.i) { }
+    typename Base::value_type operator*() const { return m_i; }
+    IntegralIterator& operator++() { ++m_i; return *this; }
+    IntegralIterator operator++(int) { return IntegralIterator(m_i++); }
+    template<class T> IntegralIterator& operator += ( T const & t ) { m_i += t; return *this; }
+    template<class T> IntegralIterator& operator -= ( T const & t ) { m_i += t; return *this; }
+    IntegralIterator operator + ( I const & t ) const { return IntegralIterator(m_i + t); }
+    IntegralIterator operator - ( I const & t ) const { return IntegralIterator(m_i - t); }
+    typename Base::difference_type operator-(const IntegralIterator& t) const { return m_i - t.i; }
+    bool operator == ( IntegralIterator const & t ) const { return m_i == t.i; }
+    bool operator != ( IntegralIterator const & t ) const { return m_i != t.i; }
+    bool operator <  ( IntegralIterator const & t ) const { return m_i  < t.i; }
+    bool operator <= ( IntegralIterator const & t ) const { return m_i <= t.i; }
+    bool operator >= ( IntegralIterator const & t ) const { return m_i >= t.i; }
+    bool operator >  ( IntegralIterator const & t ) const { return m_i  > t.i; }
   };
 
   /**
@@ -188,45 +188,46 @@ namespace threadpool {
    */
   template <class Destructor>
   class at_scope_exit_impl {
-    Destructor destructor;
-    bool       active;
+    Destructor m_destructor;
+    bool       m_active;
     at_scope_exit_impl( at_scope_exit_impl const & ) = delete;
     at_scope_exit_impl & operator=( at_scope_exit_impl const & ) = delete;
   public:
-    at_scope_exit_impl() : active(false) { }
+    at_scope_exit_impl() : m_active(false) { }
 
     explicit
-    at_scope_exit_impl(Destructor&& destructor)
-    : destructor(std::forward<Destructor>(destructor))
-    , active(true)
+    at_scope_exit_impl( Destructor&& destructor )
+    : m_destructor(std::forward<Destructor>(destructor))
+    , m_active(true)
     { }
 
     explicit
-    at_scope_exit_impl( Destructor const & destructor)
-    : destructor(destructor)
-    , active(true)
+    at_scope_exit_impl( Destructor const & destructor )
+    : m_destructor(destructor)
+    , m_active(true)
     { }
 
     at_scope_exit_impl(at_scope_exit_impl&& x)
-    : destructor(std::move(x.destructor))
-    , active(x.active)
-    { x.active = false; }
+    : m_destructor(std::move(x.m_destructor))
+    , m_active(x.m_active)
+    { x.m_active = false; }
 
     at_scope_exit_impl&
     operator=(at_scope_exit_impl&& x) {
-      destructor= std::move(x.destructor);
-      active = x.active; x.active = false;
+      m_destructor = std::move(x.m_destructor);
+      m_active     = x.m_active;
+      x.m_active   = false;
     }
 
-    ~at_scope_exit_impl() { if (active) destructor(); }
+    ~at_scope_exit_impl() { if (m_active) m_destructor(); }
   };
 
   /**
    * Create a variable that when destructed at the end of the scope
    * executes a destructor function.
    *
-   * @tparam Destructor&& destructor
-   *			The destructor function, maybe a lambda function.
+   * \tparam Destructor&& destructor
+   *         The destructor function, maybe a lambda function.
    *
    * Use like this:
    *
@@ -249,4 +250,3 @@ namespace threadpool {
   { return at_scope_exit_impl<Destructor const &>(destructor); }
 
 } // End of namespace threadpool
-

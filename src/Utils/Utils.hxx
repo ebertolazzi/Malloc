@@ -110,7 +110,8 @@
 #include "Numbers.hxx"
 #include "TicToc.hxx"
 #include "ThreadPool.hxx"
-#include "quickpool.hxx"
+// niot used for the moment
+//#include "quickpool.hxx"
 #include "Quaternion.hxx"
 #include "Table.hxx"
 #include "Token.hxx"

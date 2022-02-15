@@ -18,9 +18,7 @@
 \*--------------------------------------------------------------------------*/
 
 #include "Utils.hh"
-
-//#include "Utils/threadpool/threadpool.h"
-#include "threadpool_new/threadpool.h"
+#include "threadpool/threadpool.hh"
 
 static std::atomic_int accumulatore;
 
@@ -87,6 +85,7 @@ main( int argc, char *argv[] ) {
 
   fmt::print( "NT = {}\n", nt);
 
+#if 0
   {
     accumulatore = 0;
     quickpool::ThreadPool pool(nt);
@@ -106,19 +105,22 @@ main( int argc, char *argv[] ) {
     "                    {}\n\n",
     ti0, ti1, accumulatore
   );
+#endif
 
   {
     accumulatore = 0;
     threadpool::ThreadPool pool2(nt);
     tm.tic();
     for ( int i = 0; i < NN; ++i)
-      pool2.run( [i]{ do_test(i); } );
+      //pool2.run( [i]{ do_test(i); } );
+      pool2.run( do_test, i );
     tm.toc();
     ti0 = tm.elapsed_ms();
     pool2.wait();
     tm.toc();
     ti1 = tm.elapsed_ms();
   }
+
   fmt::print(
     "Elapsed [threadpool] {} ms\n"
     "                     {} ms\n"
@@ -137,6 +139,9 @@ main( int argc, char *argv[] ) {
   );
 
   fmt::print("s = {}\n",s);
+
+
+
 
   accumulatore = 0;
 

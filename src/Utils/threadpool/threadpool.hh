@@ -30,10 +30,32 @@
 #include <condition_variable>
 
 #include "threadpool_utils.hxx"
-#include "threadpool_virtuals.hxx"
 #include "threadpool_queue.hxx"
 
 namespace threadpool {
+
+  /**
+   * VirtualTask type for thread pool
+   *
+   * The thread pool wraps functions into object of type
+   * VirtualTask and enqueues them. The actual tasks can be
+   * heterogenous and must only support the VirtualTask interface.
+   */
+  class VirtualTask {
+  public:
+    /**
+     * The payload, users function to be run.
+     *
+     * Operator() is run from the thread pool.
+     * Is responsible for deleting the task object once it is done.
+     */
+    virtual void operator()() = 0;
+
+    /**
+     * Destroy the task object
+     */
+    virtual ~VirtualTask() {};
+  };
 
   /**
    * A thread pool reading its tasks from a generic queue.
@@ -70,7 +92,7 @@ namespace threadpool {
 
     std::mutex          m_mutex;
     std::exception_ptr  m_pending_exception;
-    Queue&              m_queue;
+    Queue &             m_queue;
     unsigned const      m_thread_count; /// The number of threads
     std::vector<Worker> m_workers;
 
@@ -334,7 +356,7 @@ namespace threadpool {
    * compilation units without giving multiply defined symbol
    * errors.
    */
-  class ThreadPool : public ThreadPoolInterface {
+  class ThreadPool {
 
     typedef HQueue<QueueElement>     QUEUE;
     typedef GenericThreadPool<QUEUE> POOL;
@@ -350,15 +372,15 @@ namespace threadpool {
       std::size_t maxpart      = 1
     )
     : m_queue(queue_size, (maxpart != 1) ? maxpart : 3 * (POOL::determine_thread_count(thread_count)+ 1))
-    , m_pool( this->m_queue, thread_count)
+    , m_pool( this->m_queue, thread_count )
     { }
 
     void
-    run(std::unique_ptr<VirtualTask>&& t)
+    run_task(std::unique_ptr<VirtualTask>&& t)
     { m_queue.put(t.release()); }
 
     void
-    run(VirtualTask* t)
+    run_task(VirtualTask* t)
     { m_queue.put(t); }
 
     /**
@@ -366,72 +388,40 @@ namespace threadpool {
      * exception handling.
      */
     template<class Function>
-    typename std::enable_if<!std::is_pointer<typename std::remove_reference<Function>::type>::value &&
-           std::is_void<decltype(std::declval<typename std::remove_pointer<typename std::remove_reference<Function>::type>::type>()())>::value
-    >::type
+    void
     run( Function && f ) {
       typedef typename std::remove_reference<Function>::type function_type;
       class WrappedFunction : public VirtualTask {
-        Function f;
+        function_type m_f;
       public:
-        WrappedFunction(function_type&& f) : f(std::move(f)) { }
-        virtual void operator()() override { f(); delete this; }
+        WrappedFunction( function_type && f ) : m_f(std::move(f)) { }
+        virtual void operator()() override { m_f(); delete this; }
       };
-      run(new WrappedFunction(std::forward<Function>(f)));
+      run_task(new WrappedFunction(std::forward<Function>(f)));
     }
 
     /**
-     * For functions with nonvoid return type, catch exceptions
-     * and return a future.
+     * Wrap functions with arguments in a task and run them without
+     * exception handling.
      */
-    template<class Function>
-    typename std::enable_if<!std::is_pointer<typename std::remove_reference<Function>::type>::value &&
-       !std::is_void<decltype(std::declval<typename std::remove_pointer<typename std::remove_reference<Function>::type>::type>()())>::value,
-       std::future<decltype(std::declval<typename std::remove_pointer<typename std::remove_reference<Function>::type>::type>()())>
-    >::type
-    run( Function && f ) {
-      typedef typename std::remove_reference<Function>::type function_type;
-      typedef typename std::result_of<Function()>::type return_type;
-
-      class WrappedFunction : public VirtualTask {
-        Function                  f;
-        std::promise<return_type> promise;
-      public:
-        WrappedFunction(function_type&& f) : f(std::move(f)) { }
-        WrappedFunction(function_type& f) : f(f) { }
-
-        std::future<return_type> get_future() { return promise.get_future(); }
-
-        virtual
-        void
-        operator()() override {
-          try {
-            promise.set_value(f());
-          } catch (...) {
-            promise.set_exception(std::current_exception());
-          }
-          delete this;
-        }
-      };
-
-      WrappedFunction* task(new WrappedFunction(std::forward<Function>(f)));
-      std::future<return_type> future(task->get_future());
-      run(task);
-      return future;
+    template <class Function, class... Args>
+    void
+    run( Function && f, Args && ... args ) {
+      run( std::bind(std::forward<Function>(f),std::forward<Args>(args)...) );
     }
 
     /**
      * Run a function on all objects in an iterator range
      *
-     * @param first
-     *			Start of the range
+     * \param first
+     *        Start of the range
      *
-     * @param last
-     *			End of the range
+     * \param last
+     *        End of the range
      *
-     * @param fun
-     *			The function taking one parameter
-     *			by reference and returning void.
+     * \param fun
+     *        The function taking one parameter
+     *        by reference and returning void.
      *
      * Does not wait for all tasks to finish! Caller is
      * responsible for wait()ing on the pool if necessary.
@@ -450,19 +440,19 @@ namespace threadpool {
     /**
      * Run a function on all members of a container
      *
-     * @param container
-     *			The container to process
+     * \param container
+     *        The container to process
      *
-     * @param fun
-     *			The function taking one parameter
-     *			by reference and returning void.
+     * \param fun
+     *        The function taking one parameter
+     *        by reference and returning void.
      *
      * Does not wait for all tasks to finish! Caller is
      * responsible for wait()ing on the pool if necessary.
      */
     template<class Container, class Function>
     void
-    for_each( Container&& container, Function && fun ) {
+    for_each( Container&& container, Function&& fun ) {
       for ( auto & e: container ) run([&fun,&e](){ fun(e); });
     }
 
@@ -494,7 +484,7 @@ namespace threadpool {
      */
     void
     wait() {
-      m_pool.help(true); 	// Help out instead of sitting around idly.
+      m_pool.help(true); // Help out instead of sitting around idly.
       m_queue.wait();
     }
 
@@ -531,8 +521,8 @@ namespace threadpool {
 
 } // End of namespace threadpool
 
-#include "parallel_for_each.h"
-#include "parallel_transform.h"
-#include "make_iterator.h"
+#include "threadpool_parallel_for_each.hxx"
+#include "threadpool_parallel_transform.hxx"
+#include "threadpool_make_iterator.hxx"
 
 #endif // !defined(THREADPOOL_THREADPOOL_H)
