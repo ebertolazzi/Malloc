@@ -39,10 +39,6 @@ namespace threadpool {
       Last,
       Function,
       is_forward_iterator<Iterator>::value
-      //std::is_base_of<
-      //  std::forward_iterator_tag,
-      //  typename std::iterator_traits<Iterator>::iterator_category
-      //>::value
     > Queue;
     Queue                 queue;
     GenericThreadPoolTmpl pool;

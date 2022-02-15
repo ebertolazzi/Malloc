@@ -136,16 +136,7 @@ namespace threadpool {
    *    behaviour for move iterators.
    */
   template <class X>
-  struct iterval_traits<
-    X,
-    typename std::enable_if<
-      is_forward_iterator<X>::value
-      //std::is_base_of<
-      //  std::forward_iterator_tag,
-      //  typename std::iterator_traits<X>::iterator_category
-      //>::value
-    >::type
-  >
+  struct iterval_traits<X,typename std::enable_if<is_forward_iterator<X>::value>::type>
   {
     typedef X type;
     static X const & copy( X const & r ) { return r; }
@@ -164,22 +155,7 @@ namespace threadpool {
    * - Pass to the function by moving the stored value.
    */
   template <class X>
-  struct iterval_traits<
-    X,
-    typename std::enable_if<
-      !is_forward_iterator<X>::value &&
-      is_input_iterator<X>::value
-      //!std::is_base_of<
-      //  std::forward_iterator_tag,
-      //  typename std::iterator_traits<X>::iterator_category
-      //>::value
-      //&&
-      //std::is_base_of<
-      //  std::input_iterator_tag,
-      //  typename std::iterator_traits<X>::iterator_category
-      //>::value
-    >::type
-  >
+  struct iterval_traits<X,typename std::enable_if<!is_forward_iterator<X>::value && is_input_iterator<X>::value>::type>
   {
     typedef typename std::decay<decltype(*std::declval<X>())>::type type;
     static auto copy( X const & r ) -> decltype(*r) { return *r; } // This may move if *r is an rvalue reference
@@ -193,16 +169,7 @@ namespace threadpool {
    * No use as source of algorithms.
    */
   template <class X>
-  struct iterval_traits<
-    X,
-    typename std::enable_if<
-      !is_input_iterator<X>::value
-      //!std::is_base_of<
-      //  std::input_iterator_tag,
-      //  typename std::iterator_traits<X>::iterator_category
-      //>::value
-    >::type
-  >
+  struct iterval_traits<X,typename std::enable_if<!is_input_iterator<X>::value>::type>
   {
     //static const char* name() { return "output"; }
   };
