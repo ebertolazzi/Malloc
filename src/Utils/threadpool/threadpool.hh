@@ -95,6 +95,7 @@ namespace threadpool {
     Queue &             m_queue;
     unsigned const      m_thread_count; /// The number of threads
     std::vector<Worker> m_workers;
+    bool                m_ignore_thread_pool_exceptions = true;
 
     //! The main function of the thread.
     void work() { help(false); }
@@ -129,14 +130,13 @@ namespace threadpool {
      *        The number of threads to use.
      *        If the thread count is not specified it defaults
      *        to the number of available hardware threads
-     *        std::thread::hardware_concurrency(),
-     *        as read through hardware_concurrency().
+     *        std::thread::hardware_concurrency().
      *
      */
     GenericThreadPool( Queue & queue, int thread_count )
     : m_pending_exception(nullptr)
     , m_queue(queue)
-    , m_thread_count(determine_thread_count(thread_count))
+    , m_thread_count(thread_count)
     , m_workers(this->m_thread_count)
     {
       for ( Worker & w : m_workers )
@@ -152,7 +152,7 @@ namespace threadpool {
     virtual
     void
     help( bool return_if_idle ) {
-      if ( ignore_thread_pool_exceptions() ) {
+      if ( m_ignore_thread_pool_exceptions ) {
         m_queue.work( return_if_idle );
       } else {
         try {
@@ -241,49 +241,15 @@ namespace threadpool {
     }
 
     /**
-     * Cache the hardware concurrency so we are sure that it
-     * is cheap to get. Also this gives us a point to
-     * cheat. The cached value can be modified by a parameter.
-     *
-     * \param c
-     *        The hardware concurrency to use
+     * Switch exception handling on/off
      */
-    static unsigned hardware_concurrency(int c = -1) {
-      static int cached_concurrency = -1;
-      if (c != -1) cached_concurrency = c;
-      if (cached_concurrency == -1)
-        cached_concurrency = std::thread::hardware_concurrency();
-      return cached_concurrency;
+    void
+    ignore_thread_pool_exceptions(bool flg = true) {
+      m_ignore_thread_pool_exceptions = flg;
     }
 
-    /**
-     * Determine thread count to use based on users
-     * specifications.
-     *
-     * \param thread_count
-     *        Runtime specified threadcount parameter.
-     *
-     * \returns
-     *        The number of threads to use.
-     *
-     * This policy function does just some
-     * guesswork. Allocating a number of threads in the order
-     * of the hardware threads may be a good bet for CPU-bound
-     * work. For other tasks it depends.
-     */
-    static unsigned determine_thread_count(int thread_count = -1) {
-      if (thread_count == -1 && !(thread_count = hardware_concurrency())) thread_count = 8;
-      return thread_count;
-    }
+    unsigned thread_count() const { return m_thread_count; }
 
-    /**
-     * Switch exception handling off
-     */
-    static bool ignore_thread_pool_exceptions(bool i = true) {
-      static bool do_ignore_exceptions = false;
-      if (i) do_ignore_exceptions = i;
-      return do_ignore_exceptions;
-    }
   };
 
   /**
@@ -367,11 +333,11 @@ namespace threadpool {
   public:
     explicit
     ThreadPool(
-      int         thread_count = -1,
+      int         thread_count = std::thread::hardware_concurrency(),
       std::size_t queue_size   = 0,
-      std::size_t maxpart      = 1
+      std::size_t maxpart      = 3 * std::thread::hardware_concurrency() + 1
     )
-    : m_queue(queue_size, (maxpart != 1) ? maxpart : 3 * (POOL::determine_thread_count(thread_count)+ 1))
+    : m_queue( queue_size, maxpart > 1 ? maxpart : 3 * (thread_count + 1) )
     , m_pool( this->m_queue, thread_count )
     { }
 
@@ -514,6 +480,8 @@ namespace threadpool {
      * wait() or join() have been called before the
      * destructor).
      */
+
+    unsigned thread_count() const { return m_pool.thread_count(); }
 
     virtual
     ~ThreadPool() { wait(); join(); }
