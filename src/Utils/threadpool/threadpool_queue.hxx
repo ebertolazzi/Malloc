@@ -1,32 +1,5 @@
 namespace threadpool {
 
-  /**
-   * A Queue interface for the generic thread pool.
-   */
-  class VirtualQueue {
-  public:
-
-    /**
-     * Work on items in the queue. If there are no more items to
-     * work on, but more items could possible be added, then wait
-     * for new items unless parameter return_if_idle is true.
-     *
-     * \param return_if_idle
-     *        Return if there is no more work in the moment.
-     */
-    virtual void work(bool return_if_idle) = 0;
-
-    /**
-     * Shut the queue down.
-     *
-     * Irreversably terminates processing. All idle workers should be
-     * woken up and return from work() as soon as the current task
-     * is processed.
-     */
-    virtual void shutdown() = 0;
-    virtual ~VirtualQueue() { };
-  };
-
   /*
     The thread pool for arbitrary functions works fine, and can be
     used to process elements of a container. But this means queuing
@@ -49,7 +22,7 @@ namespace threadpool {
    * had to move it out of the class.
    */
   template<class Iterator, class Last, class Function, bool forward_iterator>
-  class ForEach_Queue : public VirtualQueue {
+  class ForEach_Queue {
   protected:
     Iterator   & m_current;
     Last const & m_last;
@@ -70,7 +43,7 @@ namespace threadpool {
     { }
 
     void
-    work(bool /*ignored*/) override {
+    work(bool /*ignored*/) {
       typedef iterval_traits<Iterator> IT;
       Last const & l(m_last);
       for (;;) {
@@ -87,7 +60,7 @@ namespace threadpool {
      * Shut the queue down, stop returning values
      */
     void
-    shutdown() override {
+    shutdown() {
       std::lock_guard<std::mutex> lock(m_mutex);
       m_current = m_last;
     }
@@ -138,7 +111,7 @@ namespace threadpool {
     { }
 
     void
-    work(bool /*ignored*/) override {
+    work(bool /*ignored*/) {
       Last const & last = this->m_last; // Does never change
       for (;;) {
         Iterator c, l;
@@ -211,7 +184,7 @@ namespace threadpool {
     class Function,
     bool forward_iterator
   >
-  class Transform_Queue : public VirtualQueue {
+  class Transform_Queue {
     struct Results {
       typename std::remove_reference<decltype(std::declval<Function&>()(*std::declval<InputIterator>()))>::type result;
       std::unique_ptr<Results> next;
@@ -249,7 +222,7 @@ namespace threadpool {
     { }
 
     void
-    work(bool return_if_idle) override {
+    work(bool return_if_idle) {
       typedef iterval_traits<InputIterator> IT;
 
       std::unique_ptr<Results> results;
@@ -319,7 +292,7 @@ namespace threadpool {
      * Shut the queue down, stop returning values
      */
     void
-    shutdown() override {
+    shutdown() {
       std::lock_guard<std::mutex> lock1(m_mutex);
       std::lock_guard<std::mutex> lock2(m_output_mutex);
       m_current     = m_last;
@@ -359,7 +332,7 @@ namespace threadpool {
    * I had to move it out of the class.
    */
   template<class InputIterator, class Last,class OutputIterator, class Function>
-  class Transform_Queue<InputIterator, Last, OutputIterator, Function, true>: public VirtualQueue {
+  class Transform_Queue<InputIterator, Last, OutputIterator, Function, true> {
     typedef typename std::iterator_traits<InputIterator>::difference_type difference_type;
     InputIterator   & m_current;
     Last const      & m_last;
@@ -385,7 +358,7 @@ namespace threadpool {
     { }
 
     void
-    work(bool) override {
+    work(bool /* ignored */) {
       Last const & last = m_last; // Does never change
       for (;;) {
         InputIterator  c, l;
@@ -410,7 +383,7 @@ namespace threadpool {
      * Shut the queue down, stop returning values
      */
     void
-    shutdown() override {
+    shutdown() {
       std::lock_guard<std::mutex> lock(m_mutex);
       m_current = m_last;
     }
@@ -434,7 +407,7 @@ namespace threadpool {
    *         The function type to queue.
    */
   template <class Function>
-  class HQueue : public VirtualQueue {
+  class HQueue {
 
     /*
       If we would use a deque, we would have to protect
@@ -550,7 +523,7 @@ namespace threadpool {
 
       // Increment total worker count, decrement again on scope exit
       { std::lock_guard<std::mutex> lock(m_push_mutex); ++m_total_workers; }
-      //std::cerr << " total_workers(" << this->total_workers << ")";
+      // execute at exit
       auto x1 = at_scope_exit([this](){
         std::lock_guard<std::mutex> lock(this->m_push_mutex);
         if (--this->m_total_workers == this->m_idle_workers)
@@ -566,14 +539,14 @@ namespace threadpool {
         // Try to get the next task(s)
         while ((queue_size = m_queue.size()) <= min_queue_size) {
           if (static_cast<std::ptrdiff_t>(queue_size) <= return_if_idle) return;
-          if (queue_size) break;
+          if ( queue_size > 0 ) break;
           // The queue is empty, wait for more tasks to be put()
           lock.unlock();
           {
-            std::unique_lock<std::mutex> lock(m_push_mutex);
+            std::unique_lock<std::mutex> lock2(m_push_mutex);
             while (m_queue.empty() && !m_shutting_down) {
               if ( ++m_idle_workers == m_total_workers ) m_waiters_cond.notify_all();
-              m_waiting_workers_cond.wait(lock); // Wait for task to be queued
+              m_waiting_workers_cond.wait(lock2); // Wait for task to be queued
               m_wakeup_is_pending = false;
               --m_idle_workers;
             }
@@ -627,7 +600,7 @@ namespace threadpool {
      * instead of idly waiting.
      */
     void
-    work(bool return_if_idle) override {
+    work(bool return_if_idle) {
       help(return_if_idle ? 0 : -1);
     }
 
@@ -661,7 +634,7 @@ namespace threadpool {
     }
 
     void
-    shutdown() override {
+    shutdown() {
       std::unique_lock<std::mutex> push_lock(m_push_mutex);
       std::unique_lock<std::mutex> pop_lock(m_pop_mutex);
       m_shutting_down = true;

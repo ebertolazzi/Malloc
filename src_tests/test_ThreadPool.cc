@@ -111,7 +111,8 @@ main( int argc, char *argv[] ) {
     accumulatore = 0;
     threadpool::ThreadPool pool2(nt);
     //fmt::print( "USE {} THREAD\n", pool2.thread_count() );
-    //pool2.resize( nt );
+    //pool2.resize( nt+1 );
+    //pool2.info( std::cout );
     fmt::print( "USE {} THREAD\n", pool2.thread_count() );
 
     tm.tic();

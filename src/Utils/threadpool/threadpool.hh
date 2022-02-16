@@ -26,7 +26,6 @@
 
 #include <thread>
 #include <mutex>
-//#include <future>
 #include <condition_variable>
 
 #include "threadpool_utils.hxx"
@@ -93,7 +92,6 @@ namespace threadpool {
     std::mutex          m_mutex;
     std::exception_ptr  m_pending_exception;
     Queue &             m_queue;
-    unsigned const      m_thread_count; /// The number of threads
     std::vector<Worker> m_workers;
     bool                m_ignore_thread_pool_exceptions = true;
 
@@ -136,8 +134,7 @@ namespace threadpool {
     GenericThreadPool( Queue & queue, int thread_count )
     : m_pending_exception(nullptr)
     , m_queue(queue)
-    , m_thread_count(thread_count)
-    , m_workers(this->m_thread_count)
+    , m_workers(thread_count)
     {
       for ( Worker & w : m_workers )
         w = std::move(std::thread(std::bind(&GenericThreadPool::work, this)));
@@ -149,7 +146,6 @@ namespace threadpool {
      * \param return_if_idle
      *        Never wait for work, return instead.
      */
-    virtual
     void
     help( bool return_if_idle ) {
       if ( m_ignore_thread_pool_exceptions ) {
@@ -171,7 +167,6 @@ namespace threadpool {
     /**
      * Rethrow a potentially pending exception from a worker thread.
      */
-    virtual
     void
     rethrow_exception() {
       if ( m_pending_exception && !std::uncaught_exception() ) {
@@ -190,7 +185,6 @@ namespace threadpool {
      *
      * Leaves the thread pool ready for destruction.
      */
-    virtual
     void
     join() {
       join_workers();
@@ -233,7 +227,6 @@ namespace threadpool {
      * new. And if you want to make sure nobody destroys the
      * thread pool, feel free to throw away the handle.
      */
-    virtual
     ~GenericThreadPool() {
       // Abort processing if destructor runs during exception handling.
       if (std::uncaught_exception()) m_queue.shutdown();
@@ -248,7 +241,7 @@ namespace threadpool {
       m_ignore_thread_pool_exceptions = flg;
     }
 
-    unsigned thread_count() const { return m_thread_count; }
+    std::size_t thread_count() const { return m_workers.size(); }
 
   };
 
