@@ -110,6 +110,10 @@ main( int argc, char *argv[] ) {
   {
     accumulatore = 0;
     threadpool::ThreadPool pool2(nt);
+    //fmt::print( "USE {} THREAD\n", pool2.thread_count() );
+    //pool2.resize( nt );
+    fmt::print( "USE {} THREAD\n", pool2.thread_count() );
+
     tm.tic();
     for ( int i = 0; i < NN; ++i)
       //pool2.run( [i]{ do_test(i); } );

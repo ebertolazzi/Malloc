@@ -169,12 +169,6 @@ namespace threadpool {
       OutputIterator result,
       Function&&     fun
     ) {
-      typedef ForEach_Queue<
-        InputIterator,
-        Last,
-        Function,
-        is_forward_iterator<InputIterator>::value
-      > Queue;
       if (thread_count <= 1) {
         return std::transform(first, last, result, fun);
       } else {

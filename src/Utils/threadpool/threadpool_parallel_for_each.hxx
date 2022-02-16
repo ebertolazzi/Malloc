@@ -163,12 +163,6 @@ namespace threadpool {
       Last const & last,
       Function  && fun
     ) {
-      typedef ForEach_Queue<
-        Iterator,
-        Last,
-        Function,
-        is_forward_iterator<Iterator>::value
-      > Queue;
       if (thread_count <= 1) {
         return std::for_each(first, last, fun);
       } else {

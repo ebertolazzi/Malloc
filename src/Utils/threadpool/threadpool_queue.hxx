@@ -458,6 +458,7 @@ namespace threadpool {
         ~Fun() noexcept { }
       };
       std::vector<Fun> m_fun_vec;
+      std::size_t      m_size     = 0;
       std::size_t      m_push_ptr = 0;
       std::size_t      m_pop_ptr  = 0;
 
@@ -468,13 +469,13 @@ namespace threadpool {
 
     public:
 
-      Queue(std::size_t s) : m_fun_vec(s + 1) { }
+      Queue( std::size_t s ) : m_fun_vec(s+1), m_size(s+1) { }
 
       template<class F>
       void
       push( F && f ) {
         new (&m_fun_vec[m_push_ptr].m_fun) Function(std::forward<F>(f));
-        if (++m_push_ptr == m_fun_vec.size()) m_push_ptr = 0;
+        if (++m_push_ptr == m_size) m_push_ptr = 0;
       }
 
       Function
@@ -486,24 +487,25 @@ namespace threadpool {
         Function r = std::move(m_fun_vec[m_pop_ptr].m_fun);
         m_fun_vec[m_pop_ptr].m_fun.~Function();
         #endif
-        if (++m_pop_ptr == m_fun_vec.size()) m_pop_ptr = 0;
+        if (++m_pop_ptr == m_size) m_pop_ptr = 0;
         return r;
       }
 
       std::size_t
       size() const {
-        std::size_t r = m_push_ptr + m_fun_vec.size() - m_pop_ptr;
-        if (r >= m_fun_vec.size()) r -= m_fun_vec.size();
-        return r;
+        return ((m_push_ptr + m_size) - m_pop_ptr) % m_size;
       }
 
       bool        empty() const { return m_push_ptr == m_pop_ptr; }
-      std::size_t capacity()    { return m_fun_vec.size() - 1; }
+      std::size_t capacity()    { return m_size - 1; }
 
       void
-      reserve(std::size_t s) {
+      reserve( std::size_t s ) {
         assert(empty()); // Copying / moving of Fun not supported.
-        if (s >= m_fun_vec.size()) m_fun_vec.resize(s + 1);
+        if ( s >= m_size ) {
+          m_fun_vec.resize(s + 1);
+          m_size = s+1;
+        }
       }
 
       ~Queue() { while (!empty()) pop(); }
