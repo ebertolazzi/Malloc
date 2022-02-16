@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Class Hierarchy &#8212; Utils v1.2
+    <title>Class Hierarchy &#8212; Utils v1.4
 </title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/cloud.css" />
@@ -73,65 +73,116 @@
 <ul class="treeView" id="class-treeView">
   <li>
     <ul class="collapsibleList">
-      <li>Namespace <a href="namespace_rang.html#namespace-rang">rang</a><ul>
-<li>Enum <a href="enum_a00084_1ad33ed681a0b63f07283bbb55d19da7d2.html#exhale-enum-a00084-1ad33ed681a0b63f07283bbb55d19da7d2">bg</a>
+      <li>Namespace <a href="namespace_quickpool.html#namespace-quickpool">quickpool</a><ul>
+<li>Namespace <a href="namespace_quickpool__loop.html#namespace-quickpool-loop">quickpool::loop</a><ul>
+<li>Struct <a href="struct_a00163.html#exhale-struct-a00163">State</a>
 </li>
-<li>Enum <a href="enum_a00084_1a42edf1c1b0d8e843ceb1208259177f08.html#exhale-enum-a00084-1a42edf1c1b0d8e843ceb1208259177f08">bgB</a>
+<li class="lastChild">Template Struct <a href="struct_a00167.html#exhale-struct-a00167">Worker</a>
 </li>
-<li>Enum <a href="enum_a00084_1a9a0ad8048ed47f032f5bdb687ba64164.html#exhale-enum-a00084-1a9a0ad8048ed47f032f5bdb687ba64164">control</a>
+</ul>
 </li>
-<li>Enum <a href="enum_a00084_1a41a68f6ed991b29fa720fcfbcd319ef9.html#exhale-enum-a00084-1a41a68f6ed991b29fa720fcfbcd319ef9">fg</a>
+<li>Namespace <a href="namespace_quickpool__mem.html#namespace-quickpool-mem">quickpool::mem</a><ul>
+<li>Namespace <a href="namespace_quickpool__mem__aligned.html#namespace-quickpool-mem-aligned">quickpool::mem::aligned</a><ul>
+<li>Template Struct <a href="struct_a00155.html#exhale-struct-a00155">atomic</a>
 </li>
-<li>Enum <a href="enum_a00084_1a3b83d0d73d49b5a75c3b92031f2c77ee.html#exhale-enum-a00084-1a3b83d0d73d49b5a75c3b92031f2c77ee">fgB</a>
+<li>Template Struct <a href="struct_a00159.html#exhale-struct-a00159">relaxed_atomic</a>
 </li>
-<li>Enum <a href="enum_a00084_1add4e682fec2856474978ff76efcc8b4e.html#exhale-enum-a00084-1add4e682fec2856474978ff76efcc8b4e">style</a>
+<li class="lastChild">Template Class <a href="class_a00147.html#exhale-class-a00147">allocator</a><ul><li class="lastChild">Template Struct <a href="struct_a00151.html#exhale-struct-a00151">allocator::rebind</a>
+</li></ul>
 </li>
-<li class="lastChild">Enum <a href="enum_a00084_1af70222b38ecff8fc5aef0958d052b433.html#exhale-enum-a00084-1af70222b38ecff8fc5aef0958d052b433">winTerm</a>
+</ul>
+</li>
+<li class="lastChild">Namespace <a href="namespace_quickpool__mem__padding_impl.html#namespace-quickpool-mem-padding-impl">quickpool::mem::padding_impl</a><ul>
+<li>Struct <a href="struct_a00139.html#exhale-struct-a00139">empty_struct</a>
+</li>
+<li>Template Struct <a href="struct_a00143.html#exhale-struct-a00143">padding</a>
+</li>
+<li class="lastChild">Template Struct <a href="struct_a00135.html#exhale-struct-a00135">padding_bytes</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Namespace <a href="namespace_quickpool__sched.html#namespace-quickpool-sched">quickpool::sched</a><ul>
+<li>Template Class <a href="class_a00171.html#exhale-class-a00171">RingBuffer</a>
+</li>
+<li>Class <a href="class_a00179.html#exhale-class-a00179">TaskManager</a>
+</li>
+<li class="lastChild">Class <a href="class_a00175.html#exhale-class-a00175">TaskQueue</a>
+</li>
+</ul>
+</li>
+<li class="lastChild">Class <a href="class_a00183.html#exhale-class-a00183">ThreadPool</a>
+</li>
+</ul>
+</li>
+<li>Namespace <a href="namespace_rang.html#namespace-rang">rang</a><ul>
+<li>Enum <a href="enum_a00102_1ad33ed681a0b63f07283bbb55d19da7d2.html#exhale-enum-a00102-1ad33ed681a0b63f07283bbb55d19da7d2">bg</a>
+</li>
+<li>Enum <a href="enum_a00102_1a42edf1c1b0d8e843ceb1208259177f08.html#exhale-enum-a00102-1a42edf1c1b0d8e843ceb1208259177f08">bgB</a>
+</li>
+<li>Enum <a href="enum_a00102_1a9a0ad8048ed47f032f5bdb687ba64164.html#exhale-enum-a00102-1a9a0ad8048ed47f032f5bdb687ba64164">control</a>
+</li>
+<li>Enum <a href="enum_a00102_1a41a68f6ed991b29fa720fcfbcd319ef9.html#exhale-enum-a00102-1a41a68f6ed991b29fa720fcfbcd319ef9">fg</a>
+</li>
+<li>Enum <a href="enum_a00102_1a3b83d0d73d49b5a75c3b92031f2c77ee.html#exhale-enum-a00102-1a3b83d0d73d49b5a75c3b92031f2c77ee">fgB</a>
+</li>
+<li>Enum <a href="enum_a00102_1add4e682fec2856474978ff76efcc8b4e.html#exhale-enum-a00102-1add4e682fec2856474978ff76efcc8b4e">style</a>
+</li>
+<li class="lastChild">Enum <a href="enum_a00102_1af70222b38ecff8fc5aef0958d052b433.html#exhale-enum-a00102-1af70222b38ecff8fc5aef0958d052b433">winTerm</a>
 </li>
 </ul>
 </li>
 <li class="lastChild">Namespace <a href="namespace_Utils.html#namespace-Utils">Utils</a><ul>
 <li>Namespace <a href="namespace_Utils__Table.html#namespace-Utils-Table">Utils::Table</a><ul>
-<li>Class <a href="class_a00117.html#exhale-class-a00117">Cell</a>
+<li>Class <a href="class_a00191.html#exhale-class-a00191">Cell</a>
 </li>
-<li>Class <a href="class_a00121.html#exhale-class-a00121">Row</a>
+<li>Class <a href="class_a00195.html#exhale-class-a00195">Row</a>
 </li>
-<li>Class <a href="class_a00113.html#exhale-class-a00113">Style</a>
+<li>Class <a href="class_a00187.html#exhale-class-a00187">Style</a>
 </li>
-<li>Class <a href="class_a00125.html#exhale-class-a00125">Table</a>
+<li>Class <a href="class_a00199.html#exhale-class-a00199">Table</a>
 </li>
-<li class="lastChild">Enum <a href="enum_a00085_1a838fbfaceda96a277539361a0fcd4722.html#exhale-enum-a00085-1a838fbfaceda96a277539361a0fcd4722">Alignment</a>
+<li class="lastChild">Enum <a href="enum_a00103_1a838fbfaceda96a277539361a0fcd4722.html#exhale-enum-a00103-1a838fbfaceda96a277539361a0fcd4722">Alignment</a>
 </li>
 </ul>
 </li>
-<li>Class <a href="class_a00145.html#exhale-class-a00145">Barrier</a>
+<li>Class <a href="class_a00219.html#exhale-class-a00219">Barrier</a>
 </li>
-<li>Template Class <a href="class_a00137.html#exhale-class-a00137">BinarySearch</a>
+<li>Template Class <a href="class_a00211.html#exhale-class-a00211">BinarySearch</a>
 </li>
-<li>Class <a href="class_a00101.html#exhale-class-a00101">Console</a>
+<li>Class <a href="class_a00119.html#exhale-class-a00119">Console</a>
 </li>
-<li>Template Class <a href="class_a00105.html#exhale-class-a00105">Malloc</a>
+<li>Template Class <a href="class_a00123.html#exhale-class-a00123">Malloc</a>
 </li>
-<li>Template Class <a href="class_a00089.html#exhale-class-a00089">Poly</a>
+<li>Template Class <a href="class_a00127.html#exhale-class-a00127">mex_class_handle</a>
 </li>
-<li>Template Class <a href="class_a00109.html#exhale-class-a00109">Quaternion</a>
+<li>Template Class <a href="class_a00107.html#exhale-class-a00107">Poly</a>
 </li>
-<li>Class <a href="class_a00149.html#exhale-class-a00149">SimpleSemaphore</a>
+<li>Template Class <a href="class_a00131.html#exhale-class-a00131">Quaternion</a>
 </li>
-<li>Class <a href="class_a00129.html#exhale-class-a00129">SpinLock</a>
+<li>Class <a href="class_a00247.html#exhale-class-a00247">Runtime_Error</a>
 </li>
-<li>Class <a href="class_a00141.html#exhale-class-a00141">SpinLock_barrier</a>
+<li>Class <a href="class_a00243.html#exhale-class-a00243">Runtime_TraceError</a>
 </li>
-<li>Template Class <a href="class_a00093.html#exhale-class-a00093">Sturm</a><ul><li class="lastChild">Struct <a href="struct_a00097.html#exhale-struct-a00097">Sturm::Interval</a>
+<li>Class <a href="class_a00223.html#exhale-class-a00223">SimpleSemaphore</a>
+</li>
+<li>Class <a href="class_a00203.html#exhale-class-a00203">SpinLock</a>
+</li>
+<li>Class <a href="class_a00215.html#exhale-class-a00215">SpinLock_barrier</a>
+</li>
+<li>Template Class <a href="class_a00111.html#exhale-class-a00111">Sturm</a><ul><li class="lastChild">Struct <a href="struct_a00115.html#exhale-struct-a00115">Sturm::Interval</a>
 </li></ul>
 </li>
-<li>Class <a href="class_a00157.html#exhale-class-a00157">ThreadPool</a>
+<li>Class <a href="class_a00231.html#exhale-class-a00231">ThreadPool</a>
 </li>
-<li>Class <a href="class_a00161.html#exhale-class-a00161">Tokenizer</a>
+<li>Class <a href="class_a00235.html#exhale-class-a00235">TicToc</a>
 </li>
-<li>Class <a href="class_a00133.html#exhale-class-a00133">WaitWorker</a>
+<li>Class <a href="class_a00239.html#exhale-class-a00239">Tokenizer</a>
 </li>
-<li class="lastChild">Class <a href="class_a00153.html#exhale-class-a00153">Worker</a>
+<li>Class <a href="class_a00207.html#exhale-class-a00207">WaitWorker</a>
+</li>
+<li class="lastChild">Class <a href="class_a00227.html#exhale-class-a00227">Worker</a>
 </li>
 </ul>
 </li>

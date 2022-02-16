@@ -180,7 +180,7 @@ namespace threadpool {
   template <class T>
   struct Wrap {
     T value;
-    template<class V> Wrap(V&& value) : value(std::forward<V>(value)) { }
+    template<class V> Wrap(V&& _value) : value(std::forward<V>(_value)) { }
   };
 
   /**

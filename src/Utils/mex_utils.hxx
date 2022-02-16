@@ -19,9 +19,6 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#ifndef MEX_UTILS_dot_HH
-#define MEX_UTILS_dot_HH
-
 #include "mex.h"
 #include <map>
 #include <string>
@@ -151,7 +148,7 @@ namespace Utils {
         break;
       case mxSINGLE_CLASS:
         { float tmp = *static_cast<float*>(ptr);
-          UTILS_MEX_ASSERT0(
+          UTILS_MEX_ASSERT(
             tmp == std::floor(tmp),
             "{} expected int, found {}\n", msg, tmp
           );
@@ -291,7 +288,7 @@ namespace Utils {
   template <typename base>
   inline
   mxArray *
-  convert_ptr_to_mat( base * ptr ) {
+  mex_convert_ptr_to_mx( base * ptr ) {
     mexLock();
     mxArray *out = mxCreateNumericMatrix(1, 1, mxUINT64_CLASS, mxREAL);
     *((uint64_t *)mxGetData(out)) = reinterpret_cast<uint64_t>(
@@ -303,7 +300,7 @@ namespace Utils {
   template <typename base>
   inline
   mex_class_handle<base> *
-  convert_mat_to_handle_ptr( mxArray const * in ) {
+  mex_convert_mx_to_handle_ptr( mxArray const * in ) {
     if ( mxGetNumberOfElements(in) != 1 ||
          mxGetClassID(in) != mxUINT64_CLASS ||
          mxIsComplex(in) )
@@ -318,19 +315,17 @@ namespace Utils {
   template <typename base>
   inline
   base *
-  convert_mat_2_ptr( mxArray const * in ) {
-    return convert_mat_to_handle_ptr<base>(in)->ptr();
+  mex_convert_mx_to_ptr( mxArray const * in ) {
+    return mex_convert_mx_to_handle_ptr<base>(in)->ptr();
   }
 
   template <typename base>
   inline
   void
-  destroy_object( mxArray const * in ) {
-    if ( in != nullptr ) delete convert_mat_to_handle_ptr<base>(in);
+  mex_destroy_object( mxArray const * in ) {
+    if ( in != nullptr ) delete mex_convert_mx_to_handle_ptr<base>(in);
     in = nullptr;
     mexUnlock();
   }
 
 }
-
-#endif

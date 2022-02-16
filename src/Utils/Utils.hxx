@@ -21,11 +21,6 @@
 /// file: Utils.hxx
 ///
 
-#pragma once
-
-#ifndef UTILS_dot_HXX
-#define UTILS_dot_HXX
-
 // select computer architecture
 #if defined(__APPLE__) && defined(__MACH__)
   // osx architecture
@@ -110,7 +105,7 @@
 #include "Numbers.hxx"
 #include "TicToc.hxx"
 #include "ThreadPool.hxx"
-// niot used for the moment
+// not used for the moment
 //#include "quickpool.hxx"
 #include "Quaternion.hxx"
 #include "Table.hxx"
@@ -244,8 +239,6 @@ namespace Utils {
   }
 
 }
-
-#endif
 
 ///
 /// eof: Utils.hxx

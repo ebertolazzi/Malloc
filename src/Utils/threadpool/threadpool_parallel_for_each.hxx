@@ -7,102 +7,102 @@
 
 namespace threadpool {
 
-  /*
-    Now that the queue implementation is done, the definition of a
-    thread pool for container processing is easy.
-  */
-
-  /**
-   * A thread pool to be used as base for container processing.
-   *
-   * \tparam Iterator
-   *	       The iterator type to be used to traverse the container.
-   *
-   * \tparam Last
-   *         The iterator type for the last element.
-   *
-   * \tparam Function
-   *         The function type to execute. Must be callable
-   *         with a reference to a container value_type as
-   *         parameter, e.g.  as void(Element& e).
-   *
-   */
-  template<class Iterator, class Last, class Function>
-  class ForEachThreadPoolImpl {
-    typedef ForEach_Queue<
-      Iterator,
-      Last,
-      Function,
-      is_forward_iterator<Iterator>::value
-    > Queue;
-    Queue                    m_queue;
-    GenericThreadPool<Queue> m_pool;
-
-  public:
-
-    /**
-     * Run a function on all objects in an iterator range.
-     *
-     * \param first
-     *        The start of the range to be processed.
-     *
-     * \param last
-     *        One past the end of the range to be processed.
-     *
-     * \param fun
-     *        The function to apply to all objects
-     *        in the container.
-     *
-     * \param thread_count
-     *        The number of threads to use. If the
-     *        thread count is specified as -1 it
-     *        defaults to the number of available
-     *        hardware threads
-     *        std::thread::hardware_concurrency().
-     *
-     * \param maxpart
-     *        The maximum part of the remaining
-     *        input range that one thread is allowed
-     *        to take.  If maxpart is for example 5
-     *        and 100 elements remain to be
-     *        processed, then a task will take 100 /
-     *        5 = 20 elements and process them. If a
-     *        large value is chosen for maxpart,
-     *        each thread will take small chunks of
-     *        work and will look for more work
-     *        frequently, causing increased
-     *        synchronization overhead. If a small
-     *        value is chosen for maxpart, each
-     *        thread will take huge chunks of work,
-     *        possibly leaving the remaining threads
-     *        out of work at the end. A good value
-     *        might be three times the number of
-     *        threads. A value of 0 enforces
-     *        single-object processing.
-     */
-    ForEachThreadPoolImpl(
-      Iterator   & first,
-      Last const & last,
-      Function   & fun,
-      int thread_count,
-      std::size_t maxpart
-    )
-    : m_queue( first, last, fun, maxpart )
-    , m_pool( m_queue, thread_count )
-    { }
-
-    /**
-     * Collect threads, throw any pending exceptions.
-     *
-     * Use this function if waiting in the desctructor or throwing
-     * exceptions from the destructor is undesirable.  After
-     * join() returned, the thread pool can be destroyed without
-     * delay and without throwing.
-     */
-     void join() { m_pool.join(); }
-	};
-
   namespace parallel {
+
+    /*
+      Now that the queue implementation is done, the definition of a
+      thread pool for container processing is easy.
+    */
+
+    /**
+     * A thread pool to be used as base for container processing.
+     *
+     * \tparam Iterator
+     *	       The iterator type to be used to traverse the container.
+     *
+     * \tparam Last
+     *         The iterator type for the last element.
+     *
+     * \tparam Function
+     *         The function type to execute. Must be callable
+     *         with a reference to a container value_type as
+     *         parameter, e.g.  as void(Element& e).
+     *
+     */
+    template<class Iterator, class Last, class Function>
+    class ForEach_ThreadPool {
+      typedef ForEach_Queue<
+        Iterator,
+        Last,
+        Function,
+        is_forward_iterator<Iterator>::value
+      > Queue;
+      Queue                    m_queue;
+      GenericThreadPool<Queue> m_pool;
+
+    public:
+
+      /**
+       * Run a function on all objects in an iterator range.
+       *
+       * \param first
+       *        The start of the range to be processed.
+       *
+       * \param last
+       *        One past the end of the range to be processed.
+       *
+       * \param fun
+       *        The function to apply to all objects
+       *        in the container.
+       *
+       * \param thread_count
+       *        The number of threads to use. If the
+       *        thread count is specified as -1 it
+       *        defaults to the number of available
+       *        hardware threads
+       *        std::thread::hardware_concurrency().
+       *
+       * \param maxpart
+       *        The maximum part of the remaining
+       *        input range that one thread is allowed
+       *        to take.  If maxpart is for example 5
+       *        and 100 elements remain to be
+       *        processed, then a task will take 100 /
+       *        5 = 20 elements and process them. If a
+       *        large value is chosen for maxpart,
+       *        each thread will take small chunks of
+       *        work and will look for more work
+       *        frequently, causing increased
+       *        synchronization overhead. If a small
+       *        value is chosen for maxpart, each
+       *        thread will take huge chunks of work,
+       *        possibly leaving the remaining threads
+       *        out of work at the end. A good value
+       *        might be three times the number of
+       *        threads. A value of 0 enforces
+       *        single-object processing.
+       */
+      ForEach_ThreadPool(
+        Iterator   & first,
+        Last const & last,
+        Function   & fun,
+        int thread_count,
+        std::size_t maxpart
+      )
+      : m_queue( first, last, fun, maxpart )
+      , m_pool( m_queue, thread_count )
+      { }
+
+      /**
+       * Collect threads, throw any pending exceptions.
+       *
+       * Use this function if waiting in the desctructor or throwing
+       * exceptions from the destructor is undesirable.  After
+       * join() returned, the thread pool can be destroyed without
+       * delay and without throwing.
+       */
+       void join() { m_pool.join(); }
+    };
 
     /**
      * Run a function on all objects in a range of iterators.
@@ -171,7 +171,7 @@ namespace threadpool {
       if (tc <= 1) {
         return std::for_each(first, last, fun);
       } else {
-        ForEachThreadPoolImpl<Iterator, Last, Function>(
+        ForEach_ThreadPool<Iterator, Last, Function>(
           first, last, fun, thread_count, maxpart != 1 ? maxpart : 3 * (tc + 1)
         );
         return std::forward<Function>(fun);

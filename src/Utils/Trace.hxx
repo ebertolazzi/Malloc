@@ -20,13 +20,7 @@
 ///
 /// file: Trace.hxx
 ///
-
-#pragma once
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#ifndef UTILS_TRACE_dot_HH
-#define UTILS_TRACE_dot_HH
 
 #ifndef UTILS_ERROR0
   #define UTILS_ERROR0(MSG) \
@@ -160,8 +154,6 @@ namespace Utils {
   };
 
 }
-
-#endif
 
 ///
 /// eof: Trace.hxx

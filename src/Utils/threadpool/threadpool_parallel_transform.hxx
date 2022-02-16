@@ -7,105 +7,105 @@
 
 namespace threadpool {
 
-  /**
-   * A thread pool to be used as base for container processing.
-   *
-   * \tparam InputIterator
-   *         The iterator type to be used to get input values.
-   *
-   * \tparam OutputIterator
-   *         The iterator type to be used to store the results.
-   *
-   * \tparam Function
-   *         Type of the function to be called with
-   *         successive elements from the input
-   *         iterator. The function must return a result
-   *         which is stored through the result iterator.
-   */
-  template<class InputIterator, class Last,class OutputIterator, class Function>
-  class TransformThreadPoolImpl {
-    typedef Transform_Queue<
-      InputIterator,
-      Last,
-      OutputIterator,
-      Function,
-      is_forward_iterator<InputIterator>::value &&
-      is_forward_iterator<OutputIterator>::value
-    > Queue;
-    Queue                    m_queue;
-    GenericThreadPool<Queue> m_pool;
-
-  public:
-
-    /**
-     * Run a function on all objects in an input iterator range,
-     * store the return values through an output iterator.
-     *
-     * \param first
-     *        The start of the range to be processed.
-     *
-     * \param last
-     *        One past the end of the range to be processed.
-     *
-     * \param result
-     *        The iterator receiving the results.
-     *
-     * \param fun
-     *        The function to apply to all objects in the container.
-     *
-     * \param thread_count
-     *        The number of threads to spawn. If the
-     *        default value of -1 is specified, the
-     *        thread count is determined based on
-     *        the number of available hardware
-     *        threads. A value of 1 selects the
-     *        single-threaded algorithm.
-     *
-     * \param maxpart
-     *        The maximum part of the remaining
-     *        input range that one thread is allowed
-     *        to take.  If maxpart is for example 5
-     *        and 100 elements remain to be
-     *        processed, then a task will take 100 /
-     *        5 = 20 elements and process them. If a
-     *        large value is chosen for maxpart,
-     *        each thread will take small chunks of
-     *        work and will look for more work
-     *        frequently, causing increased
-     *        synchronization overhead. If a small
-     *        value is chosen for maxpart, each
-     *        thread will take huge chunks of work,
-     *        possibly leaving the remaining threads
-     *        out of work at the end. A good value
-     *        might be four times the number of
-     *        threads. A value of 0 enforces
-     *        single-object processing.
-     */
-    TransformThreadPoolImpl(
-      InputIterator  & first,
-      Last const     & last,
-      OutputIterator & result,
-      Function       & fun,
-      int              thread_count,
-      std::size_t      maxpart
-    )
-    : m_queue( first, last, result, fun, maxpart )
-    , m_pool( m_queue, thread_count )
-    { }
-
-    /**
-     * Collect threads, throw any pending exceptions.
-     *
-     * Use this function if waiting in the desctructor or throwing
-     * exceptions from the destructor is undesirable.  After
-     * join() returned, the thread pool can be destroyed without
-     * delay and without throwing.
-     */
-    void
-    join() { m_pool.join(); }
-  };
-
   namespace parallel {
+
+    /**
+     * A thread pool to be used as base for container processing.
+     *
+     * \tparam InputIterator
+     *         The iterator type to be used to get input values.
+     *
+     * \tparam OutputIterator
+     *         The iterator type to be used to store the results.
+     *
+     * \tparam Function
+     *         Type of the function to be called with
+     *         successive elements from the input
+     *         iterator. The function must return a result
+     *         which is stored through the result iterator.
+     */
+    template<class InputIterator, class Last,class OutputIterator, class Function>
+    class Transform_ThreadPool {
+      typedef Transform_Queue<
+        InputIterator,
+        Last,
+        OutputIterator,
+        Function,
+        is_forward_iterator<InputIterator>::value &&
+        is_forward_iterator<OutputIterator>::value
+      > Queue;
+      Queue                    m_queue;
+      GenericThreadPool<Queue> m_pool;
+
+    public:
+
+      /**
+       * Run a function on all objects in an input iterator range,
+       * store the return values through an output iterator.
+       *
+       * \param first
+       *        The start of the range to be processed.
+       *
+       * \param last
+       *        One past the end of the range to be processed.
+       *
+       * \param result
+       *        The iterator receiving the results.
+       *
+       * \param fun
+       *        The function to apply to all objects in the container.
+       *
+       * \param thread_count
+       *        The number of threads to spawn. If the
+       *        default value of -1 is specified, the
+       *        thread count is determined based on
+       *        the number of available hardware
+       *        threads. A value of 1 selects the
+       *        single-threaded algorithm.
+       *
+       * \param maxpart
+       *        The maximum part of the remaining
+       *        input range that one thread is allowed
+       *        to take.  If maxpart is for example 5
+       *        and 100 elements remain to be
+       *        processed, then a task will take 100 /
+       *        5 = 20 elements and process them. If a
+       *        large value is chosen for maxpart,
+       *        each thread will take small chunks of
+       *        work and will look for more work
+       *        frequently, causing increased
+       *        synchronization overhead. If a small
+       *        value is chosen for maxpart, each
+       *        thread will take huge chunks of work,
+       *        possibly leaving the remaining threads
+       *        out of work at the end. A good value
+       *        might be four times the number of
+       *        threads. A value of 0 enforces
+       *        single-object processing.
+       */
+      Transform_ThreadPool(
+        InputIterator  & first,
+        Last const     & last,
+        OutputIterator & result,
+        Function       & fun,
+        int              thread_count,
+        std::size_t      maxpart
+      )
+      : m_queue( first, last, result, fun, maxpart )
+      , m_pool( m_queue, thread_count )
+      { }
+
+      /**
+       * Collect threads, throw any pending exceptions.
+       *
+       * Use this function if waiting in the desctructor or throwing
+       * exceptions from the destructor is undesirable.  After
+       * join() returned, the thread pool can be destroyed without
+       * delay and without throwing.
+       */
+      void
+      join() { m_pool.join(); }
+    };
 
     /**
      * Run a function on all objects in a range of iterators, store
@@ -180,7 +180,7 @@ namespace threadpool {
       if (tc <= 1) {
         return std::transform(first, last, result, fun);
       } else {
-        TransformThreadPoolImpl<InputIterator, Last, OutputIterator, Function>(
+        Transform_ThreadPool<InputIterator, Last, OutputIterator, Function>(
           first, last, result, fun, thread_count,
           maxpart != 1 ? maxpart : 3 * (tc + 1)
         );

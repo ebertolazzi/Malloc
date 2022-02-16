@@ -42,9 +42,9 @@ namespace threadpool {
   /**
    * Queue calling the function on single objects.
    *
-   * \relates ForEachThreadPoolImpl
+   * \relates ForEach_ThreadPool
    * Conceptually ForEach_Queue is a member
-   * of class ForEachThreadPoolImpl, but the standard does
+   * of class ForEach_ThreadPool, but the standard does
    * not allow template specialization inside classes. I
    * had to move it out of the class.
    */
@@ -112,9 +112,9 @@ namespace threadpool {
    * forward_iterator = true. For all other iterators, use the
    * general case of the template above.
    *
-   * \relates ForEachThreadPoolImpl
+   * \relates ForEach_ThreadPool
    * Conceptually ForEach_Queue is a member
-   * of class ForEachThreadPoolImpl, but the standard does
+   * of class ForEach_ThreadPool, but the standard does
    * not allow template specialization inside classes. I
    * had to move it out of the class.
    */
@@ -198,9 +198,9 @@ namespace threadpool {
    *         with forward_iterator = false. The specialization
    *         for forward iterators follows below.
    *
-   * \relates TransformThreadPoolImpl
+   * \relates Transform_ThreadPool
    *          Transform_Queue is conceptually a member of class
-   *          TransformThreadPoolImpl, but the standard does not
+   *          Transform_ThreadPool, but the standard does not
    *          allow template specialization inside classes.
    *          I had to move it out of the class.
    */
@@ -225,9 +225,9 @@ namespace threadpool {
     bool             m_do_shutdown = false;
 
     typedef unsigned long long int counter_type;
-    counter_type            m_input_counter    = 1; // Counter of objects got from the queue
-    counter_type            m_output_counter   = 1; // Counter of objects written
-    Results *               m_previous_results = nullptr;
+    counter_type            m_input_counter           = 1; // Counter of objects got from the queue
+    counter_type            m_output_counter          = 1; // Counter of objects written
+    Results *               m_previous_results        = nullptr;
     counter_type            m_max_output_queue_length = 1000; // This should be configurable
     std::mutex              m_output_mutex;
     std::condition_variable m_output_queue_cond;
@@ -352,9 +352,9 @@ namespace threadpool {
    * The function must return a result
    * which is stored through the result iterator.
    *
-   * \relates TransformThreadPoolImpl
+   * \relates Transform_ThreadPool
    * Transform_Queue is conceptually a member
-   * of class TransformThreadPoolImpl, but the standard
+   * of class Transform_ThreadPool, but the standard
    * does not allow template specialization inside classes.
    * I had to move it out of the class.
    */
@@ -552,7 +552,7 @@ namespace threadpool {
       auto x1 = at_scope_exit([this](){
         std::lock_guard<std::mutex> lock(this->m_push_mutex);
         if (--this->m_total_workers == this->m_idle_workers)
-        this->m_waiters_cond.notify_all();;
+          this->m_waiters_cond.notify_all();
       });
 
       Queue functions(1);
@@ -570,7 +570,7 @@ namespace threadpool {
           {
             std::unique_lock<std::mutex> lock(m_push_mutex);
             while (m_queue.empty() && !m_shutting_down) {
-              if ( ++m_idle_workers == m_total_workers ) m_waiters_cond.notify_all();;
+              if ( ++m_idle_workers == m_total_workers ) m_waiters_cond.notify_all();
               m_waiting_workers_cond.wait(lock); // Wait for task to be queued
               m_wakeup_is_pending = false;
               --m_idle_workers;

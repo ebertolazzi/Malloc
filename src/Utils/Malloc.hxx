@@ -21,11 +21,6 @@
 /// file: Malloc.hxx
 ///
 
-#pragma once
-
-#ifndef UTILS_MALLOC_dot_HXX
-#define UTILS_MALLOC_dot_HXX
-
 /*\
 :|:    ____            _       _             __
 :|:   / ___| _     _  (_)_ __ | |_ ___ _ __ / _| __ _  ___ ___
@@ -169,8 +164,6 @@ namespace Utils {
   extern template class Malloc<double*>;
 
 }
-
-#endif
 
 ///
 /// eof: Malloc.hxx

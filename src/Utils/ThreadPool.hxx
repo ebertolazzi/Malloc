@@ -21,11 +21,6 @@
 /// eof: ThreadPool.hxx
 ///
 
-#pragma once
-
-#ifndef UTILS_THREADPOOL_dot_HH
-#define UTILS_THREADPOOL_dot_HH
-
 #include <algorithm>
 #include <utility>
 #include <vector>
@@ -490,8 +485,6 @@ namespace Utils {
   };
 
 }
-
-#endif
 
 ///
 /// eof: ThreadPool.hxx

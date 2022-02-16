@@ -4,7 +4,7 @@
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
- |         | __/ _   ,_         | __/ _   ,_                                | 
+ |         | __/ _   ,_         | __/ _   ,_                                |
  |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
  |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
  |                           /|                   /|                        |
@@ -29,7 +29,7 @@ main() {
     // WRITE
     {
       std::ofstream file("test.txt.gz",std::ios::binary);
-      zstr::ostream gzfile(file); 
+      zstr::ostream gzfile(file);
       for ( int i = 0; i < 100; ++i ) {
         gzfile << i << " ";
         gzfile << "pippo ";

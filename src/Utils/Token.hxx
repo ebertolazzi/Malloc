@@ -21,11 +21,6 @@
 /// file: Token.hxx
 ///
 
-#pragma once
-
-#ifndef UTILS_TOKEN_dot_HXX
-#define UTILS_TOKEN_dot_HXX
-
 //
 // https://stackoverflow.com/questions/53849/how-do-i-tokenize-a-string-in-c
 //
@@ -58,9 +53,6 @@ namespace Utils {
   );
 
 }
-
-
-#endif
 
 ///
 /// eof: Token.hxx

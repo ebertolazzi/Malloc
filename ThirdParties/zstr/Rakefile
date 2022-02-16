@@ -37,12 +37,14 @@ task :install do
         '  #include <zlib.h>'+"\n"+
         '#endif'+we
       );
+      line.gsub!('virtual ~istream()','~istream() override');
+      line.gsub!('virtual ~ostream()','~ostream() override');
+      line.gsub!('virtual ~istreambuf()','~istreambuf() override');
+      line.gsub!('virtual ~ostreambuf()','~ostreambuf() override');
       line.gsub!('virtual ~ifstream()','~ifstream() override');
       line.gsub!('virtual ~ofstream()','~ofstream() override');
       line.gsub!('virtual ~ifstreambuf()','~ifstreambuf() override');
       line.gsub!('virtual ~ofstreambuf()','~ofstreambuf() override');
-      line.gsub!('virtual ~istream()','~istream() override');
-      line.gsub!('virtual ~ostream()','~ostream() override');
       line.gsub!('virtual ~basic_ostream()','~basic_ostream() override');
       line.gsub!('virtual ~basic_istream()','~basic_istream() override');
       out.puts line
