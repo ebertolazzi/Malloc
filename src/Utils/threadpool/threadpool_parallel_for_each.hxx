@@ -86,11 +86,11 @@ namespace threadpool {
         Iterator   & first,
         Last const & last,
         Function   & fun,
-        int thread_count,
-        std::size_t maxpart
+        unsigned     thread_count,
+        unsigned     maxpart
       )
       : m_queue( first, last, fun, maxpart )
-      , m_pool( m_queue, thread_count )
+      , m_pool( &m_queue, thread_count )
       { }
 
       /**

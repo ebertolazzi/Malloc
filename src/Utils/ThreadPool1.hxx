@@ -18,28 +18,11 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// eof: ThreadPool.hxx
+/// file: ThreadPool1.hxx
 ///
-
-#include <algorithm>
-#include <utility>
-#include <vector>
-//#include <type_traits>
-
-#include <thread>
-#include <condition_variable>
-#include <mutex>
-#include <functional>
 
 #ifdef UTILS_OS_LINUX
   #include <pthread.h>
-#endif
-
-#ifdef max
-  #undef max
-#endif
-#ifdef min
-  #undef min
 #endif
 
 namespace Utils {
@@ -334,7 +317,7 @@ namespace Utils {
   \*/
 
   class Worker {
-    friend class ThreadPool;
+    friend class ThreadPool1;
 
     bool             m_active;
     SimpleSemaphore  m_is_running;
@@ -388,6 +371,14 @@ namespace Utils {
 
     void wait() { m_job_done.wait(); }
 
+    void
+    exec( std::function<void()> & fun ) {
+      m_job_done.wait(); // se gia occupato in task aspetta
+      m_job = fun;
+      m_job_done.red();
+      m_is_running.green(); // activate computation
+    }
+
     template < class Func, class... Args >
     void
     run( Func && func, Args && ... args ) {
@@ -408,14 +399,12 @@ namespace Utils {
    |    |_| |_| |_|_|  \___|\__,_|\__,_|_|   \___/ \___/|_|
   \*/
 
-  class ThreadPool {
+  class ThreadPool1 : public ThreadPoolBase {
+
+    std::size_t m_thread_to_send = 0;
+
     // need to keep track of threads so we can join them
     vector<Worker> m_workers;
-
-    //disable copy
-    ThreadPool() = delete;
-    ThreadPool( ThreadPool const & ) = delete;
-    ThreadPool & operator = ( ThreadPool const & ) = delete;
 
     #ifdef UTILS_OS_LINUX
     void
@@ -439,28 +428,48 @@ namespace Utils {
 
   public:
 
-    ThreadPool(
+    ThreadPool1(
       unsigned nthread = max(
         unsigned(1),
         unsigned(thread::hardware_concurrency()-1)
       )
-    ) {
+    )
+    : ThreadPoolBase()
+    {
       m_workers.resize( size_t( nthread ) );
       setup();
     }
 
-    //! Submit a job to be run by the thread pool.
-    template <typename Func, typename... Args>
     void
-    run( unsigned nt, Func && func, Args && ... args ) {
-      m_workers[size_t(nt)].run( func, args...);
+    exec( std::function<void()> && fun ) override {
+      m_workers[m_thread_to_send].exec( fun );
+      if ( ++m_thread_to_send >= m_workers.size() ) m_thread_to_send = 0;
     }
 
-    void wait_all()  { for ( auto && w : m_workers ) w.wait(); }
-    void start_all() { for ( auto && w : m_workers ) w.start(); }
-    void stop_all()  { for ( auto && w : m_workers ) w.stop(); }
+    void
+    wait() override {
+      m_thread_to_send = 0;
+      for ( auto && w : m_workers ) w.wait();
+    }
 
-    unsigned size() const { return unsigned(m_workers.size()); }
+    unsigned
+    thread_count() const override
+    { return unsigned(m_workers.size()); }
+
+    void
+    resize( unsigned numThreads ) override {
+      wait();
+      stop();
+      m_workers.resize( size_t(numThreads) );
+      setup();
+    }
+
+    char const * name() const override { return "ThreadPool1"; }
+
+    // EXTRA
+
+    void start() { m_thread_to_send = 0; for ( auto && w : m_workers ) w.start(); }
+    void stop()  { m_thread_to_send = 0; for ( auto && w : m_workers ) w.stop(); }
 
     thread::id
     get_id( unsigned i ) const
@@ -474,18 +483,18 @@ namespace Utils {
     get_thread( unsigned i )
     { return m_workers[size_t(i)].m_running_thread; }
 
-    void
-    resize( unsigned numThreads ) {
-      wait_all();
-      stop_all();
-      m_workers.resize( size_t(numThreads) );
-      setup();
-    }
+    // ALIAS
+    void wait_all()  { this->wait();  }
+    void start_all() { this->start(); }
+    void stop_all()  { this->stop();  }
+    unsigned size() const { return this->thread_count(); }
 
   };
+
+  using ThreadPool = ThreadPool1;
 
 }
 
 ///
-/// eof: ThreadPool.hxx
+/// eof: ThreadPool1.hxx
 ///

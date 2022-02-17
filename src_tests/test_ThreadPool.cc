@@ -109,9 +109,9 @@ main( int argc, char *argv[] ) {
 
   {
     accumulatore = 0;
-    threadpool::ThreadPool pool2(nt);
-    //fmt::print( "USE {} THREAD\n", pool2.thread_count() );
-    //pool2.resize( nt+1 );
+    Utils::ThreadPool2 pool2(nt);
+    fmt::print( "USE {} THREAD\n", pool2.thread_count() );
+    pool2.resize( nt+1 );
     //pool2.info( std::cout );
     fmt::print( "USE {} THREAD\n", pool2.thread_count() );
 
@@ -153,10 +153,10 @@ main( int argc, char *argv[] ) {
   Utils::ThreadPool TP(nt);
 
   tm.tic();
-  for ( int i = 0; i < NN; ++i ) TP.run( i % nt, do_test, i );
+  for ( int i = 0; i < NN; ++i ) TP.run( do_test, i );
   tm.toc();
   ti0 = tm.elapsed_ms();
-  TP.wait_all();
+  TP.wait();
   tm.toc();
   ti1 = tm.elapsed_ms();
 

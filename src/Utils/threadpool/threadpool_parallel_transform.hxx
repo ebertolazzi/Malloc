@@ -88,11 +88,11 @@ namespace threadpool {
         Last const     & last,
         OutputIterator & result,
         Function       & fun,
-        int              thread_count,
-        std::size_t      maxpart
+        unsigned         thread_count,
+        unsigned         maxpart
       )
       : m_queue( first, last, result, fun, maxpart )
-      , m_pool( m_queue, thread_count )
+      , m_pool( &m_queue, thread_count )
       { }
 
       /**
@@ -255,7 +255,8 @@ namespace threadpool {
         CommonIterator(std::forward<InputIterator>(first)),
         CommonIterator(last),
         std::forward<OutputIterator>(result),
-        std::forward<Function>(fun));
+        std::forward<Function>(fun)
+      );
     }
 
     /**

@@ -27,6 +27,10 @@
 
 namespace Utils {
 
+  using std::size_t;
+  using std::string;
+  using std::vector;
+
   class Tokenizer {
   protected:
     size_t       m_offset;

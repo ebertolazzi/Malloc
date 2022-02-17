@@ -35,7 +35,7 @@ namespace threadpool {
       Iterator   & first,
       Last const & last,
       Function   & fun,
-      std::size_t /*ignored*/ = 0
+      unsigned = 0 /*ignored*/
     )
     : m_current(first)
     , m_last(last)
@@ -95,15 +95,15 @@ namespace threadpool {
   class ForEach_Queue<Iterator, Last, Function, true> : public ForEach_Queue<Iterator, Last, Function, false> {
     typedef ForEach_Queue<Iterator, Last, Function, false> Base;
     typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
-    std::size_t const m_maxpart;
-    difference_type   m_remaining;
+    unsigned const  m_maxpart;
+    difference_type m_remaining;
   public:
 
     ForEach_Queue(
       Iterator   & first,
       Last const & last,
       Function   & fun,
-      std::size_t maxpart
+      unsigned     maxpart
     )
     : Base(first, last, fun)
     , m_maxpart(maxpart)
@@ -204,7 +204,7 @@ namespace threadpool {
     counter_type            m_max_output_queue_length = 1000; // This should be configurable
     std::mutex              m_output_mutex;
     std::condition_variable m_output_queue_cond;
-    std::size_t             m_output_queue_waiters = 0;
+    unsigned                m_output_queue_waiters = 0;
 
   public:
 
@@ -213,7 +213,7 @@ namespace threadpool {
       Last const     & last,
       OutputIterator & result,
       Function       & fun,
-      std::size_t
+      unsigned
     )
     : m_current(first)
     , m_last(last)
@@ -339,7 +339,7 @@ namespace threadpool {
     OutputIterator  & m_result;
     Function        & m_fun;
     std::mutex        m_mutex;
-    std::size_t const m_maxpart;
+    unsigned const    m_maxpart;
     difference_type   m_remaining;
   public:
     Transform_Queue(
@@ -347,7 +347,7 @@ namespace threadpool {
       Last const     & last,
       OutputIterator & result,
       Function       & fun,
-      std::size_t      maxpart
+      unsigned         maxpart
     )
     : m_current(first)
     , m_last(last)
@@ -431,9 +431,9 @@ namespace threadpool {
         ~Fun() noexcept { }
       };
       std::vector<Fun> m_fun_vec;
-      std::size_t      m_size     = 0;
-      std::size_t      m_push_ptr = 0;
-      std::size_t      m_pop_ptr  = 0;
+      unsigned m_size     = 0;
+      unsigned m_push_ptr = 0;
+      unsigned m_pop_ptr  = 0;
 
       Queue( Queue const & )              = delete;
       Queue( Queue && )                   = delete;
@@ -442,7 +442,9 @@ namespace threadpool {
 
     public:
 
-      Queue( std::size_t s ) : m_fun_vec(s+1), m_size(s+1) { }
+      Queue( unsigned s )
+      : m_fun_vec( std::size_t(s+1) )
+      , m_size(s+1) { }
 
       template<class F>
       void
@@ -464,16 +466,15 @@ namespace threadpool {
         return r;
       }
 
-      std::size_t
-      size() const {
-        return ((m_push_ptr + m_size) - m_pop_ptr) % m_size;
-      }
+      unsigned
+      size() const
+      { return ((m_push_ptr + m_size) - m_pop_ptr) % m_size; }
 
-      bool        empty() const { return m_push_ptr == m_pop_ptr; }
-      std::size_t capacity()    { return m_size - 1; }
+      bool     empty()    const { return m_push_ptr == m_pop_ptr; }
+      unsigned capacity() const { return m_size - 1; }
 
       void
-      reserve( std::size_t s ) {
+      reserve( unsigned s ) {
         assert(empty()); // Copying / moving of Fun not supported.
         if ( s >= m_size ) {
           m_fun_vec.resize(s + 1);
@@ -500,8 +501,7 @@ namespace threadpool {
         the queues fill level decreases.
     */
 
-    std::size_t const       m_queue_size;
-    std::size_t const       m_maxpart;
+    unsigned const          m_maxpart;
     bool                    m_shutting_down;
     unsigned                m_idle_workers;
     unsigned                m_total_workers;
@@ -519,7 +519,7 @@ namespace threadpool {
     void
     help(std::ptrdiff_t return_if_idle) {
 
-      std::size_t min_queue_size = return_if_idle < 0 ? 0 : return_if_idle;
+      unsigned min_queue_size = return_if_idle < 0 ? 0 : return_if_idle;
 
       // Increment total worker count, decrement again on scope exit
       { std::lock_guard<std::mutex> lock(m_push_mutex); ++m_total_workers; }
@@ -534,7 +534,7 @@ namespace threadpool {
 
       for (;;) {
         std::unique_lock<std::mutex> lock(m_pop_mutex);
-        std::size_t queue_size;
+        unsigned queue_size;
 
         // Try to get the next task(s)
         while ((queue_size = m_queue.size()) <= min_queue_size) {
@@ -557,7 +557,7 @@ namespace threadpool {
 
         // There is at least one task in the queue and the back is locked.
 
-        std::size_t stride = (m_maxpart == 0) ? 1 : queue_size / m_maxpart;
+        unsigned stride = (m_maxpart == 0) ? 1 : queue_size / m_maxpart;
         if (stride <= 0) stride = 1;
         if (stride > functions.capacity()) functions.reserve(2 * stride);
         while (stride--) functions.push(m_queue.pop());
@@ -585,14 +585,13 @@ namespace threadpool {
 
   public:
 
-    HQueue( std::size_t queue_size, std::size_t maxpart )
-    : m_queue_size(queue_size ? queue_size : 10000)
-    , m_maxpart(maxpart)
+    HQueue( unsigned queue_size, unsigned maxpart )
+    : m_maxpart(maxpart)
     , m_shutting_down(false)
     , m_idle_workers(0)
     , m_total_workers(0)
     , m_wakeup_is_pending(false)
-    , m_queue(this->m_queue_size)
+    , m_queue(queue_size)
     { }
 
     /**
@@ -611,10 +610,10 @@ namespace threadpool {
     void
     put(C&& c) {
       std::unique_lock<std::mutex> lock(m_push_mutex);
-      while ( m_queue.size() >= m_queue_size ) {
+      while ( m_queue.size() >= m_queue.capacity() ) {
         // No space in the queue. Must wait for workers to advance.
         lock.unlock();
-        try_help(m_queue_size / 2);
+        try_help( m_queue.capacity() / 2 );
         lock.lock();
       }
       // Now there is space in the queue and we have locked the back.
@@ -664,6 +663,10 @@ namespace threadpool {
       if (e != nullptr && !std::uncaught_exception())
         std::rethrow_exception(std::move(e));
     }
+
+    unsigned queue_size() const { return m_queue.capacity(); }
+    unsigned maxpart()    const { return m_maxpart; }
+
   };
 
 } // End of namespace threadpool

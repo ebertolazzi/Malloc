@@ -72,14 +72,30 @@
 #include "fmt/ostream.h"
 #endif
 
+// STL
+#include <cassert>
+#include <iterator>
+#include <utility>	    // For std::move(), std::forward()
+#include <algorithm>
+#include <type_traits>  // For std::remove_reference()
+#include <functional>		// For std::bind()
+
 #include <string>
+#include <vector>
+#include <limits>
+
+// I/O
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <cstdlib>
+
+// C/C++
+#include <cstddef>
 #include <cmath>
 #include <cstdint>
 #include <stdexcept>
+#include <memory>
 
 // disable mingw-std-threads for mingw on MATLAB
 #if (defined(MINGW) || defined(__MINGW32__)) && !defined(MATLAB_MEX_FILE )
@@ -98,18 +114,31 @@
   #include <atomic>
 #endif
 
+#ifdef _MSC_VER
+  // Workaround for visual studio
+  #ifdef max
+    #undef max
+  #endif
+  #ifdef min
+    #undef min
+  #endif
+#endif
+
 #include "rang.hxx"
 #include "Trace.hxx"
 #include "Console.hxx"
 #include "Malloc.hxx"
 #include "Numbers.hxx"
 #include "TicToc.hxx"
-#include "ThreadPool.hxx"
-// not used for the moment
-//#include "quickpool.hxx"
 #include "Quaternion.hxx"
 #include "Table.hxx"
 #include "Token.hxx"
+
+// order must be preserved
+#include "ThreadPoolBase.hxx"
+#include "ThreadPool1.hxx"
+#include "ThreadPool2.hxx"
+// -----------------------
 
 namespace Utils {
 
