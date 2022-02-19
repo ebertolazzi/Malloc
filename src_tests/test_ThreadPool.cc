@@ -20,7 +20,7 @@
 #include "Utils.hh"
 #include "threadpool/threadpool.hh"
 
-static std::atomic_int accumulatore;
+static std::atomic<unsigned> accumulator;
 
 class Counter {
   Utils::BinarySearch<int> bs;
@@ -65,19 +65,49 @@ void
 do_test( int n ) {
   Counter c;
   int nn = 1+((n*14)%157);
+  //int nn = 40;
   for ( int i = 0; i < nn; ++i ) {
     //Utils::sleep_for_milliseconds(1);
+    std::this_thread::sleep_for(std::chrono::nanoseconds(10));
     c.inc();
   }
-  accumulatore += c.get();
+  accumulator += c.get();
   //c.print();
+}
+
+
+template <class TP>
+void
+test_TP( int NN, int nt, char const * name ) {
+  Utils::TicToc tm;
+
+  double ti0, ti1;
+
+  accumulator = 0;
+  TP pool(nt);
+  tm.tic();
+  for ( int i = 0; i < NN; ++i) pool.run( do_test, i );
+  tm.toc();
+  ti0 = tm.elapsed_ms();
+
+  //pool.wait();
+  pool.join();
+  tm.toc();
+  ti1 = tm.elapsed_ms();
+
+  pool.info(std::cout);
+
+  fmt::print(
+    "[{}] result {} [{}ms,{}ms]\n",
+    name, accumulator, ti0, ti1
+  );
 }
 
 int
 main( int argc, char *argv[] ) {
   Utils::TicToc tm;
 
-  int NN = 50000;
+  int NN = 1000;
   int nt = 10;
   double ti0, ti1;
 
@@ -85,87 +115,19 @@ main( int argc, char *argv[] ) {
 
   fmt::print( "NT = {}\n", nt);
 
-#if 0
-  {
-    accumulatore = 0;
-    quickpool::ThreadPool pool(nt);
-    tm.tic();
-    for ( int i = 0; i < NN; ++i)
-      pool.push( do_test, i );
-    tm.toc();
-    ti0 = tm.elapsed_ms();
-    pool.wait();
-    tm.toc();
-    ti1 = tm.elapsed_ms();
-  }
+  accumulator = 0;
+  for ( int i = 0; i < NN; ++i) do_test(i);
+  fmt::print("[No Thread]   result {}\n", accumulator );
 
-  fmt::print(
-    "Elapsed [quickpool] {} ms\n"
-    "                    {} ms\n"
-    "                    {}\n\n",
-    ti0, ti1, accumulatore
-  );
-#endif
+  test_TP<Utils::ThreadPool1>( NN, nt, "ThreadPool1");
 
-  {
-    accumulatore = 0;
-    Utils::ThreadPool2 pool2(nt);
-    fmt::print( "USE {} THREAD\n", pool2.thread_count() );
-    pool2.resize( nt+1 );
-    //pool2.info( std::cout );
-    fmt::print( "USE {} THREAD\n", pool2.thread_count() );
+  test_TP<Utils::ThreadPool2>( NN, nt, "ThreadPool2");
 
-    tm.tic();
-    for ( int i = 0; i < NN; ++i)
-      //pool2.run( [i]{ do_test(i); } );
-      pool2.run( do_test, i );
-    tm.toc();
-    ti0 = tm.elapsed_ms();
-    pool2.wait();
-    tm.toc();
-    ti1 = tm.elapsed_ms();
-  }
+  test_TP<Utils::ThreadPool3>( NN, nt, "ThreadPool3");
 
-  fmt::print(
-    "Elapsed [threadpool] {} ms\n"
-    "                     {} ms\n"
-    "                     {}\n\n",
-    ti0, ti1, accumulatore
-  );
+  test_TP<Utils::ThreadPool4>( NN, nt, "ThreadPool4");
 
-  std::vector<int> a = {0,1,2,3,4,5,6,7,8,9};
-  threadpool::parallel::for_each<8>(a, [](int&e){ e *= 2; });
-  for ( int i = 0; i < a.size(); ++i )
-    fmt::print( "a[{}] = {}\n", i, a[i] );
-
-  std::string s("hello");
-  threadpool::parallel::transform<8>(s.begin(), s.end(), s.begin(),
-    [](unsigned char c) -> unsigned char { return std::toupper(c); }
-  );
-
-  fmt::print("s = {}\n",s);
-
-
-
-
-  accumulatore = 0;
-
-  Utils::ThreadPool TP(nt);
-
-  tm.tic();
-  for ( int i = 0; i < NN; ++i ) TP.run( do_test, i );
-  tm.toc();
-  ti0 = tm.elapsed_ms();
-  TP.wait();
-  tm.toc();
-  ti1 = tm.elapsed_ms();
-
-  fmt::print(
-    "Elapsed {} ms\n"
-    "        {} ms\n"
-    "        {}\n\n",
-    ti0, ti1, accumulatore
-  );
+  test_TP<Utils::ThreadPool5>( NN, nt, "ThreadPool5");
 
   fmt::print("All done folks!\n\n");
   return 0;

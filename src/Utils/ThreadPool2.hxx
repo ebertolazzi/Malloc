@@ -1,7 +1,5 @@
 /**
- * \file threadpool/threadpool.h
- *
- * Threadpool for C++11, header for thread pool
+ * Threadpool for C++11
  *
  * \copyright 2021 Enrico Bertolazzi
  *
@@ -35,108 +33,33 @@ namespace Utils {
   template <class Function>
   class HQueue {
 
-    /*
-      If we would use a deque, we would have to protect
-      against overlapping accesses to the front and the
-      back. The standard containers do not allow this. Use a
-      vector instead.  With a vector it is possible to access
-      both ends of the queue at the same time, as push()ing
-      and pop()ing does not modify the container itself but
-      only its elements.
-    */
-    class Queue {
-      union Fun {
-        #ifdef _MSC_VER // Work around Visual C++ bug, does not like constructable objects in unions
-        alignas(Function) char fun[sizeof(Function)];
-        #else // Standard conforming, C++11 9.5
-        Function m_fun; // Only used between pop_ptr and push_ptr
-        #endif
-        Fun() noexcept { }
-        Fun( Fun const & ) noexcept { }
-        Fun( Fun && ) noexcept { }
-        ~Fun() noexcept { }
-      };
-      std::vector<Fun> m_fun_vec;
-      unsigned m_size     = 0;
-      unsigned m_push_ptr = 0;
-      unsigned m_pop_ptr  = 0;
-
-      Queue( Queue const & )              = delete;
-      Queue( Queue && )                   = delete;
-      Queue& operator = ( Queue const & ) = delete;
-      Queue& operator = ( Queue && )      = delete;
-
-    public:
-
-      Queue( unsigned s )
-      : m_fun_vec( std::size_t(s+1) )
-      , m_size(s+1) { }
-
-      template<class F>
-      void
-      push( F && f ) {
-        new (&m_fun_vec[m_push_ptr].m_fun) Function(std::forward<F>(f));
-        if (++m_push_ptr == m_size) m_push_ptr = 0;
-      }
-
-      Function
-      pop() {
-        #ifdef _MSC_VER // Work around Visual C++ bug, does not like constructable objects in unions
-        Function r = std::move(reinterpret_cast<Function&>(m_fun_vec[m_pop_ptr].m_fun));
-        reinterpret_cast<Function&>(m_fun_vec[pop_ptr].m_fun).~Function();
-        #else
-        Function r = std::move(m_fun_vec[m_pop_ptr].m_fun);
-        m_fun_vec[m_pop_ptr].m_fun.~Function();
-        #endif
-        if (++m_pop_ptr == m_size) m_pop_ptr = 0;
-        return r;
-      }
-
-      unsigned
-      size() const
-      { return ((m_push_ptr + m_size) - m_pop_ptr) % m_size; }
-
-      bool     empty()    const { return m_push_ptr == m_pop_ptr; }
-      unsigned capacity() const { return m_size - 1; }
-
-      void
-      reserve( unsigned s ) {
-        assert(empty()); // Copying / moving of Fun not supported.
-        if ( s >= m_size ) {
-          m_fun_vec.resize(s + 1);
-          m_size = s+1;
-        }
-      }
-
-      ~Queue() { while (!empty()) pop(); }
-    };
-
-    /*
+    /*\
       This queue requires attention for protection against
       concurrent access. Protect against:
-      - Concurrent access by two worker threads both
-        wanting to get() a task from the queue at the same
-        time.
+
+      - Concurrent access by two worker threads both wanting to get()
+        a task from the queue at the same time.
+
       - Concurrent access by two threads both wanting to
         put() a task into the queue at the same time.
-      - A worker thread having determined that the queue
-        is empty, while at the same time a new task is put()
-        into the queue.
-      - A task wanting to put() a task into the queue
-        having found the queue full, while at the same time
-        the queues fill level decreases.
-    */
 
-    unsigned const          m_maxpart;
-    bool                    m_shutting_down;
-    unsigned                m_idle_workers;
-    unsigned                m_total_workers;
-    bool                    m_wakeup_is_pending;
-    Queue                   m_queue;
-    std::mutex              m_pop_mutex;
-    std::mutex              m_push_mutex;
-    std::condition_variable m_waiting_workers_cond;
-    std::condition_variable m_waiters_cond;
+      - A worker thread having determined that the queue is empty,
+        while at the same time a new task is put() into the queue.
+
+      - A task wanting to put() a task into the queue having found the
+        queue full, while at the same time the queues fill level decreases.
+    \*/
+
+    unsigned const                   m_maxpart;
+    bool                             m_shutting_down;
+    unsigned                         m_idle_workers;
+    unsigned                         m_total_workers;
+    bool                             m_wakeup_is_pending;
+    tp::FixedCapacityQueue<Function> m_queue;
+    std::mutex                       m_pop_mutex;
+    std::mutex                       m_push_mutex;
+    std::condition_variable          m_waiting_workers_cond;
+    std::condition_variable          m_waiters_cond;
 
     /**
      * Get tasks and execute them. Return as soon as the queue
@@ -149,6 +72,7 @@ namespace Utils {
 
       // Increment total worker count, decrement again on scope exit
       { std::lock_guard<std::mutex> lock(m_push_mutex); ++m_total_workers; }
+
       // execute at exit
       auto x1 = at_scope_exit([this](){
         std::lock_guard<std::mutex> lock(this->m_push_mutex);
@@ -156,7 +80,7 @@ namespace Utils {
           this->m_waiters_cond.notify_all();
       });
 
-      Queue functions(1);
+      tp::FixedCapacityQueue<Function> function_queue(1);
 
       for (;;) {
         std::unique_lock<std::mutex> lock(m_pop_mutex);
@@ -185,14 +109,14 @@ namespace Utils {
 
         unsigned stride = (m_maxpart == 0) ? 1 : queue_size / m_maxpart;
         if (stride <= 0) stride = 1;
-        if (stride > functions.capacity()) functions.reserve(2 * stride);
-        while (stride--) functions.push(m_queue.pop());
+        if (stride > function_queue.capacity()) function_queue.reserve(2 * stride);
+        while (stride--) function_queue.push(m_queue.pop());
         lock.unlock();
 
         if ( m_idle_workers && !m_wakeup_is_pending && queue_size )
           m_waiting_workers_cond.notify_one();
 
-        while (!functions.empty()) functions.pop()();
+        while (!function_queue.empty()) function_queue.pop()();
       }
     }
 
@@ -225,8 +149,8 @@ namespace Utils {
      * instead of idly waiting.
      */
     void
-    work(bool return_if_idle) {
-      help(return_if_idle ? 0 : -1);
+    work( bool return_if_idle ) {
+      help( return_if_idle ? 0 : -1 );
     }
 
     /**
@@ -234,9 +158,9 @@ namespace Utils {
     */
     template<class C>
     void
-    put(C&& c) {
+    put( C&& c ) {
       std::unique_lock<std::mutex> lock(m_push_mutex);
-      while ( m_queue.size() >= m_queue.capacity() ) {
+      while ( m_queue.is_full() ) {
         // No space in the queue. Must wait for workers to advance.
         lock.unlock();
         try_help( m_queue.capacity() / 2 );
@@ -245,7 +169,7 @@ namespace Utils {
       // Now there is space in the queue and we have locked the back.
 
       // Enqueue function.
-      if (m_shutting_down) {
+      if ( m_shutting_down ) {
         Function fun(std::forward<C>(c)); // Run Function destructor
       } else {
         // Here we have exclusive access to the head of the queue.
@@ -253,7 +177,7 @@ namespace Utils {
 
         if ( m_idle_workers && !m_wakeup_is_pending ) {
           m_wakeup_is_pending = true;
-          m_waiting_workers_cond.notify_one();
+          m_waiting_workers_cond.notify_one(); // wake up a worker
         }
       }
     }
@@ -270,8 +194,7 @@ namespace Utils {
 
     void
     wait() {
-      if (std::uncaught_exception())
-      shutdown();
+      if ( std::uncaught_exception() ) shutdown();
       std::exception_ptr e;
       std::unique_lock<std::mutex> lock(m_push_mutex);
       while ( !m_queue.empty() || m_idle_workers != m_total_workers ) {
@@ -290,8 +213,8 @@ namespace Utils {
         std::rethrow_exception(std::move(e));
     }
 
-    unsigned queue_size() const { return m_queue.capacity(); }
-    unsigned maxpart()    const { return m_maxpart; }
+    unsigned queue_capacity() const { return m_queue.capacity(); }
+    unsigned maxpart()        const { return m_maxpart; }
 
   };
 
@@ -339,21 +262,11 @@ namespace Utils {
   class GenericThreadPool {
 
     std::mutex               m_mutex;
-    std::exception_ptr       m_pending_exception;
     Queue *                  m_queue;
     std::vector<std::thread> m_worker_threads;
-    bool                     m_ignore_thread_pool_exceptions = true;
 
     //! The main function of the thread.
-    void work() { help(false); }
-
-    //! Wait for all workers to finish.
-    void
-    join_workers() {
-      work(); // Instead of hanging around, help the workers!
-      for ( std::thread & w : m_worker_threads )
-        { if (w.joinable()) w.join(); }
-    }
+    void work() { do_work(false); }
 
     // Copying and moving are not supported.
     GenericThreadPool( GenericThreadPool const & )             = delete;
@@ -382,13 +295,11 @@ namespace Utils {
      *
      */
     GenericThreadPool( Queue * queue, int thread_count )
-    : m_pending_exception(nullptr)
-    , m_queue(queue)
+    : m_queue(queue)
     , m_worker_threads(thread_count)
     {
       for ( std::thread & w : m_worker_threads )
-        //w = std::move(std::thread(std::bind(&GenericThreadPool::work, this)));
-        w = std::thread(std::bind(&GenericThreadPool::work, this));
+        w = std::thread( std::bind( &GenericThreadPool::work, this ) );
     }
 
     /**
@@ -397,39 +308,7 @@ namespace Utils {
      * \param return_if_idle
      *        Never wait for work, return instead.
      */
-    void
-    help( bool return_if_idle ) {
-      if ( m_ignore_thread_pool_exceptions ) {
-        m_queue->work( return_if_idle );
-      } else {
-        try {
-          m_queue->work( return_if_idle );
-        } catch (...) {
-          {
-            std::exception_ptr e = std::current_exception();
-            std::lock_guard<std::mutex> lock(m_mutex);
-            if (!m_pending_exception) m_pending_exception = std::move(e);
-          }
-          m_queue->shutdown();
-        }
-      }
-    }
-
-    /**
-     * Rethrow a potentially pending exception from a worker thread.
-     */
-    void
-    rethrow_exception() {
-      if ( m_pending_exception && !std::uncaught_exception() ) {
-        m_queue->shutdown();
-        join_workers();
-        if (!std::uncaught_exception()) {
-          std::exception_ptr e = m_pending_exception;
-          m_pending_exception = nullptr;
-          std::rethrow_exception(std::move(e));
-        }
-      }
-    }
+    void do_work( bool return_if_idle ) { m_queue->work( return_if_idle ); }
 
     /**
      * Wait for all threads to finish and collect them.
@@ -438,8 +317,9 @@ namespace Utils {
      */
     void
     join() {
-      join_workers();
-      rethrow_exception();
+      work(); // Instead of hanging around, help the workers!
+      for ( std::thread & w : m_worker_threads )
+        { if (w.joinable()) w.join(); }
     }
 
     /**
@@ -483,13 +363,6 @@ namespace Utils {
       if ( std::uncaught_exception() ) m_queue->shutdown();
       join(); // Running threads would continue to access the destructed pool.
     }
-
-    /**
-     * Switch exception handling on/off
-     */
-    void
-    ignore_thread_pool_exceptions( bool flg = true )
-    { m_ignore_thread_pool_exceptions = flg; }
 
     unsigned
     thread_count() const
@@ -574,7 +447,7 @@ namespace Utils {
 
     void
     wait() override {
-      m_pool->help(true); // Help out instead of sitting around idly.
+      m_pool->do_work(true); // Help out instead of sitting around idly.
       m_queue->wait();
     }
 
@@ -591,6 +464,7 @@ namespace Utils {
 
     void
     join() {
+      wait();
       m_queue->shutdown();
       m_pool->join();
     }
@@ -605,9 +479,9 @@ namespace Utils {
      * destructor).
      */
 
-    unsigned thread_count() const override { return m_pool->thread_count(); }
-    unsigned queue_size()   const          { return m_queue->queue_size(); }
-    unsigned maxpart()      const          { return m_queue->maxpart(); }
+    unsigned thread_count()   const override { return m_pool->thread_count(); }
+    unsigned queue_capacity() const          { return m_queue->queue_capacity(); }
+    unsigned maxpart()        const          { return m_queue->maxpart(); }
 
     void
     resize( unsigned thread_count ) override {
@@ -629,7 +503,11 @@ namespace Utils {
 
     char const * name() const override { return "ThreadPool2"; }
 
-    virtual ~ThreadPool2() { wait(); join(); delete m_pool; delete m_queue; }
+    virtual
+    ~ThreadPool2() {
+      wait(); join();
+      delete m_pool; delete m_queue;
+    }
   };
 
 }
@@ -637,4 +515,3 @@ namespace Utils {
 ///
 /// eof: ThreadPool2.hxx
 ///
-

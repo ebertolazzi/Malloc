@@ -61,72 +61,162 @@ namespace Utils {
     virtual unsigned     thread_count() const = 0;
     virtual void         resize( unsigned numThreads ) = 0;
     virtual char const * name() const = 0;
+    virtual void         info( ostream_type & ) const { }
   };
 
-  /**
-   * Call some function at the end of the current block
-   */
-  template <class Destructor>
-  class at_scope_exit_impl {
-    Destructor m_destructor;
-    bool       m_active;
-    at_scope_exit_impl( at_scope_exit_impl const & ) = delete;
-    at_scope_exit_impl & operator=( at_scope_exit_impl const & ) = delete;
-  public:
-    at_scope_exit_impl() : m_active(false) { }
+  namespace tp {
 
-    explicit
-    at_scope_exit_impl( Destructor&& destructor )
-    : m_destructor(std::forward<Destructor>(destructor))
-    , m_active(true)
-    { }
+    /*\
+     |   ___ _            _  ___                    _ _         ___
+     |  | __(_)_ _____ __| |/ __|__ _ _ __  __ _ __(_) |_ _  _ / _ \ _  _ ___ _  _ ___
+     |  | _|| \ \ / -_) _` | (__/ _` | '_ \/ _` / _| |  _| || | (_) | || / -_) || / -_)
+     |  |_| |_/_\_\___\__,_|\___\__,_| .__/\__,_\__|_|\__|\_, |\__\_\\_,_\___|\_,_\___|
+     |                               |_|                  |__/
+    \*/
+    /*\
+        If we would use a deque, we would have to protect
+        against overlapping accesses to the front and the
+        back. The standard containers do not allow this. Use a
+        vector instead.  With a vector it is possible to access
+        both ends of the queue at the same time, as push()ing
+        and pop()ing does not modify the container itself but
+        only its elements.
+    \*/
+    template <class Function>
+    class FixedCapacityQueue {
 
-    explicit
-    at_scope_exit_impl( Destructor const & destructor )
-    : m_destructor(destructor)
-    , m_active(true)
-    { }
+      union Fun {
+        Function m_fun; // Only used between pop_ptr and push_ptr
+        Fun() noexcept { }
+        Fun( Fun const & ) noexcept { }
+        Fun( Fun && ) noexcept { }
+        ~Fun() noexcept { }
+      };
 
-    at_scope_exit_impl(at_scope_exit_impl&& x)
-    : m_destructor(std::move(x.m_destructor))
-    , m_active(x.m_active)
-    { x.m_active = false; }
+      std::vector<Fun> m_fun_vec;
+      unsigned m_size     = 0;
+      unsigned m_capacity = 0;
+      unsigned m_push_ptr = 0;
+      unsigned m_pop_ptr  = 0;
 
-    at_scope_exit_impl&
-    operator=(at_scope_exit_impl&& x) {
-      m_destructor = std::move(x.m_destructor);
-      m_active     = x.m_active;
-      x.m_active   = false;
-    }
+      FixedCapacityQueue( FixedCapacityQueue const & )              = delete;
+      FixedCapacityQueue( FixedCapacityQueue && )                   = delete;
+      FixedCapacityQueue& operator = ( FixedCapacityQueue const & ) = delete;
+      FixedCapacityQueue& operator = ( FixedCapacityQueue && )      = delete;
 
-    ~at_scope_exit_impl() { if (m_active) m_destructor(); }
-  };
+    public:
 
-  /**
-   * Create a variable that when destructed at the end of the scope
-   * executes a destructor function.
-   *
-   * \tparam Destructor&& destructor
-   *         The destructor function, maybe a lambda function.
-   *
-   * Use like this:
-   *
-   * static int a = 0;
-   *
-   * { // Enter scope
-   *     ++a;
-   *     auto x1 = at_scope_exit([&](){ --a; }
-   *     // Do something, possibly throwing an exception
-   * } // x1 goes out of scope, 'delete a' is called.
-   */
-  template<class Function>
-  auto at_scope_exit(Function&& fun) -> at_scope_exit_impl<Function>
-  { return at_scope_exit_impl<Function>(std::forward<Function>(fun)); }
+      FixedCapacityQueue( unsigned capacity )
+      : m_fun_vec( size_t( capacity+1 ) )
+      , m_size( capacity+1 )
+      , m_capacity( capacity )
+      { }
 
-  template<class Function>
-  auto at_scope_exit(Function const & fun) -> at_scope_exit_impl<Function const &>
-  { return at_scope_exit_impl<Function const &>(fun); }
+      void
+      push( Function && f ) {
+        new (&m_fun_vec[m_push_ptr].m_fun) Function(std::forward<Function>(f));
+        if ( ++m_push_ptr == m_size ) m_push_ptr = 0;
+      }
 
+      Function
+      pop() {
+        Function r = std::move(m_fun_vec[m_pop_ptr].m_fun);
+        m_fun_vec[m_pop_ptr].m_fun.~Function();
+        if ( ++m_pop_ptr == m_size ) m_pop_ptr = 0;
+        return r;
+      }
+
+      unsigned size()     const { return ((m_push_ptr + m_size) - m_pop_ptr) % m_size; }
+      bool     empty()    const { return m_push_ptr == m_pop_ptr; }
+      bool     is_full()  const { return this->size() >= m_capacity; }
+      unsigned capacity() const { return m_capacity; }
+
+      void
+      reserve( unsigned capacity ) {
+        assert(empty()); // Copying / moving of Fun not supported.
+        if ( capacity != m_capacity ) {
+          m_size     = capacity+1;
+          m_capacity = capacity;
+          m_fun_vec.resize( m_size );
+        }
+      }
+
+      ~FixedCapacityQueue() { while (!empty()) pop(); }
+    };
+
+    /*\
+     |    ___
+     |   / _ \ _   _  ___ _   _  ___
+     |  | | | | | | |/ _ \ | | |/ _ \
+     |  | |_| | |_| |  __/ |_| |  __/
+     |   \__\_\\__,_|\___|\__,_|\___|
+    \*/
+
+    class Queue {
+    public:
+
+      class TaskData {
+        std::function<void()> m_fun;
+      public:
+        TaskData( std::function<void()> && f ) : m_fun(std::move(f)) { }
+        TaskData( std::function<void()> & f ) : m_fun(f) { }
+        void operator()() { m_fun(); delete this; }
+        ~TaskData() {}
+      };
+
+    private:
+
+      std::vector<TaskData*> m_queue_data;
+
+      unsigned m_size, m_capacity, m_push_ptr, m_pop_ptr;
+
+      Queue( Queue const & )              = delete;
+      Queue( Queue && )                   = delete;
+      Queue& operator = ( Queue const & ) = delete;
+      Queue& operator = ( Queue && )      = delete;
+
+    public:
+
+      Queue( unsigned capacity )
+      : m_queue_data( std::size_t( capacity+1 ) )
+      , m_size( capacity+1 )
+      , m_capacity( capacity )
+      , m_push_ptr( 0 )
+      , m_pop_ptr( 0 )
+      { }
+
+      void
+      push( TaskData * task ) {
+        m_queue_data[m_push_ptr] = task;
+        if ( ++m_push_ptr == m_size ) m_push_ptr = 0;
+      }
+
+      TaskData *
+      pop() {
+        unsigned ipos = m_pop_ptr;
+        if ( ++m_pop_ptr == m_size ) m_pop_ptr = 0;
+        return m_queue_data[ipos];
+      }
+
+      unsigned size()     const { return ((m_push_ptr + m_size) - m_pop_ptr) % m_size; }
+      bool     empty()    const { return m_push_ptr == m_pop_ptr; }
+      bool     is_full()  const { return this->size() >= m_capacity; }
+      unsigned capacity() const { return m_capacity; }
+
+      //! clear queue and delete tasks
+      void clear() { while( !empty() ) delete pop(); }
+
+      void
+      resize( unsigned capacity ) {
+        this->clear();
+        m_size     = capacity+1;
+        m_capacity = capacity;
+        m_queue_data.resize( m_size );
+      }
+
+      ~Queue() {}
+    };
+  }
 }
 
 ///
