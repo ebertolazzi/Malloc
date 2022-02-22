@@ -420,11 +420,7 @@ namespace threadpool {
     */
     class Queue {
       union Fun {
-        #ifdef _MSC_VER // Work around Visual C++ bug, does not like constructable objects in unions
-        alignas(Function) char fun[sizeof(Function)];
-        #else // Standard conforming, C++11 9.5
         Function m_fun; // Only used between pop_ptr and push_ptr
-        #endif
         Fun() noexcept { }
         Fun( Fun const & ) noexcept { }
         Fun( Fun && ) noexcept { }
@@ -455,13 +451,8 @@ namespace threadpool {
 
       Function
       pop() {
-        #ifdef _MSC_VER // Work around Visual C++ bug, does not like constructable objects in unions
-        Function r = std::move(reinterpret_cast<Function&>(m_fun_vec[m_pop_ptr].m_fun));
-        reinterpret_cast<Function&>(m_fun_vec[pop_ptr].m_fun).~Function();
-        #else
         Function r = std::move(m_fun_vec[m_pop_ptr].m_fun);
         m_fun_vec[m_pop_ptr].m_fun.~Function();
-        #endif
         if (++m_pop_ptr == m_size) m_pop_ptr = 0;
         return r;
       }

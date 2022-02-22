@@ -109,7 +109,6 @@ main( int argc, char *argv[] ) {
 
   int NN = 1000;
   int nt = 10;
-  double ti0, ti1;
 
   if ( argc == 2 ) nt = atoi( argv[1] );
 
