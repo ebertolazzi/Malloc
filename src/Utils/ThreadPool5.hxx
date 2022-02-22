@@ -229,10 +229,10 @@ namespace Utils {
 
     void
     info_stack( ostream_type & s ) const {
-      fmt::print( "STACK[{}]: ", m_stack.size() );
+      fmt::print( s, "STACK[{}]: ", m_stack.size() );
       for ( unsigned const & id : m_stack )
-        fmt::print( "{}, ", id );
-      fmt::print("\n");
+        fmt::print( s, "{}, ", id );
+      s << '\n';
     }
 
     void
