@@ -50,20 +50,25 @@ namespace Utils {
   TicToc::toc() {
     LARGE_INTEGER t2;
     QueryPerformanceCounter(&t2);
-    m_t2 = t2.QuadPart;
+    m_t2           = t2.QuadPart;
     m_elapsed_time = (m_t2 - m_t1) * 1000.0 / m_frequency;
-    ;
+  }
+
+  void sleep_for_seconds( unsigned s ) { Sleep(DWORD(s) * 1000); }
+  void sleep_for_milliseconds( unsigned ms ) { Sleep(DWORD(ms)); }
+
+  void
+  sleep_for_microseconds( unsigned mus ) {
+    TicToc tm; tm.tic();
+    while( tm.elapsed_mus() < mus ) tm.toc();
   }
 
   void
-  sleep_for_seconds( unsigned s ) {
-    Sleep(DWORD(s) * 1000);
+  sleep_for_nanoseconds( unsigned ns ) {
+    TicToc tm; tm.tic();
+    while( tm.elapsed_ns() < ns ) tm.toc();
   }
 
-  void
-  sleep_for_milliseconds( unsigned ms ) {
-    Sleep(DWORD(ms));
-  }
 }
 
 #else
@@ -87,6 +92,14 @@ namespace Utils {
   typename TicToc::real_type
   TicToc::elapsed_ms() const
   { return 1e-3*m_elapsed_time.count(); }
+
+  typename TicToc::real_type
+  TicToc::elapsed_mus() const
+  { return m_elapsed_time.count(); }
+
+  typename TicToc::real_type
+  TicToc::elapsed_ns() const
+  { return 1e3*m_elapsed_time.count(); }
 }
 
 #endif

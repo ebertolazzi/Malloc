@@ -162,10 +162,10 @@ namespace Utils {
     typedef Eigen::Matrix<Real,Eigen::Dynamic,1> dvec_t;
 
     typedef struct {
-      Real a;
-      Real b;
-      Real va;
-      Real vb;
+      Real    a;
+      Real    b;
+      Integer va;
+      Integer vb;
     } Interval;
 
   private:

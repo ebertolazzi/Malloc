@@ -21,9 +21,8 @@ namespace Utils {
 
     inline
     void
-    nano_sleep() const {
-      std::this_thread::sleep_for(std::chrono::nanoseconds(10));
-    }
+    nano_sleep() const
+    { sleep_for_nanoseconds(10); }
 
     TaskData *
     pop_task() {

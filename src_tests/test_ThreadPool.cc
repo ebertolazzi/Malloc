@@ -67,8 +67,7 @@ do_test( int n ) {
   int nn = 1+((n*14)%157);
   //int nn = 40;
   for ( int i = 0; i < nn; ++i ) {
-    //Utils::sleep_for_milliseconds(1);
-    std::this_thread::sleep_for(std::chrono::nanoseconds(10));
+    Utils::sleep_for_nanoseconds(10);
     c.inc();
   }
   accumulator += c.get();
