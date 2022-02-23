@@ -17,28 +17,9 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#pragma GCC diagnostic ignored "-Wpadded"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wweak-template-vtables"
-#pragma clang diagnostic ignored "-Wc++98-compat"
-#pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
-#pragma clang diagnostic ignored "-Wpadded"
-#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
-#pragma clang diagnostic ignored "-Wnon-virtual-dtor"
-#pragma clang diagnostic ignored "-Wsigned-enum-bitfield"
-#pragma clang diagnostic ignored "-Wpoison-system-directories"
-#pragma clang diagnostic ignored "-Wexit-time-destructors"
-#pragma clang diagnostic ignored "-Wglobal-constructors"
-#endif
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "Utils.hh"
-
 #include <iostream>
 
 namespace Utils {
@@ -50,7 +31,7 @@ namespace Utils {
   using std::exit;
   using std::cerr;
 
-  mutex MallocMutex;
+  static mutex MallocMutex;
 
   int64_t CountAlloc            = 0;
   int64_t CountFreed            = 0;

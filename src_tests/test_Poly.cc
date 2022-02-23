@@ -4,7 +4,7 @@
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
- |         | __/ _   ,_         | __/ _   ,_                                | 
+ |         | __/ _   ,_         | __/ _   ,_                                |
  |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
  |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
  |                           /|                   /|                        |
@@ -56,7 +56,7 @@ main() {
   p3  = p1 * p2;
   fmt::print( "product of p1 and p2 = {}\n", p3 );
 
-  fmt::print( 
+  fmt::print(
     "product of\n"
     "p3 = {}\n"
     "with\n"
@@ -178,6 +178,7 @@ main() {
 
   STURM.build( P );
   Utils::Sturm<double>::Integer n_roots = STURM.separate_roots( -10, 20 );
+  fmt::print( "N.roots {}\n", n_roots );
 
   Eigen::VectorXd x(10);
   x << -10, -8, -4, 0, 0.99, 1, 1.01, 2, 10, 20;
@@ -194,14 +195,14 @@ main() {
 
   fmt::print( "ROOTS = {}\n", STURM.roots() );
 
-  for ( auto & x : STURM.roots() ) {
-    fmt::print( "P({}) = {}\n", x, P.eval(x) );
+  for ( auto & xx : STURM.roots() ) {
+    fmt::print( "P({}) = {}\n", xx, P.eval(xx) );
   }
 
   Poly<double> const & SP = STURM.get(0);
 
-  for ( auto & x : STURM.roots() ) {
-    fmt::print("P[sturm]({}) = {}\n", x, SP.eval(x) );
+  for ( auto & xx : STURM.roots() ) {
+    fmt::print("P[sturm]({}) = {}\n", xx, SP.eval(xx) );
   }
 
   return 0;

@@ -37,6 +37,8 @@ task :install do
         '  #include <zlib.h>'+"\n"+
         '#endif'+we
       );
+
+      line.gsub!('const char * what()','char const * what() override');
       line.gsub!('virtual ~istream()','~istream() override');
       line.gsub!('virtual ~ostream()','~ostream() override');
       line.gsub!('virtual ~istreambuf()','~istreambuf() override');

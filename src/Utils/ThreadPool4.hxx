@@ -9,6 +9,8 @@ namespace Utils {
 
   class ThreadPool4 : public ThreadPoolBase {
 
+    typedef double real_type;
+
     typedef tp::Queue::TaskData TaskData;
 
     std::atomic<bool>        m_done;
@@ -18,6 +20,12 @@ namespace Utils {
     tp::Queue                m_work_queue; // not thread safe
     std::mutex               m_work_on_queue_mutex;
     //SpinLock                 m_work_on_queue_mutex;
+
+    TicToc                   m_tm;
+    std::vector<real_type>   m_job_ms;
+    std::vector<real_type>   m_pop_ms;
+    std::vector<unsigned>    m_n_job;
+    real_type                m_push_ms;
 
     inline
     void
@@ -40,6 +48,7 @@ namespace Utils {
 
     void
     push_task( TaskData * task ) {
+      m_tm.tic();
       m_work_on_queue_mutex.lock();
       while ( m_work_queue.is_full() ) {
         m_work_on_queue_mutex.unlock();
@@ -48,14 +57,34 @@ namespace Utils {
       }
       m_work_queue.push( task );
       m_work_on_queue_mutex.unlock();
+      m_tm.toc();
+      m_push_ms += m_tm.elapsed_ms();
     }
 
     void
-    worker_thread() {
+    worker_thread(
+      real_type & pop_ms,
+      real_type & job_ms,
+      unsigned  & n_job
+    ) {
+      TicToc m_tm;
       ++m_running_thread;
       while ( !m_done ) {
-        (*pop_task())(); // run and delete task;
+        // ----------------------------
+        m_tm.tic();
+        TaskData * task = pop_task();
+        m_tm.toc();
+        pop_ms += m_tm.elapsed_ms();
+        // ----------------------------
+        m_tm.tic();
+        (*task)(); // run and delete task;
+        m_tm.toc();
+        job_ms += m_tm.elapsed_ms();
+        // ----------------------------
         --m_running_task;
+        ++n_job;
+        // ----------------------------
+        std::this_thread::yield();
       }
       --m_running_thread;
     }
@@ -64,10 +93,24 @@ namespace Utils {
     create_workers( unsigned thread_count ) {
       m_worker_threads.clear();
       m_worker_threads.reserve(thread_count);
-      m_done = false;
+      m_job_ms.resize( std::size_t(thread_count) );
+      m_pop_ms.resize( std::size_t(thread_count) );
+      m_n_job.resize( std::size_t(thread_count) );
+      std::fill( m_job_ms.begin(), m_job_ms.end(), 0 );
+      std::fill( m_pop_ms.begin(), m_pop_ms.end(), 0 );
+      std::fill( m_n_job.begin(), m_n_job.end(), 0 );
+      m_push_ms = 0;
+      m_done    = false;
       try {
         for ( unsigned i=0; i<thread_count; ++i )
-          m_worker_threads.push_back( std::thread(&ThreadPool4::worker_thread,this) );
+          m_worker_threads.push_back(
+            std::thread(
+              &ThreadPool4::worker_thread, this,
+              std::ref(m_pop_ms[i]),
+              std::ref(m_job_ms[i]),
+              std::ref(m_n_job[i])
+            )
+          );
       } catch(...) {
         m_done = true;
         throw;
@@ -119,6 +162,17 @@ namespace Utils {
       m_work_queue.clear(); // remove spurious (null task) remained
       for ( std::thread & w : m_worker_threads ) { if (w.joinable()) w.join(); }
       m_worker_threads.clear(); // destroy the workers threads vector
+    }
+
+    void
+    info( ostream_type & s ) const override {
+      unsigned nw = unsigned(m_pop_ms.size());
+      for ( unsigned i = 0; i < nw; ++i )
+        fmt::print( s,
+          "Worker {:2}, #job = {:4}, [job {:.6} ms, POP {:.6} ms] AVE = {:.6} ms\n",
+          i, m_n_job[i], m_job_ms[i], m_pop_ms[i], m_job_ms[i]/m_n_job[i]
+        );
+      fmt::print( s, "PUSH {:10.6} ms\n\n", m_push_ms );
     }
 
     unsigned thread_count()   const override { return unsigned(m_worker_threads.size()); }

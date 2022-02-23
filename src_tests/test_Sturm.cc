@@ -43,6 +43,8 @@ main() {
   S.build( P );
 
   Utils::Sturm<double>::Integer n_roots = S.separate_roots( 0, 0.1 );
+  fmt::print( "N.roots = {}\n", n_roots );
+
   S.refine_roots(1e-18);
   fmt::print( "Sturm sequence\n{}\n", S );
 

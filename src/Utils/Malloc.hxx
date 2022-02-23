@@ -37,7 +37,7 @@ namespace Utils {
   using std::mutex;
   #endif
 
-  extern std::mutex MallocMutex;
+  //extern std::mutex MallocMutex;
 
   extern int64_t CountAlloc;
   extern int64_t CountFreed;

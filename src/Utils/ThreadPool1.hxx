@@ -36,8 +36,7 @@ namespace Utils {
   \*/
 
   class Worker {
-    //friend class ThreadPool1;
-
+ 
     bool                  m_active;
     SimpleSemaphore       m_is_running;
     std::thread           m_running_thread;
@@ -55,6 +54,7 @@ namespace Utils {
         m_is_running.wait();
         m_job();
         m_is_running.red();
+        //std::this_thread::yield();
       }
     }
 

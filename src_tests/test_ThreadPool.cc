@@ -62,12 +62,12 @@ public:
 
 static
 void
-do_test( int n ) {
+do_test( int n, int sz ) {
   Counter c;
-  int nn = 1+((n*14)%157);
+  int nn = 1+((n*14)%sz);
   //int nn = 40;
   for ( int i = 0; i < nn; ++i ) {
-    Utils::sleep_for_nanoseconds(10);
+    //Utils::sleep_for_nanoseconds(10);
     c.inc();
   }
   accumulator += c.get();
@@ -77,7 +77,7 @@ do_test( int n ) {
 
 template <class TP>
 void
-test_TP( int NN, int nt, char const * name ) {
+test_TP( int NN, int nt, int sz, char const * name ) {
   Utils::TicToc tm;
 
   double ti0, ti1;
@@ -85,48 +85,73 @@ test_TP( int NN, int nt, char const * name ) {
   accumulator = 0;
   TP pool(nt);
   tm.tic();
-  for ( int i = 0; i < NN; ++i) pool.run( do_test, i );
+  for ( int i = 0; i < NN; ++i) pool.run( do_test, i, sz );
+  pool.wait();
   tm.toc();
   ti0 = tm.elapsed_ms();
 
-  //pool.wait();
+  tm.tic();
   pool.join();
   tm.toc();
   ti1 = tm.elapsed_ms();
 
-  pool.info(std::cout);
-
   fmt::print(
-    "[{}] result {} [{}ms,{}ms]\n",
+    "[{}] result {} [{}ms, JOIN {}ms]\n",
     name, accumulator, ti0, ti1
   );
+
+  pool.info(std::cout);
 }
 
 int
 main( int argc, char *argv[] ) {
   Utils::TicToc tm;
 
-  int NN = 1000;
+  int NN = 10000;
   int nt = 10;
+  int sz = 200;
 
-  if ( argc == 2 ) nt = atoi( argv[1] );
+  if ( argc >= 2 ) nt = atoi( argv[1] );
+  if ( argc >= 3 ) sz = atoi( argv[2] );
+  if ( argc == 4 ) NN = atoi( argv[3] );
 
-  fmt::print( "NT = {}\n", nt);
+  fmt::print( "NT = {}\n", nt );
 
   accumulator = 0;
-  for ( int i = 0; i < NN; ++i) do_test(i);
-  fmt::print("[No Thread]   result {}\n", accumulator );
 
-  test_TP<Utils::ThreadPool1>( NN, nt, "ThreadPool1");
+  double ttotal = 0;
+  std::function<void()> fun;
+  for ( int i = 0; i < NN; ++i) {
+    fun = std::bind(do_test,i,sz);
+    //auto  f = [&]() { do_test(i,sz); };
+    tm.tic();
+    fun(); // do_test(i,sz);
+    tm.toc();
+    ttotal += tm.elapsed_ms();
+  }
+  fmt::print(
+    "[No Thread]   result {} [{:.6} ms, AVE = {:.6}]\n",
+    accumulator, ttotal, ttotal/NN
+  );
 
-  test_TP<Utils::ThreadPool2>( NN, nt, "ThreadPool2");
+  test_TP<Utils::ThreadPool1>( NN, nt, sz, "ThreadPool1");
 
-  test_TP<Utils::ThreadPool3>( NN, nt, "ThreadPool3");
+  test_TP<Utils::ThreadPool2>( NN, nt, sz, "ThreadPool2");
 
-  test_TP<Utils::ThreadPool4>( NN, nt, "ThreadPool4");
+  test_TP<Utils::ThreadPool3>( NN, nt, sz, "ThreadPool3");
 
-  test_TP<Utils::ThreadPool5>( NN, nt, "ThreadPool5");
+  test_TP<Utils::ThreadPool4>( NN, nt, sz, "ThreadPool4");
+
+  test_TP<Utils::ThreadPool5>( NN, nt, sz, "ThreadPool5");
 
   fmt::print("All done folks!\n\n");
+
+  //Utils::ThreadPool1 TP(16); // 0%
+  //Utils::ThreadPool2 TP(16); // 0%
+  //Utils::ThreadPool3 TP(16); // 100%
+  Utils::ThreadPool4 TP(16); // 100%
+  //Utils::ThreadPool5 TP(16); // 0%
+  Utils::sleep_for_seconds(10);
+
   return 0;
 }
