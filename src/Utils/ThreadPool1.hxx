@@ -36,11 +36,20 @@ namespace Utils {
   \*/
 
   class Worker {
- 
+
+    typedef double real_type;
+
     bool                  m_active;
-    SimpleSemaphore       m_is_running;
+    UTILS_SEMAPHORE       m_is_running;
     std::thread           m_running_thread;
     std::function<void()> m_job;
+
+    TicToc m_tm;
+
+    unsigned  m_n_job   = 0;
+    real_type m_job_ms  = 0;
+    real_type m_wait_ms = 0;
+    real_type m_push_ms = 0;
 
     //disable copy
     Worker( Worker const & )              = delete;
@@ -50,11 +59,19 @@ namespace Utils {
 
     void
     worker_loop() {
+      TicToc tm;
       while ( m_active ) {
-        m_is_running.wait();
-        m_job();
-        m_is_running.red();
-        //std::this_thread::yield();
+        tm.tic();
+        m_is_running.wait(); // wait to start a job
+        tm.toc();
+        m_wait_ms += tm.elapsed_ms();
+        // ----------------------------
+        tm.tic();
+        m_job(); ++m_n_job;
+        tm.toc();
+        m_job_ms += tm.elapsed_ms();
+        // ----------------------------
+        m_is_running.red();  // job done, wait for a new start
       }
     }
 
@@ -98,20 +115,20 @@ namespace Utils {
     exec( std::function<void()> & fun ) {
       m_is_running.wait_red(); // se gia occupato in task aspetta
       m_job = fun;             // cambia funzione da eseguire
+      m_tm.tic();
       m_is_running.green();    // activate computation
-    }
-
-    template < class Func, class... Args >
-    void
-    run( Func && func, Args && ... args ) {
-      m_is_running.wait_red(); // se gia occupato in task aspetta
-      m_job = std::bind(std::forward<Func>(func),std::forward<Args>(args)...);
-      m_is_running.green();    // activate computation
+      m_tm.toc();
+      m_push_ms += m_tm.elapsed_ms();
     }
 
     std::thread::id     get_id()     const { return m_running_thread.get_id(); }
     std::thread const & get_thread() const { return m_running_thread; }
     std::thread &       get_thread()       { return m_running_thread; }
+
+    unsigned  n_job()   const { return m_n_job; }
+    real_type job_ms()  const { return m_job_ms; }
+    real_type wait_ms() const { return m_wait_ms; }
+    real_type push_ms() const { return m_push_ms; }
 
   };
 
@@ -130,25 +147,7 @@ namespace Utils {
     // need to keep track of threads so we can join them
     std::vector<Worker> m_workers;
 
-    #ifdef UTILS_OS_LINUX
-    void
-    setup() {
-      sched_param sch;
-      int         policy;
-      for ( auto & w: m_workers ) {
-        w.start();
-        std::thread & t = w.get_thread();
-        pthread_getschedparam( t.native_handle(), &policy, &sch );
-        sch.sched_priority = sched_get_priority_max( SCHED_RR );
-        pthread_setschedparam( t.native_handle(), SCHED_RR, &sch );
-      }
-    }
-    #else
-    void
-    setup() {
-      for ( auto & w: m_workers ) w.start();
-    }
-    #endif
+    void setup() { for ( auto & w: m_workers ) w.start(); }
 
   public:
 
@@ -216,6 +215,19 @@ namespace Utils {
     void stop_all()  { this->stop();  }
     unsigned size() const { return this->thread_count(); }
 
+    void
+    info( ostream_type & s ) const override {
+      unsigned i = 0;
+      for ( auto const & w : m_workers )
+        fmt::print( s,
+          "Worker {:2}, #job = {:4}, [job {:.6} mus, WAIT {:.6} mus]"
+          " PUSH = {:.6} mus\n",
+          i++, w.n_job(),
+          1000*w.job_ms()/w.n_job(),
+          1000*w.wait_ms()/w.n_job(),
+          1000*w.push_ms()/w.n_job()
+        );
+    }
   };
 
   using ThreadPool = ThreadPool1;

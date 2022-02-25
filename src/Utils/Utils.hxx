@@ -46,6 +46,9 @@
   #else
     #define UTILS_ARCH32 1
   #endif
+  #include <windows.h>
+  #include <tchar.h>
+  #include <stdio.h>
 #else
   #error "unsupported OS!"
 #endif
@@ -137,6 +140,7 @@
 // order must be preserved
 #include "ThreadUtils.hxx"
 #include "ThreadPoolBase.hxx"
+#include "ThreadPool0.hxx"
 #include "ThreadPool1.hxx"
 #include "ThreadPool2.hxx"
 #include "ThreadPool3.hxx"

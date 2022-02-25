@@ -18,8 +18,7 @@ namespace Utils {
     std::atomic<unsigned>    m_running_thread;
     std::vector<std::thread> m_worker_threads;
     tp::Queue                m_work_queue; // not thread safe
-    std::mutex               m_work_on_queue_mutex;
-    //SpinLock                 m_work_on_queue_mutex;
+    UTILS_MUTEX              m_work_on_queue_mutex;
 
     TicToc                   m_tm;
     std::vector<real_type>   m_job_ms;
@@ -30,7 +29,11 @@ namespace Utils {
     inline
     void
     nano_sleep() const
-    { sleep_for_nanoseconds(10); }
+    #ifdef UTILS_OS_WINDOWS
+    { Sleep(0); }
+    #else
+    { sleep_for_nanoseconds(1); }
+    #endif
 
     TaskData *
     pop_task() {
@@ -167,11 +170,16 @@ namespace Utils {
     void
     info( ostream_type & s ) const override {
       unsigned nw = unsigned(m_pop_ms.size());
-      for ( unsigned i = 0; i < nw; ++i )
+      for ( unsigned i = 0; i < nw; ++i ) {
+        unsigned njob = m_n_job[i];
         fmt::print( s,
-          "Worker {:2}, #job = {:4}, [job {:.6} ms, POP {:.6} ms] AVE = {:.6} ms\n",
-          i, m_n_job[i], m_job_ms[i], m_pop_ms[i], m_job_ms[i]/m_n_job[i]
+          "Worker {:2}, #job = {:4}, "
+          "[job {:.6} mus, POP {:.6} mus]\n",
+          i, njob,
+          1000*m_job_ms[i]/njob,
+          1000*m_pop_ms[i]/njob
         );
+      }
       fmt::print( s, "PUSH {:10.6} ms\n\n", m_push_ms );
     }
 

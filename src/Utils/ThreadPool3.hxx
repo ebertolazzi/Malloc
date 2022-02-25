@@ -18,7 +18,7 @@ namespace Utils {
     std::atomic<unsigned>    m_running_thread;
     std::vector<std::thread> m_worker_threads;
     tp::Queue                m_work_queue; // not thread safe
-    SpinLock                 m_spin_queue;
+    UTILS_SPINLOCK           m_spin_queue;
     // -----------------------------------------
     std::mutex               m_push_queue_mutex;
     std::condition_variable  m_push_queue_cv;
@@ -182,11 +182,16 @@ namespace Utils {
     void
     info( ostream_type & s ) const override {
       unsigned nw = unsigned(m_pop_ms.size());
-      for ( unsigned i = 0; i < nw; ++i )
+      for ( unsigned i = 0; i < nw; ++i ) {
+        unsigned njob = m_n_job[i];
         fmt::print( s,
-          "Worker {:2}, #job = {:4}, [job {:.6} ms, POP {:.6} ms] AVE = {:.6} ms\n",
-          i, m_n_job[i], m_job_ms[i], m_pop_ms[i], m_job_ms[i]/m_n_job[i]
+          "Worker {:2}, #job = {:4}, "
+          "[job {:.6} mus, POP {:.6} mus]\n",
+          i, njob,
+          1000*m_job_ms[i]/njob,
+          1000*m_pop_ms[i]/njob
         );
+      }
       fmt::print( s, "PUSH {:10.6} ms\n\n", m_push_ms );
     }
 

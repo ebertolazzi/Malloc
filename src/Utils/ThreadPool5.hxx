@@ -53,7 +53,7 @@ namespace Utils {
       unsigned              m_job_done_counter = 0;
       unsigned              m_worker_id        = 0;
       ThreadPool5 *         m_tp               = nullptr;
-      SimpleSemaphore       m_is_running;
+      UTILS_SEMAPHORE       m_is_running;
       std::thread           m_running_thread;
       std::function<void()> m_job;
       TicToc                m_tm;
@@ -143,10 +143,12 @@ namespace Utils {
       void
       info( ostream_type & s ) const {
         fmt::print(
-          s,"Worker {:2}, #job = {:5}, [job {:.6} ms, sync {:.6} ms, wait {:.6} ms] AVE = {:.6} ms\n",
+          s,"Worker {:2}, #job = {:5}, "
+          "[job {:.6} mus, sync {:.6} mus, wait {:.6} mus]\n",
           m_worker_id, m_job_done_counter,
-          elapsed_job_ms(), elapsed_sync_ms(), elapsed_wait_ms(),
-          elapsed_job_ms()/m_job_done_counter
+          1000*elapsed_job_ms()/m_job_done_counter,
+          1000*elapsed_sync_ms()/m_job_done_counter,
+          1000*elapsed_wait_ms()/m_job_done_counter
         );
       }
     };

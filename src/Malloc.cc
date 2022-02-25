@@ -31,7 +31,7 @@ namespace Utils {
   using std::exit;
   using std::cerr;
 
-  static mutex MallocMutex;
+  std::mutex MallocMutex;
 
   int64_t CountAlloc            = 0;
   int64_t CountFreed            = 0;

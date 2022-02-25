@@ -30,8 +30,6 @@
 
 namespace Utils {
 
-  #define TOINT64(A) (static_cast<int64_t>(A.HighPart) << 32) | A.LowPart
-
   TicToc::TicToc() : m_elapsed_time(0) {
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
@@ -54,19 +52,39 @@ namespace Utils {
     m_elapsed_time = (m_t2 - m_t1) * 1000.0 / m_frequency;
   }
 
-  void sleep_for_seconds( unsigned s ) { Sleep(DWORD(s) * 1000); }
-  void sleep_for_milliseconds( unsigned ms ) { Sleep(DWORD(ms)); }
+  BOOLEAN
+  nanosleep( LONGLONG ns100 ) {
+	  HANDLE        timer; // Timer handle
+	  LARGE_INTEGER li;	   // Time defintion
+	  // Create timer
+	  if ( !(timer = CreateWaitableTimerW(NULL, TRUE, NULL)) ) return FALSE;
+    // Set timer properties
+	  li.QuadPart = -ns100;
+	  if ( !SetWaitableTimer(timer, &li, 0, NULL, NULL, FALSE) ) {
+		  CloseHandle(timer);
+		  return FALSE;
+  	}
+  	WaitForSingleObject(timer, INFINITE); // Start & wait for timer
+  	CloseHandle(timer);                   // Clean resources
+  	return TRUE;                          // Slept without problems
+  }
+
+  void
+  sleep_for_seconds( unsigned s )
+  { Sleep(DWORD(s) * 1000); }
+
+  void
+  sleep_for_milliseconds( unsigned ms )
+  { Sleep(DWORD(ms)); }
 
   void
   sleep_for_microseconds( unsigned mus ) {
-    TicToc tm; tm.tic();
-    while( tm.elapsed_mus() < mus ) tm.toc();
+    nanosleep( LONGLONG(mus*10) );
   }
 
   void
   sleep_for_nanoseconds( unsigned ns ) {
-    TicToc tm; tm.tic();
-    while( tm.elapsed_ns() < ns ) tm.toc();
+    nanosleep( LONGLONG(ns/100) );
   }
 
 }

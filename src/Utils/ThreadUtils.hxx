@@ -23,6 +23,206 @@
 
 namespace Utils {
 
+  #ifdef UTILS_OS_WINDOWS
+    #define UTILS_SEMAPHORE Utils::WinSemaphore
+    #define UTILS_MUTEX     Utils::WinCriticalSection
+    #define UTILS_SPINLOCK  Utils::WinCriticalSection
+    #define UTILS_BARRIER   Utils::WinBarrier
+  #else
+    #define UTILS_SEMAPHORE Utils::SimpleSemaphore
+    #define UTILS_MUTEX     std::mutex
+    #define UTILS_SPINLOCK  Utils::SpinLock
+    #define UTILS_BARRIER   Utils::Barrier
+  #endif
+
+  #ifdef UTILS_OS_WINDOWS
+
+  class WinMutex {
+    HANDLE m_mutex;
+
+  public:
+
+    WinMutex() : m_mutex(NULL) {
+      m_mutex = CreateMutex(
+        NULL,  // no security descriptor
+        FALSE, // mutex not owned
+        NULL   // object name
+      );
+      UTILS_ASSERT(
+        m_mutex != NULL,
+        "WinMutex(): error: {}.\n", GetLastError()
+      );
+    }
+
+    ~WinMutex() { CloseHandle(m_mutex); }
+
+    void
+    lock() {
+    	DWORD res = WaitForSingleObject(m_mutex, INFINITE);
+      UTILS_ASSERT0( res == WAIT_OBJECT_0, "WinMutex::lock, WAIT_TIMEOUT" );
+    }
+
+    void
+    unlock() {
+    	DWORD res = ReleaseMutex(m_mutex);
+      UTILS_ASSERT0( res == WAIT_OBJECT_0, "WinMutex::lock, WAIT_TIMEOUT" );
+    }
+
+  };
+
+  class WinCriticalSection {
+    CRITICAL_SECTION m_critical;
+  public:
+    WinCriticalSection()
+    { InitializeCriticalSection(&m_critical); }
+    ~WinCriticalSection() { DeleteCriticalSection(&m_critical); }
+    void lock() {	EnterCriticalSection(&m_critical); }
+    void unlock() {	LeaveCriticalSection(&m_critical); }
+    bool try_lock() {	return TRUE == TryEnterCriticalSection(&m_critical); }
+    void wait() {	lock(); unlock(); }
+    CRITICAL_SECTION const & data() const { return m_critical; }
+    CRITICAL_SECTION       & data()       { return m_critical; }
+  };
+
+  class WinSemaphore {
+    int                m_count;
+    WinCriticalSection m_critical;
+    CONDITION_VARIABLE m_condition;
+
+    //void notify_one() noexcept { ReleaseSemaphore( m_semaphore, 1, NULL ); }
+    void notify_one() noexcept { WakeConditionVariable( &m_condition ); }
+    void notify_all() noexcept { WakeAllConditionVariable( &m_condition ); }
+    void wait_cond() noexcept { SleepConditionVariableCS( &m_condition, &m_critical.data(), INFINITE ); }
+
+  public:
+
+    WinSemaphore() { InitializeConditionVariable( &m_condition ); }
+    ~WinSemaphore() {}
+
+    //!
+    //! unblock semaphore
+    //!
+    void
+    green() noexcept {
+      m_critical.lock();
+      m_count = 0;
+      m_critical.unlock();
+      notify_one();
+    }
+
+    //!
+    //! block semaphore
+    //!
+    void
+    red() noexcept {
+      m_critical.lock();
+      m_count = 1;
+      m_critical.unlock();
+      notify_one();
+    }
+
+    //!
+    //! set m_count to value n
+    //!
+    void
+    set( int n ) noexcept {
+      m_critical.lock();
+      m_count = n;
+      m_critical.unlock();
+      notify_one();
+    }
+
+    //!
+    //! increment m_count
+    //!
+    void
+    post() noexcept {
+      m_critical.lock();
+      ++m_count;
+      m_critical.unlock();
+      notify_one();
+    }
+
+    //!
+    //! wait until m_count <= 0
+    //!
+    void
+    wait() {
+      m_critical.lock();
+      while ( m_count > 0 ) wait_cond();
+      m_critical.unlock();
+    }
+
+    //!
+    //! wait until m_count > 0
+    //!
+    void
+    wait_red() {
+      m_critical.lock();
+      while ( m_count <= 0 ) wait_cond();
+      m_critical.unlock();
+    }
+
+    //!
+    //! decrease m_count and wait until m_count <= 0
+    //!
+    void
+    down() noexcept {
+      m_critical.lock();
+      if ( --m_count <= 0 ) {
+        m_critical.unlock();
+        notify_one();
+      } else {
+        m_critical.unlock();
+        wait();
+      }
+    }
+  };
+
+  class WinBarrier {
+    int                m_to_be_done;
+    WinCriticalSection m_critical;
+    CONDITION_VARIABLE m_condition;
+
+    void notify_one() noexcept { WakeConditionVariable( &m_condition ); }
+    void notify_all() noexcept { WakeAllConditionVariable( &m_condition ); }
+    void wait_cond() noexcept { SleepConditionVariableCS( &m_condition, &m_critical.data(), INFINITE ); }
+
+  public:
+    WinBarrier() : m_to_be_done(0) {}
+
+    void
+    setup( int nthreads )
+    { m_to_be_done = nthreads ; }
+
+    void
+    count_down() {
+      m_critical.lock();
+      if ( --m_to_be_done <= 0 ) notify_all() ; // wake up all tread
+      m_critical.unlock();
+    }
+
+    void
+    wait() {
+      m_critical.lock();
+      while( m_to_be_done > 0 ) wait_cond();
+      m_critical.unlock();
+    }
+
+    void
+    count_down_and_wait() {
+      m_critical.lock();
+      if ( --m_to_be_done <= 0 ) {
+        notify_all() ; // wake up all tread
+      } else {
+        while( m_to_be_done > 0 ) wait_cond();
+      }
+      m_critical.unlock();
+    }
+  };
+
+  #endif
+
   /*\
    |   ___      _      _            _
    |  / __|_ __(_)_ _ | |   ___  __| |__
@@ -54,9 +254,6 @@ namespace Utils {
     unlock() noexcept {
       std::atomic_store_explicit( &m_lock, false, std::memory_order_release );
     }
-
-    void lock_and_wait() noexcept { lock(); wait(); }
-
   };
 
   /*\
@@ -179,8 +376,7 @@ namespace Utils {
     //!
     void
     green() noexcept {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      m_count = 0;
+      { std::lock_guard<std::mutex> lock(m_mutex); m_count = 0; }
       if ( m_is_waiting > 0 ) m_cv.notify_one();
     }
 
@@ -189,8 +385,7 @@ namespace Utils {
     //!
     void
     red() noexcept {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      m_count = 1;
+      { std::lock_guard<std::mutex> lock(m_mutex); m_count = 1; }
       if ( m_is_waiting > 0 ) m_cv.notify_one();
     }
 
@@ -199,8 +394,7 @@ namespace Utils {
     //!
     void
     set( int n ) noexcept {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      m_count = n;
+      { std::lock_guard<std::mutex> lock(m_mutex); m_count = n; }
       if ( m_is_waiting > 0 ) m_cv.notify_one();
     }
 
@@ -209,8 +403,7 @@ namespace Utils {
     //!
     void
     post() noexcept {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      ++m_count;
+      { std::lock_guard<std::mutex> lock(m_mutex); ++m_count; }
       if ( m_is_waiting > 0 ) m_cv.notify_one();
     }
 
@@ -299,7 +492,7 @@ namespace Utils {
   private:
     typedef std::pair<std::thread::id,DATA*> DATA_TYPE;
     mutable std::vector<DATA_TYPE>           m_data;
-    mutable SpinLock                         m_spin_write;
+    mutable UTILS_SPINLOCK                   m_spin_write;
     mutable WaitWorker                       m_worker_read;
 
   public:

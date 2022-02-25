@@ -118,21 +118,15 @@ main( int argc, char *argv[] ) {
   fmt::print( "NT = {}\n", nt );
 
   accumulator = 0;
-
-  double ttotal = 0;
-  std::function<void()> fun;
-  for ( int i = 0; i < NN; ++i) {
-    fun = std::bind(do_test,i,sz);
-    //auto  f = [&]() { do_test(i,sz); };
-    tm.tic();
-    fun(); // do_test(i,sz);
-    tm.toc();
-    ttotal += tm.elapsed_ms();
-  }
+  tm.tic();
+  for ( int i = 0; i < NN; ++i) do_test(i,sz);
+  tm.toc();
   fmt::print(
-    "[No Thread]   result {} [{:.6} ms, AVE = {:.6}]\n",
-    accumulator, ttotal, ttotal/NN
+    "[No Thread]   result {} [{:.6} ms, AVE = {:.6} mus]\n",
+    accumulator, tm.elapsed_ms(), 1000*tm.elapsed_ms()/NN
   );
+
+  test_TP<Utils::ThreadPool0>( NN, nt, sz, "ThreadPool0 [fake]");
 
   test_TP<Utils::ThreadPool1>( NN, nt, sz, "ThreadPool1");
 
@@ -146,12 +140,29 @@ main( int argc, char *argv[] ) {
 
   fmt::print("All done folks!\n\n");
 
-  //Utils::ThreadPool1 TP(16); // 0%
-  //Utils::ThreadPool2 TP(16); // 0%
-  //Utils::ThreadPool3 TP(16); // 100%
-  Utils::ThreadPool4 TP(16); // 100%
-  //Utils::ThreadPool5 TP(16); // 0%
-  Utils::sleep_for_seconds(10);
+  #if 0
+
+  fmt::print("ThreadPool1\n");
+  Utils::ThreadPool1 TP1(16); // 0%
+  Utils::sleep_for_seconds(4);
+
+  fmt::print("ThreadPool2\n");
+  Utils::ThreadPool2 TP2(16); // 0%
+  Utils::sleep_for_seconds(4);
+
+  fmt::print("ThreadPool3\n");
+  Utils::ThreadPool3 TP3(16); // 100%
+  Utils::sleep_for_seconds(4);
+
+  fmt::print("ThreadPool4\n");
+  Utils::ThreadPool4 TP4(16); // 100%
+  Utils::sleep_for_seconds(4);
+
+  fmt::print("ThreadPool5\n");
+  Utils::ThreadPool5 TP5(16); // 0%
+  Utils::sleep_for_seconds(4);
+
+  #endif
 
   return 0;
 }

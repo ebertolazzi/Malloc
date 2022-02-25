@@ -64,7 +64,7 @@ namespace Utils {
       // per evitare la ricorsione devo chiamare esplicitamente
       // l'operatore = della classe di base.
       this->dvec_t::operator = (c);
-      m_order = c.size();
+      m_order = Integer(c.size());
     }
 
     // accesso to the Eigen class
