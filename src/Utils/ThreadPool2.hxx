@@ -463,7 +463,7 @@ namespace Utils {
      */
 
     void
-    join() {
+    join() override {
       wait();
       m_queue->shutdown();
       m_pool->join();

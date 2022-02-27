@@ -54,19 +54,19 @@ namespace Utils {
 
   BOOLEAN
   nanosleep( LONGLONG ns100 ) {
-	  HANDLE        timer; // Timer handle
-	  LARGE_INTEGER li;	   // Time defintion
-	  // Create timer
-	  if ( !(timer = CreateWaitableTimerW(NULL, TRUE, NULL)) ) return FALSE;
+    HANDLE        timer; // Timer handle
+    LARGE_INTEGER li;	   // Time defintion
+    // Create timer
+    if ( !(timer = CreateWaitableTimerW(NULL, TRUE, NULL)) ) return FALSE;
     // Set timer properties
-	  li.QuadPart = -ns100;
-	  if ( !SetWaitableTimer(timer, &li, 0, NULL, NULL, FALSE) ) {
-		  CloseHandle(timer);
-		  return FALSE;
-  	}
-  	WaitForSingleObject(timer, INFINITE); // Start & wait for timer
-  	CloseHandle(timer);                   // Clean resources
-  	return TRUE;                          // Slept without problems
+    li.QuadPart = -ns100;
+    if ( !SetWaitableTimer(timer, &li, 0, NULL, NULL, FALSE) ) {
+      CloseHandle(timer);
+      return FALSE;
+    }
+    WaitForSingleObject(timer, INFINITE); // Start & wait for timer
+    CloseHandle(timer);                   // Clean resources
+    return TRUE;                          // Slept without problems
   }
 
   void

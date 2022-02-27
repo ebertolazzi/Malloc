@@ -37,6 +37,7 @@ namespace Utils {
 
   //! Fake thread pool!
   class ThreadPool0 : public ThreadPoolBase {
+    typedef std::function<void()> Func;
 
   public:
 
@@ -46,15 +47,13 @@ namespace Utils {
 
     virtual ~ThreadPool0() {}
 
-    void exec( std::function<void()> && fun ) override { fun(); }
-    void wait() override {}
-    unsigned thread_count() const override { return 1; }
-    void resize( unsigned ) override { }
-    char const * name() const override { return "ThreadPool0 (fake thread)"; }
-    void start() {}
-    void stop()  {}
-    void join()  {}
-    unsigned size() const { return 1; }
+    void         exec( Func && fun )  override { fun(); }
+    void         wait()               override {}
+    void         join()               override {}
+    unsigned     thread_count() const override { return 1; }
+    void         resize( unsigned )   override { }
+    char const * name() const         override { return "ThreadPool0 (fake thread)"; }
+    unsigned     size() const                  { return 1; }
   };
 }
 

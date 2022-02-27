@@ -85,9 +85,11 @@ namespace Utils {
   };
 
   class WinSemaphore {
-    int                m_count;
+    bool               m_is_red;
     WinCriticalSection m_critical;
     CONDITION_VARIABLE m_condition;
+    unsigned           m_waiting_green;
+    unsigned           m_waiting_red;
 
     //void notify_one() noexcept { ReleaseSemaphore( m_semaphore, 1, NULL ); }
     void notify_one() noexcept { WakeConditionVariable( &m_condition ); }
@@ -96,7 +98,12 @@ namespace Utils {
 
   public:
 
-    WinSemaphore() { InitializeConditionVariable( &m_condition ); }
+    WinSemaphore()
+    : m_is_red(false)
+    , m_waiting_green(0)
+    , m_waiting_red(0)
+    { InitializeConditionVariable( &m_condition ); }
+
     ~WinSemaphore() {}
 
     //!
@@ -105,9 +112,10 @@ namespace Utils {
     void
     green() noexcept {
       m_critical.lock();
-      m_count = 0;
+      m_is_red = false;
       m_critical.unlock();
-      notify_one();
+      if      ( m_waiting_green > 1 ) notify_all();
+      else if ( m_waiting_green > 0 ) notify_one();
     }
 
     //!
@@ -116,31 +124,10 @@ namespace Utils {
     void
     red() noexcept {
       m_critical.lock();
-      m_count = 1;
+      m_is_red = true;
       m_critical.unlock();
-      notify_one();
-    }
-
-    //!
-    //! set m_count to value n
-    //!
-    void
-    set( int n ) noexcept {
-      m_critical.lock();
-      m_count = n;
-      m_critical.unlock();
-      notify_one();
-    }
-
-    //!
-    //! increment m_count
-    //!
-    void
-    post() noexcept {
-      m_critical.lock();
-      ++m_count;
-      m_critical.unlock();
-      notify_one();
+      if      ( m_waiting_red > 1 ) notify_all();
+      else if ( m_waiting_red > 0 ) notify_one();
     }
 
     //!
@@ -149,7 +136,9 @@ namespace Utils {
     void
     wait() {
       m_critical.lock();
-      while ( m_count > 0 ) wait_cond();
+      ++m_waiting_green;
+      while ( m_is_red ) wait_cond();
+      --m_waiting_green;
       m_critical.unlock();
     }
 
@@ -159,24 +148,12 @@ namespace Utils {
     void
     wait_red() {
       m_critical.lock();
-      while ( m_count <= 0 ) wait_cond();
+      ++m_waiting_red;
+      while ( !m_is_red ) wait_cond();
+      --m_waiting_red;
       m_critical.unlock();
     }
 
-    //!
-    //! decrease m_count and wait until m_count <= 0
-    //!
-    void
-    down() noexcept {
-      m_critical.lock();
-      if ( --m_count <= 0 ) {
-        m_critical.unlock();
-        notify_one();
-      } else {
-        m_critical.unlock();
-        wait();
-      }
-    }
   };
 
   class WinBarrier {
@@ -232,27 +209,33 @@ namespace Utils {
   \*/
 
   class SpinLock {
-    // see https://geidav.wordpress.com/2016/03/23/test-and-set-spinlocks/
   private:
-    std::atomic<bool> m_lock = {false};
-
+    std::atomic<bool> m_lock;
   public:
-    SpinLock() {}
+    SpinLock() { m_lock = false; }
+    SpinLock( SpinLock const & ) = delete;
+    ~SpinLock() = default;
 
     void
-    wait() const noexcept {
-      for ( unsigned i = 0; m_lock.load(std::memory_order_relaxed) == true; ++i );
+    wait() {
+      while( m_lock.load(std::memory_order_acquire) )
+        std::this_thread::yield();
     }
 
     void
-    lock() noexcept {
-      while ( std::atomic_exchange_explicit(&m_lock, true, std::memory_order_acquire) )
-        wait();
+    lock() {
+      while( m_lock.exchange(true, std::memory_order_acquire) )
+        std::this_thread::yield();
+    }
+
+    bool
+    try_lock() {
+      return !m_lock.exchange(true, std::memory_order_acquire);
     }
 
     void
-    unlock() noexcept {
-      std::atomic_store_explicit( &m_lock, false, std::memory_order_release );
+    unlock() {
+      m_lock.store(false, std::memory_order_release);
     }
   };
 
@@ -364,20 +347,29 @@ namespace Utils {
 
   class SimpleSemaphore {
   private:
-    int                     m_count;
-    unsigned                m_is_waiting;
-    std::mutex              m_mutex;
-    std::condition_variable m_cv;
+    bool                        m_is_red;
+    unsigned                    m_waiting_green;
+    unsigned                    m_waiting_red;
+    std::mutex                  m_mutex;
+    std::condition_variable_any m_cv_red;
+    std::condition_variable_any m_cv_green;
   public:
-    SimpleSemaphore() noexcept : m_count(0), m_is_waiting(0) { }
+    SimpleSemaphore() noexcept
+    : m_is_red(false)
+    , m_waiting_green(0)
+    , m_waiting_red(0)
+    { }
 
     //!
     //! unblock semaphore
     //!
     void
     green() noexcept {
-      { std::lock_guard<std::mutex> lock(m_mutex); m_count = 0; }
-      if ( m_is_waiting > 0 ) m_cv.notify_one();
+      m_mutex.lock();
+      m_is_red = false;
+      m_mutex.unlock();
+      if      ( m_waiting_green > 1 ) m_cv_green.notify_all();
+      else if ( m_waiting_green > 0 ) m_cv_green.notify_one();
     }
 
     //!
@@ -385,26 +377,11 @@ namespace Utils {
     //!
     void
     red() noexcept {
-      { std::lock_guard<std::mutex> lock(m_mutex); m_count = 1; }
-      if ( m_is_waiting > 0 ) m_cv.notify_one();
-    }
-
-    //!
-    //! set m_count to value n
-    //!
-    void
-    set( int n ) noexcept {
-      { std::lock_guard<std::mutex> lock(m_mutex); m_count = n; }
-      if ( m_is_waiting > 0 ) m_cv.notify_one();
-    }
-
-    //!
-    //! increment m_count
-    //!
-    void
-    post() noexcept {
-      { std::lock_guard<std::mutex> lock(m_mutex); ++m_count; }
-      if ( m_is_waiting > 0 ) m_cv.notify_one();
+      m_mutex.lock();
+      m_is_red = true;
+      m_mutex.unlock();
+      if      ( m_waiting_red > 1 ) m_cv_red.notify_all();
+      else if ( m_waiting_red > 0 ) m_cv_red.notify_one();
     }
 
     //!
@@ -412,12 +389,11 @@ namespace Utils {
     //!
     void
     wait() noexcept {
-      std::unique_lock<std::mutex> lock(m_mutex);
-      if ( m_count > 0 ) {
-        ++m_is_waiting;
-        while ( m_count > 0 ) m_cv.wait( lock );
-        --m_is_waiting;
-      }
+      m_mutex.lock();
+      ++m_waiting_green;
+      m_cv_green.wait( m_mutex, [&]()->bool { return !m_is_red; } );
+      --m_waiting_green;
+      m_mutex.unlock();
     }
 
     //!
@@ -425,27 +401,11 @@ namespace Utils {
     //!
     void
     wait_red() noexcept {
-      std::unique_lock<std::mutex> lock(m_mutex);
-      if ( m_count <= 0 ) {
-        ++m_is_waiting;
-        while ( m_count <= 0 ) m_cv.wait( lock );
-        --m_is_waiting;
-      }
-    }
-
-    //!
-    //! decrease m_count and wait until m_count <= 0
-    //!
-    void
-    down() noexcept {
-      std::unique_lock<std::mutex> lock(m_mutex);
-      if ( --m_count <= 0 ) {
-        if ( m_is_waiting > 0 ) m_cv.notify_one();
-      } else {
-        ++m_is_waiting;
-        while ( m_count > 0 ) m_cv.wait( lock );
-        --m_is_waiting;
-      }
+      m_mutex.lock();
+      ++m_waiting_red;
+      m_cv_red.wait( m_mutex, [&]()->bool { return m_is_red; } );
+      --m_waiting_red;
+      m_mutex.unlock();
     }
 
   };

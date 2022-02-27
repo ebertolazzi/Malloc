@@ -58,6 +58,7 @@ namespace Utils {
     }
 
     virtual void         wait() = 0;
+    virtual void         join() = 0;
     virtual unsigned     thread_count() const = 0;
     virtual void         resize( unsigned numThreads ) = 0;
     virtual char const * name() const = 0;
