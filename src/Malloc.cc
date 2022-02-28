@@ -195,7 +195,7 @@ namespace Utils {
   void
   Malloc<T>::memory_exausted( size_t sz ) {
     string reason = fmt::format(
-      "nMalloc<{}>::operator () ({}) -- Memory EXAUSTED\n", m_name, sz
+      "Malloc<{}>::operator () ({}) -- Memory EXAUSTED\n", m_name, sz
     );
     print_trace( __LINE__, __FILE__, reason, cerr );
     exit(0);
@@ -220,6 +220,23 @@ namespace Utils {
       );
       print_trace( __LINE__,__FILE__, tmp, cerr );
     }
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  std::string
+  Malloc<T>::info( char const * const where ) const {
+    std::size_t diff = m_numAllocated > m_numTotValues ?
+                       m_numAllocated - m_numTotValues :
+                       m_numTotValues - m_numAllocated;
+    return fmt::format(
+      "in {} {}\n"
+      "Allocated:  {}\n"
+      "Reserved:   {}\n"
+      "Difference: {} [|A-R|]\n",
+      m_name, where, m_numAllocated, m_numTotValues, diff
+    );
   }
 
   template class Malloc<char>;

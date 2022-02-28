@@ -56,7 +56,7 @@ namespace Utils {
   \*/
 
   //!
-  //! Class manafin memory allocation.
+  //! Class for memory allocation.
   //!
   template <typename T>
   class Malloc {
@@ -139,6 +139,12 @@ namespace Utils {
     //! return an error if memory is not completely used.
     //!
     void must_be_empty( char const * const where ) const;
+
+    //!
+    //! return information of memory allocations.
+    //!
+    std::string info( char const * const where ) const;
+
   };
 
   extern template class Malloc<char>;
@@ -161,6 +167,77 @@ namespace Utils {
   extern template class Malloc<int64_t*>;
   extern template class Malloc<float*>;
   extern template class Malloc<double*>;
+
+  /*\
+  :|:   __  __       _ _            _____ _              _
+  :|:  |  \/  | __ _| | | ___   ___|  ___(_)_  _____  __| |
+  :|:  | |\/| |/ _` | | |/ _ \ / __| |_  | \ \/ / _ \/ _` |
+  :|:  | |  | | (_| | | | (_) | (__|  _| | |>  <  __/ (_| |
+  :|:  |_|  |_|\__,_|_|_|\___/ \___|_|   |_/_/\_\___|\__,_|
+  \*/
+
+  //!
+  //! Class for memory allocation.
+  //!
+  template <typename T, std::size_t mem_size>
+  class MallocFixed {
+  public:
+    typedef T valueType;
+
+  private:
+
+    std::string m_name;
+    std::size_t m_numAllocated;
+    valueType   m_data[mem_size];
+
+    MallocFixed(MallocFixed<T,mem_size> const &) = delete; // blocco costruttore di copia
+    MallocFixed<T,mem_size> const & operator = (MallocFixed<T,mem_size> &) const = delete; // blocco copia
+
+  public:
+
+    //!
+    //! Malloc object constructor
+    //!
+    explicit
+    MallocFixed( std::string const & name )
+    : m_name(name)
+    , m_numAllocated(0)
+    {}
+
+    //!
+    //! Malloc object destructor.
+    //!
+    ~MallocFixed() {}
+
+    //!
+    //! Free memory without deallocating pointer.
+    //!
+    void free(void) { m_numAllocated = 0; }
+
+    //!
+    //! Number of objects allocated.
+    //!
+    size_t size(void) const { return mem_size; }
+
+    //!
+    //! Get pointer of allocated memory for `sz` objets.
+    //!
+    T * operator () ( std::size_t sz ) {
+      std::size_t offs = m_numAllocated;
+      m_numAllocated += sz;
+      UTILS_ASSERT(
+        m_numAllocated <= mem_size,
+        "MallocFixed<{}>::operator () ({}) -- Memory EXAUSTED\n", m_name, sz
+      );
+      return m_data + offs;
+    }
+
+    //!
+    //! `true` if you cannot get more memory pointers.
+    //!
+    bool is_empty() const { return m_numAllocated >= mem_size; }
+
+  };
 
 }
 
