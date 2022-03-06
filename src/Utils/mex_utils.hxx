@@ -71,14 +71,21 @@
 #define arg_out_19 plhs[19]
 
 
-#define UTILS_MEX_ASSERT0( COND, MSG ) if ( !(COND) ) mexErrMsgTxt( MSG )
+#define UTILS_MEX_ASSERT0( COND, MSG ) if ( !(COND) ) Utils::mex_error_message( MSG )
 
 #define UTILS_MEX_ASSERT( COND, FMT, ... ) \
-  UTILS_MEX_ASSERT0( COND, fmt::format( FMT,__VA_ARGS__).c_str() )
+  UTILS_MEX_ASSERT0( COND, fmt::format( FMT,__VA_ARGS__) )
 
 // -----------------------------------------------------------------------------
 
 namespace Utils {
+
+  static
+  inline
+  void
+  mex_error_message( std::string msg ) {
+    mexErrMsgTxt( msg.c_str() );
+  }
 
   static
   inline
@@ -88,6 +95,13 @@ namespace Utils {
     UTILS_MEX_ASSERT0( number_of_dimensions == 2, msg );
     mwSize const * dims = mxGetDimensions(arg);
     return dims[0] == 1 && dims[1] == 1;
+  }
+
+  static
+  inline
+  bool
+  mex_is_scalar( mxArray const * arg, std::string msg ) {
+    return mex_is_scalar( arg, msg.c_str() );
   }
 
   static
@@ -107,10 +121,24 @@ namespace Utils {
 
   static
   inline
+  double
+  mex_get_scalar_value( mxArray const * arg, std::string msg ) {
+    return mex_get_scalar_value( arg, msg.c_str() );
+  }
+
+  static
+  inline
   bool
   mex_get_bool( mxArray const * arg, char const msg[] ) {
     UTILS_MEX_ASSERT0( mxIsLogicalScalar(arg), msg );
     return mxIsLogicalScalarTrue(arg);
+  }
+
+  static
+  inline
+  bool
+  mex_get_bool( mxArray const * arg, std::string msg ) {
+    return mex_get_bool( arg, msg.c_str() );
   }
 
   static
@@ -164,6 +192,13 @@ namespace Utils {
 
   static
   inline
+  int64_t
+  mex_get_int64( mxArray const * arg, string msg ) {
+    return mex_get_int64( arg, msg.c_str() );
+  }
+
+  static
+  inline
   double const *
   mex_vector_pointer(
     mxArray const * arg,
@@ -185,6 +220,17 @@ namespace Utils {
   static
   inline
   double const *
+  mex_vector_pointer(
+    mxArray const * arg,
+    mwSize        & sz,
+    string          msg
+  ) {
+    return mex_vector_pointer( arg, sz, msg.c_str() );
+  }
+
+  static
+  inline
+  double const *
   mex_matrix_pointer(
     mxArray const * arg,
     mwSize        & nr,
@@ -197,6 +243,18 @@ namespace Utils {
     nr = dims[0];
     nc = dims[1];
     return mxGetPr(arg);
+  }
+
+  static
+  inline
+  double const *
+  mex_matrix_pointer(
+    mxArray const * arg,
+    mwSize        & nr,
+    mwSize        & nc,
+    string          msg
+  ) {
+    return mex_matrix_pointer( arg, nr, nc, msg.c_str() );
   }
 
   // -----------------------------------------------------------------------------
