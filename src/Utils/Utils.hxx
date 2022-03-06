@@ -46,7 +46,13 @@
   #else
     #define UTILS_ARCH32 1
   #endif
-  #include <windows.h>
+  // windows headers, order matters!
+  #include <Winsock2.h>
+  #include <Windows.h>
+  #include <Ws2tcpip.h>
+  #include <iptypes.h>
+  #include <Iphlpapi.h>
+  // --------------------
   #include <tchar.h>
   #include <stdio.h>
 #else
@@ -85,6 +91,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <limits>
 
 // I/O
@@ -155,6 +162,18 @@ namespace Utils {
   #endif
 
   std::string basename( char const * const filename );
+
+  void   get_MAC_address( std::map<string,string> & addr );
+  string get_host_name();
+  void   get_IP_address( std::vector<string> & addr );
+  string get_date();
+  string get_day_time();
+  string get_day_time_and_date();
+  string get_user_name();
+  string get_home_directory();
+  bool   check_if_file_exists( char const * dirname );
+  bool   check_if_dir_exists( char const * dirname );
+  string get_executable_path_name();
 
   template <typename T_int, typename T_real>
   void
