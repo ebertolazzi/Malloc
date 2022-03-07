@@ -71,7 +71,7 @@ namespace Utils {
 
     void join() override;
     void resize( unsigned thread_count ) override { resize( thread_count, 0 ); }
-    void resize( unsigned thread_count, unsigned queue_capacity = 0 );
+    void resize( unsigned thread_count, unsigned queue_capacity );
 
     void info( ostream_type & s ) const override;
 

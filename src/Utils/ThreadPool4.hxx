@@ -67,7 +67,7 @@ namespace Utils {
     virtual ~ThreadPool4() { join(); }
 
     void resize( unsigned thread_count ) override { resize( thread_count, 0 ); }
-    void resize( unsigned thread_count, unsigned queue_capacity = 0 );
+    void resize( unsigned thread_count, unsigned queue_capacity );
 
     void
     exec( std::function<void()> && fun ) override
