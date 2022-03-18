@@ -33,7 +33,7 @@ namespace Utils {
     char szHostName[1024];
     bool ok = gethostname( szHostName, 1024 ) == 0;
     if ( ok ) return string(szHostName);
-    return string("");
+    return string{""};
   }
 
   /*
@@ -136,7 +136,7 @@ namespace Utils {
   get_user_name() {
     char const * USER = getenv("USER");
     UTILS_ASSERT( USER != nullptr, "get_user_name, undefined enviroment `USER`" );
-    return string(USER);
+    return string{USER};
   }
 
   /*
@@ -146,7 +146,7 @@ namespace Utils {
   get_home_directory() {
     char const * HOME = getenv("HOME");
     UTILS_ASSERT( HOME != nullptr, "get_home_directory, undefined enviroment `HOME`" );
-    return string(HOME);
+    return string{HOME};
   }
 
   /*
@@ -181,7 +181,7 @@ namespace Utils {
     uint32_t pathNameCapacity = 1024;
     uint32_t pathNameSize     = uint32_t( readlink("/proc/self/exe", pathName, pathNameCapacity - 1) );
     pathName[pathNameSize]    = '\0';
-    return std::string(pathName);
+    return std::string{pathName};
   }
 
 }

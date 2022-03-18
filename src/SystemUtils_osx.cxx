@@ -9,7 +9,6 @@
 #include <netdb.h>
 #include <cstdio>
 #include <unistd.h>
-#include <string.h>
 
 #include <sys/stat.h>
 #include <fstream>
@@ -34,8 +33,8 @@ namespace Utils {
   get_host_name() {
     char szHostName[1024];
     bool ok = gethostname( szHostName, 1024 ) == 0;
-    if ( ok ) return string(szHostName);
-    return string("");
+    if ( ok ) return string{szHostName};
+    return string{""};
   }
 
   /*
@@ -85,7 +84,7 @@ namespace Utils {
 
       for( int i = 0; pHost!= nullptr && pHost->h_addr_list[i]!= nullptr; i++ ) {
         unsigned char * h = reinterpret_cast<unsigned char*>(pHost->h_addr_list[i]);
-        string str = "";
+        string str{""};
         for( int j = 0; j < pHost->h_length; j++ ) {
           if( j > 0 ) str += '.';
           str += fmt::format("{}",h[j]);
@@ -103,7 +102,7 @@ namespace Utils {
   get_user_name() {
     char const * USER = getenv("USER");
     UTILS_ASSERT( USER != nullptr, "get_user_name, undefined enviroment `USER`" );
-    return string(USER);
+    return string{USER};
   }
 
   /*
@@ -113,7 +112,7 @@ namespace Utils {
   get_home_directory() {
     char const * HOME = getenv("HOME");
     UTILS_ASSERT( HOME != nullptr, "get_home_directory, undefined enviroment `HOME`" );
-    return string(HOME);
+    return string{HOME};
   }
 
   /*
@@ -149,7 +148,7 @@ namespace Utils {
     std::vector<char> res(pathNameSize+1);
     if (!_NSGetExecutablePath( res.data(), &pathNameSize)) return "";
     res.push_back('\0');
-    return std::string(res.data());
+    return std::string{res.data()};
   }
 
 }

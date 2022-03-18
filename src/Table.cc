@@ -415,7 +415,7 @@ namespace Utils {
       if ( m_Headings.num_cells() > 0 )
         ss << m_Headings.render() << sep;
 
-      if ( m_Rows.size() > 0 ) {
+      if ( !m_Rows.empty() ) {
         for_each(
           m_Rows.begin(), --m_Rows.end(),
           [&ss, sep]( Row const & row ) -> void {

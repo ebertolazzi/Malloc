@@ -36,6 +36,9 @@
 
 #endif
 
+#endif
+
+
 ///
 /// eof: Utils_eigen.hh
 ///

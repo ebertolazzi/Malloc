@@ -57,15 +57,6 @@ namespace Utils {
     return fmt::format( "{} bytes", nb );
   }
 
-  template <typename T>
-  Malloc<T>::Malloc( string const & name )
-  : m_name(name)
-  , m_numTotValues(0)
-  , m_numTotReserved(0)
-  , m_numAllocated(0)
-  , m_pMalloc(nullptr)
-  { }
-
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
@@ -170,7 +161,7 @@ namespace Utils {
 
   template <typename T>
   void
-  Malloc<T>::hard_free(void) {
+  Malloc<T>::hard_free() {
     if ( m_pMalloc != nullptr ) {
       size_t nb;
       {
@@ -205,7 +196,7 @@ namespace Utils {
 
   template <typename T>
   void
-  Malloc<T>::must_be_empty( char const * const where ) const {
+  Malloc<T>::must_be_empty( char const * where ) const {
     if ( m_numAllocated < m_numTotValues ) {
       string tmp = fmt::format(
         "in {} {}: not fully used!\nUnused: {} values\n",
@@ -226,7 +217,7 @@ namespace Utils {
 
   template <typename T>
   std::string
-  Malloc<T>::info( char const * const where ) const {
+  Malloc<T>::info( char const * where ) const {
     std::size_t diff = m_numAllocated > m_numTotValues ?
                        m_numAllocated - m_numTotValues :
                        m_numTotValues - m_numAllocated;

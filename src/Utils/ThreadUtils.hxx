@@ -212,7 +212,7 @@ namespace Utils {
   private:
     std::atomic<bool> m_lock;
   public:
-    SpinLock() { m_lock = false; }
+    SpinLock() : m_lock(false) { }
     SpinLock( SpinLock const & ) = delete;
     ~SpinLock() = default;
 
@@ -258,7 +258,9 @@ namespace Utils {
 
     explicit
     SpinLock_barrier()
-    : m_generation(0)
+    : m_count(0)
+    , m_generation(0)
+    , m_count_reset_value(0)
     {}
 
     void
@@ -428,7 +430,7 @@ namespace Utils {
     #ifdef UTILS_OS_WINDOWS
     WaitWorker() { n_worker = 0; }
     #else
-    WaitWorker() {}
+    WaitWorker() = default;
     #endif
 
     void
@@ -490,7 +492,7 @@ namespace Utils {
         m_spin_write.lock();
         m_worker_read.wait(); // wait all read finished
         ok = false;
-        U  = m_data.size();
+        U  = m_data.size(); // MAI USATO
         m_data.resize(1);
         DATA_TYPE & dL = m_data[0];
         dL.first = id;
@@ -548,9 +550,12 @@ namespace Utils {
   class at_scope_exit_impl {
     Destructor m_destructor;
     bool       m_active;
+
+  public:
+
     at_scope_exit_impl( at_scope_exit_impl const & ) = delete;
     at_scope_exit_impl & operator=( at_scope_exit_impl const & ) = delete;
-  public:
+
     at_scope_exit_impl() : m_active(false) { }
 
     explicit
@@ -565,7 +570,7 @@ namespace Utils {
     , m_active(true)
     { }
 
-    at_scope_exit_impl(at_scope_exit_impl&& x)
+    at_scope_exit_impl(at_scope_exit_impl&& x) noexcept
     : m_destructor(std::move(x.m_destructor))
     , m_active(x.m_active)
     { x.m_active = false; }

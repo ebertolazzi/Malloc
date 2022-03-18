@@ -57,24 +57,24 @@ namespace Utils {
       real_type m_wait_ms = 0;
       real_type m_push_ms = 0;
 
+      void worker_loop();
+
+    public:
+
       //disable copy
       Worker( Worker const & )              = delete;
       //Worker( Worker && )                   = delete;
       Worker& operator = ( Worker const & ) = delete;
       Worker& operator = ( Worker && )      = delete;
 
-      void worker_loop();
-
-    public:
-
       Worker() : m_active(false) { start(); }
       ~Worker() { stop(); }
 
-      Worker( Worker && rhs ) {
-        m_active         = rhs.m_active;
-        m_job            = std::move(rhs.m_job);
-        m_running_thread = std::move(rhs.m_running_thread);
-      }
+      Worker( Worker && rhs ) noexcept
+      : m_active(rhs.m_active)
+      , m_running_thread(std::move(rhs.m_running_thread))
+      , m_job(std::move(rhs.m_job))
+      {}
 
       void start();
       void stop();
@@ -113,6 +113,7 @@ namespace Utils {
 
   public:
 
+    explicit
     ThreadPool1(
       unsigned nthread = std::max(
         unsigned(1),

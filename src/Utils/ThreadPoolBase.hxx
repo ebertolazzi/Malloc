@@ -32,15 +32,15 @@ namespace Utils {
 
   class ThreadPoolBase {
 
+  public:
+
     //disable copy
     ThreadPoolBase( ThreadPoolBase const & )               = delete;
     ThreadPoolBase( ThreadPoolBase && )                    = delete;
     ThreadPoolBase & operator = ( ThreadPoolBase const & ) = delete;
     ThreadPoolBase & operator = ( ThreadPoolBase && )      = delete;
 
-  public:
-
-    ThreadPoolBase() {}
+    ThreadPoolBase() = default;
 
     virtual
     void
@@ -100,13 +100,14 @@ namespace Utils {
       unsigned m_push_ptr = 0;
       unsigned m_pop_ptr  = 0;
 
+    public:
+
       FixedCapacityQueue( FixedCapacityQueue const & )              = delete;
       FixedCapacityQueue( FixedCapacityQueue && )                   = delete;
       FixedCapacityQueue& operator = ( FixedCapacityQueue const & ) = delete;
       FixedCapacityQueue& operator = ( FixedCapacityQueue && )      = delete;
 
-    public:
-
+      explicit
       FixedCapacityQueue( unsigned capacity )
       : m_fun_vec( size_t( capacity+1 ) )
       , m_size( capacity+1 )
@@ -162,7 +163,7 @@ namespace Utils {
         TaskData( std::function<void()> && f ) : m_fun(std::move(f)) { }
         TaskData( std::function<void()> & f ) : m_fun(f) { }
         void operator()() { m_fun(); delete this; }
-        ~TaskData() {}
+        ~TaskData() = default;
       };
 
     private:
@@ -171,13 +172,14 @@ namespace Utils {
 
       unsigned m_size, m_capacity, m_push_ptr, m_pop_ptr;
 
+    public:
+
       Queue( Queue const & )              = delete;
       Queue( Queue && )                   = delete;
       Queue& operator = ( Queue const & ) = delete;
       Queue& operator = ( Queue && )      = delete;
 
-    public:
-
+      explicit
       Queue( unsigned capacity )
       : m_queue_data( std::size_t( capacity+1 ) )
       , m_size( capacity+1 )
@@ -215,7 +217,7 @@ namespace Utils {
         m_queue_data.resize( m_size );
       }
 
-      ~Queue() {}
+      ~Queue() = default;
     };
   }
 }

@@ -41,11 +41,12 @@ namespace Utils {
 
   public:
 
+    explicit
     ThreadPool0( unsigned )
     : ThreadPoolBase()
     {}
 
-    virtual ~ThreadPool0() {}
+    virtual ~ThreadPool0() = default;
 
     void         exec( Func && fun )  override { fun(); }
     void         wait()               override {}

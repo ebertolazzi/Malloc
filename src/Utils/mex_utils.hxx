@@ -325,22 +325,23 @@ namespace Utils {
   template <typename base>
   class mex_class_handle {
     uint32_t    signature_m;
-    base        *ptr_m;
-    std::string name_m;
+    base *      m_ptr;
+    std::string m_name;
   public:
     mex_class_handle(base *ptr)
-    : ptr_m(ptr)
-    , name_m(typeid(base).name())
-    { signature_m = CLASS_HANDLE_SIGNATURE; }
+    : signature_m(CLASS_HANDLE_SIGNATURE)
+    , m_ptr(ptr)
+    , m_name(typeid(base).name())
+    {}
 
     ~mex_class_handle()
-    { signature_m = 0; delete ptr_m; }
+    { signature_m = 0; delete m_ptr; }
 
     bool is_valid()
     { return ((signature_m == CLASS_HANDLE_SIGNATURE) &&
-              !strcmp(name_m.c_str(), typeid(base).name())); }
+              !strcmp(m_name.c_str(), typeid(base).name())); }
 
-    base *ptr() { return ptr_m; }
+    base *ptr() { return m_ptr; }
   };
 
   template <typename base>
@@ -380,7 +381,7 @@ namespace Utils {
   template <typename base>
   inline
   void
-  mex_destroy_object( mxArray const * in ) {
+  mex_destroy_object( mxArray const * & in ) {
     if ( in != nullptr ) delete mex_convert_mx_to_handle_ptr<base>(in);
     in = nullptr;
     mexUnlock();

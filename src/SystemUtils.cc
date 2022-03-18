@@ -41,7 +41,7 @@ namespace Utils {
     struct tm timeinfo;
     localtime_r( &rawtime, &timeinfo );
     strftime( buffer, 20, "%F", &timeinfo );
-    return std::string( buffer );
+    return std::string{buffer};
   }
 
   std::string
@@ -52,7 +52,7 @@ namespace Utils {
     struct tm timeinfo;
     localtime_r( &rawtime, &timeinfo );
     strftime( buffer, 20, "%T", &timeinfo );
-    return std::string( buffer );
+    return std::string{buffer};
   }
 
   std::string
@@ -63,7 +63,7 @@ namespace Utils {
     struct tm timeinfo;
     localtime_r( &rawtime, &timeinfo );
     strftime( buffer, 20, "%T %F", &timeinfo );
-    return std::string( buffer );
+    return std::string{buffer};
   }
 
   #endif

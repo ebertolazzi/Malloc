@@ -1,3 +1,4 @@
+
 set( CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE )
 set( CMAKE_VERBOSE_MAKEFILE            TRUE )
 
@@ -48,3 +49,11 @@ message( STATUS "Compiler used: ${CMAKE_CXX_COMPILER_ID}")
 set( CMAKE_C_FLAGS         "" )
 set( CMAKE_C_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} )
 set( CMAKE_C_FLAGS_DEBUG   ${CMAKE_CXX_FLAGS_DEBUG} )
+
+# select LAPACK library to be used
+set( PINS_USE_ACCELERATE true )
+
+# check if link against static libgcc
+set( PINS_USE_STATIC_LIBGCC false )
+
+set( PINS_ON_RASPBERRY false )

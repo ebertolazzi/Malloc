@@ -164,3 +164,12 @@ task :clean_linux => :clean
 
 desc "clean for WINDOWS"
 task :clean_linux => :clean
+
+task :cppcheck do
+  FileUtils.rm_rf   'lib'
+  FileUtils.rm_rf   'build'
+  FileUtils.mkdir_p 'build'
+  FileUtils.cd      'build'
+  sh 'cmake -DCMAKE_EXPORT_COMPILE_COMMAND=ON ..'
+  sh 'cppcheck --project=compile_commands.json'
+end

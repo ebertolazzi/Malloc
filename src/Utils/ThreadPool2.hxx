@@ -238,7 +238,7 @@ namespace Utils {
     /**
      * Destroy the task object
      */
-    virtual ~VirtualTask() {}
+    virtual ~VirtualTask() = default;
   };
 
   /**
@@ -268,13 +268,13 @@ namespace Utils {
     //! The main function of the thread.
     void work() { do_work(false); }
 
+  public:
+
     // Copying and moving are not supported.
     GenericThreadPool( GenericThreadPool const & )             = delete;
     GenericThreadPool( GenericThreadPool && )                  = delete;
     GenericThreadPool& operator = (GenericThreadPool const & ) = delete;
     GenericThreadPool& operator = (GenericThreadPool && )      = delete;
-
-	public:
 
     /**
      * Generic thread pool.
@@ -377,15 +377,15 @@ namespace Utils {
   class QueueElement {
     VirtualTask * m_task;
 
+  public:
+
     QueueElement()                                     = delete;
     QueueElement( QueueElement const & )               = delete;
     QueueElement & operator = ( QueueElement const & ) = delete;
     QueueElement & operator = ( QueueElement && )      = delete;
 
-  public:
-
     QueueElement( VirtualTask * t ) : m_task(t) { }
-    QueueElement( QueueElement && x ) : m_task(x.m_task) { x.m_task = nullptr; }
+    QueueElement( QueueElement && x ) noexcept : m_task(x.m_task) { x.m_task = nullptr; }
     void operator()() { (*m_task)(); m_task = nullptr; }
     ~QueueElement() { if (m_task) delete m_task; }
   };
@@ -439,6 +439,7 @@ namespace Utils {
       class WrappedFunction : public VirtualTask {
         std::function<void()> m_f;
       public:
+        explicit
         WrappedFunction( std::function<void()> && f ) : m_f(std::move(f)) { }
         virtual void operator()() override { m_f(); delete this; }
       };

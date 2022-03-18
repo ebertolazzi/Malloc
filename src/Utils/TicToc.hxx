@@ -109,16 +109,16 @@ namespace Utils {
 
     elapsed_resolution m_elapsed_time;
 
+   public:
+
     TicToc( TicToc const & ) = delete;
     TicToc const & operator = ( TicToc const & ) const = delete;
-
-   public:
 
     TicToc()
     : m_elapsed_time(0)
     { this->tic(); }
 
-    ~TicToc() {}
+    ~TicToc() = default;
 
     //!
     //! Start timing

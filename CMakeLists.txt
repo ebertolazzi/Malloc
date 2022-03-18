@@ -32,14 +32,6 @@ endif()
 message( STATUS "Compiler used: ${CMAKE_CXX_COMPILER_ID}" )
 message( STATUS "BASE SUFFIXES = ${ARTIFACTS_STATIC_SUFFIX} ${ARTIFACTS_DYNAMIC_SUFFIX}" )
 
-if (APPLE)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DLUA_USE_MACOSX")
-elseif(LINUX OR UNIX)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DLUA_USE_LINUX")
-else()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-endif()
-
 #   ____                                _     _ _
 #  |  _ \ _ __ ___ _ __ ___  __ _ _   _(_)___(_) |_ ___
 #  | |_) | '__/ _ \ '__/ _ \/ _` | | | | / __| | __/ _ \

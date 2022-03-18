@@ -46,15 +46,16 @@ namespace Utils {
     m_queue_push_mutex.lock();
     ++m_push_waiting;
     m_queue_push_cv.wait( m_queue_push_mutex, [&]()->bool { return !m_work_queue.is_full(); } );
-    --m_push_waiting;
     //-----------------
     m_queue_spin.lock();
     m_work_queue.push( task );
+    --m_push_waiting;
     m_queue_spin.unlock();
     //-----------------
     m_queue_push_mutex.unlock();
+    // push done
     if ( m_pop_waiting > 0 ) m_queue_pop_cv.notify_one();
-    if ( m_push_waiting  > 0 ) {
+    if ( m_push_waiting > 0 ) {
       m_queue_spin.lock();
       if ( !m_work_queue.is_full() ) m_queue_push_cv.notify_one();
       m_queue_spin.unlock();
@@ -66,10 +67,10 @@ namespace Utils {
     m_queue_pop_mutex.lock();
     ++m_pop_waiting;
     m_queue_pop_cv.wait( m_queue_pop_mutex, [&]()->bool { return !m_work_queue.empty(); } );
-    --m_pop_waiting;
     //-----------------
     m_queue_spin.lock();
     TaskData * task = m_work_queue.pop();
+    --m_pop_waiting;
     m_queue_spin.unlock();
     ++m_running_task; // must be incremented in the locked part
     //-----------------
@@ -124,7 +125,7 @@ namespace Utils {
     m_pop_waiting  = 0;
     try {
       for ( unsigned i=0; i<thread_count; ++i )
-        m_worker_threads.push_back(
+        m_worker_threads.emplace_back(
           std::thread(
             &ThreadPool3::worker_thread, this,
             std::ref(m_pop_ms[i]),

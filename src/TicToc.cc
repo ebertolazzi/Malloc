@@ -105,19 +105,19 @@ namespace Utils {
 
   typename TicToc::real_type
   TicToc::elapsed_s() const
-  { return 1e-6*m_elapsed_time.count(); }
+  { return real_type(1e-6*m_elapsed_time.count()); }
 
   typename TicToc::real_type
   TicToc::elapsed_ms() const
-  { return 1e-3*m_elapsed_time.count(); }
+  { return real_type(1e-3*m_elapsed_time.count()); }
 
   typename TicToc::real_type
   TicToc::elapsed_mus() const
-  { return m_elapsed_time.count(); }
+  { return real_type(m_elapsed_time.count()); }
 
   typename TicToc::real_type
   TicToc::elapsed_ns() const
-  { return 1e3*m_elapsed_time.count(); }
+  { return real_type(1e3*m_elapsed_time.count()); }
 }
 
 #endif

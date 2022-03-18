@@ -161,7 +161,7 @@ namespace Utils {
   using std::string;
   #endif
 
-  std::string basename( char const * const filename );
+  std::string basename( char const * filename );
 
   void   get_MAC_address( std::map<string,string> & addr );
   string get_host_name();
@@ -178,49 +178,49 @@ namespace Utils {
   template <typename T_int, typename T_real>
   void
   search_interval(
-    T_int                npts,
-    T_real const * const X,
-    T_real             & x,
-    T_int              & lastInterval,
-    bool                 closed,
-    bool                 can_extend
+    T_int          npts,
+    T_real const * X,
+    T_real       & x,
+    T_int        & lastInterval,
+    bool           closed,
+    bool           can_extend
   );
 
   #ifndef DOXYGEN_SHOULD_SKIP_THIS
   extern template void search_interval(
-    int32_t             npts,
-    float const * const X,
-    float             & x,
-    int32_t           & lastInterval,
-    bool                closed,
-    bool                can_extend
+    int32_t       npts,
+    float const * X,
+    float       & x,
+    int32_t     & lastInterval,
+    bool          closed,
+    bool          can_extend
   );
 
   extern template void search_interval(
-    int32_t              npts,
-    double const * const X,
-    double             & x,
-    int32_t            & lastInterval,
-    bool                 closed,
-    bool                 can_extend
+    int32_t        npts,
+    double const * X,
+    double       & x,
+    int32_t      & lastInterval,
+    bool           closed,
+    bool           can_extend
   );
 
   extern template void search_interval(
-    int64_t             npts,
-    float const * const X,
-    float             & x,
-    int64_t           & lastInterval,
-    bool                closed,
-    bool                can_extend
+    int64_t       npts,
+    float const * X,
+    float       & x,
+    int64_t     & lastInterval,
+    bool          closed,
+    bool          can_extend
   );
 
   extern template void search_interval(
-    int64_t              npts,
-    double const * const X,
-    double             & x,
-    int64_t            & lastInterval,
-    bool                 closed,
-    bool                 can_extend
+    int64_t        npts,
+    double const * X,
+    double       & x,
+    int64_t      & lastInterval,
+    bool           closed,
+    bool           can_extend
   );
   #endif
 
@@ -228,12 +228,12 @@ namespace Utils {
   inline
   void
   searchInterval(
-    T_int                npts,
-    T_real const * const X,
-    T_real             & x,
-    T_int              & lastInterval,
-    bool                 closed,
-    bool                 can_extend
+    T_int          npts,
+    T_real const * X,
+    T_real       & x,
+    T_int        & lastInterval,
+    bool           closed,
+    bool           can_extend
   ) {
     search_interval( npts, X, x, lastInterval, closed, can_extend );
   }

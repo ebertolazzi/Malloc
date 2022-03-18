@@ -20,3 +20,5 @@ ThirdParties/Eigen/eigen-3.4.0
 ThirdParties/fmt/fmt-8.0.1
 ThirdParties/miniz/miniz-master
 ThirdParties/zstr/zstr-master
+.idea
+cmake-build-debug
