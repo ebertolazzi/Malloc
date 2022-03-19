@@ -22,9 +22,14 @@
 ///
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string.h>
+#ifndef __FILENAME__
+  #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr("/" __FILE__, '/') + 1 : __FILE__)
+#endif
+
 #ifndef UTILS_ERROR0
   #define UTILS_ERROR0(MSG) \
-  throw Utils::Runtime_Error( MSG, __FILE__, __LINE__ )
+  throw Utils::Runtime_Error( MSG, __FILENAME__, __LINE__ )
 #endif
 
 #ifndef UTILS_ASSERT0
@@ -37,7 +42,7 @@
 
 #ifndef UTILS_ERROR
   #define UTILS_ERROR(...) \
-  throw Utils::Runtime_Error( fmt::format(__VA_ARGS__), __FILE__, __LINE__ )
+  throw Utils::Runtime_Error( fmt::format(__VA_ARGS__), __FILENAME__, __LINE__ )
 #endif
 
 #ifndef UTILS_ASSERT
@@ -50,7 +55,7 @@
 
 #ifndef UTILS_ERROR_TRACE0
   #define UTILS_ERROR_TRACE0(MSG) \
-  throw Utils::Runtime_TraceError( MSG, __FILE__, __LINE__ )
+  throw Utils::Runtime_TraceError( MSG, __FILENAME__, __LINE__ )
 #endif
 
 #ifndef UTILS_ASSERT_TRACE0
@@ -59,7 +64,7 @@
 
 #ifndef UTILS_ERROR_TRACE
   #define UTILS_ERROR_TRACE(...) \
-  throw Utils::Runtime_TraceError( fmt::format(__VA_ARGS__), __FILE__, __LINE__ )
+  throw Utils::Runtime_TraceError( fmt::format(__VA_ARGS__), __FILENAME__, __LINE__ )
 #endif
 
 #ifndef UTILS_ASSERT_TRACE
