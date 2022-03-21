@@ -209,8 +209,8 @@ namespace Utils {
     UTILS_MEX_ASSERT0( number_of_dimensions == 2, msg );
     mwSize const * dims = mxGetDimensions(arg);
     UTILS_MEX_ASSERT(
-      dims[0] == 1 || dims[1] == 1,
-      "{}\nExpect (1 x n or n x 1) matrix, found {} x {}\n",
+      dims[0] == 1 || dims[1] == 1 || dims[0]*dims[1] == 0,
+      "{}\nExpect (1 x n or n x 1 or empty) matrix, found {} x {}\n",
       msg, dims[0], dims[1]
     );
     sz = dims[0]*dims[1];
