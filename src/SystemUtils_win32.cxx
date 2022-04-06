@@ -1,6 +1,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifdef __MINGW32__
+#ifndef _MSC_VER
   #include <fstream>
 #endif
 
@@ -154,7 +154,7 @@ namespace Utils {
   */
   bool
   check_if_file_exists( char const * fname ) {
-    #ifdef __MINGW32__
+    #ifndef _MSC_VER
       std::ifstream ifile;
       ifile.open(fname);
       bool ok = ifile ? true : false;
