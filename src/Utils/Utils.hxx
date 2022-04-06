@@ -108,7 +108,21 @@
 #include <memory>
 
 // disable mingw-std-threads for mingw on MATLAB
-#if (defined(MINGW) || defined(__MINGW32__)) && !defined(MATLAB_MEX_FILE )
+#if defined(__MINGW32__) || defined(__MINGW64__) && !defined(MATLAB_MEX_FILE )
+  #include <_mingw.h>
+  #if defined(__MINGW64_VERSION_MAJOR)
+    #if  __MINGW64_VERSION_MAJOR < 8
+      #define UTILS_USE_MINGW_PORTABLE_THREADS
+    #endif
+  #endif
+  #if defined(__MINGW32_VERSION_MAJOR)
+    #if  __MINGW32_VERSION_MAJORs < 8
+      #define UTILS_USE_MINGW_PORTABLE_THREADS
+    #endif
+  #endif
+#endif
+
+#ifdef UTILS_USE_MINGW_PORTABLE_THREADS
   #include "mingw-std-threads/mingw.future.h"
   #include "mingw-std-threads/mingw.mutex.h"
   #include "mingw-std-threads/mingw.invoke.h"

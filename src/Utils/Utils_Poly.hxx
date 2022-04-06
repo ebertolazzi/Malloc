@@ -725,7 +725,11 @@ namespace Utils {
       Real fa = P.eval( a );
       Real fb = P.eval( b );
       // controlla consistenza dati del problema
-      UTILS_ASSERT( fa * fb <= 0, "ERRORE" );
+      UTILS_ASSERT(
+        fa * fb <= 0,
+        "Sturm<Real>::refine_roots fa={} and fb={}\n",
+        fa, fb
+      );
       Integer num_ok = 0;
       for ( Integer i = 0; i < m_max_iter; ++i ) {
         if ( std::abs(fa) < std::abs(fb) ) {

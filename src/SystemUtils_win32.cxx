@@ -18,10 +18,9 @@ namespace Utils {
     WinSockStub (void) {
       WORD wVersionRequested;
       WSADATA wsaData;
-      int wsaerr;
       // Using MAKEWORD macro, Winsock version request 2.2
       wVersionRequested = MAKEWORD(2, 2);
-      wsaerr = WSAStartup(wVersionRequested, &wsaData);
+      /* int wsaerr =*/ WSAStartup(wVersionRequested, &wsaData);
       return;
     }
   } __winsock_stub;
