@@ -19,6 +19,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#if defined(__llvm__) || defined(__clang__)
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
+#endif
+
 #include "Utils.hh"
 #include <iostream>
 

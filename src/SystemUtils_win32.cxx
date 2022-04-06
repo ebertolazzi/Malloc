@@ -1,5 +1,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#ifdef __MINGW32__
+  #include <fstream>
+#endif
+
 namespace Utils {
 
   using std::string;
@@ -94,10 +98,7 @@ namespace Utils {
   get_date() {
     SYSTEMTIME st;
     GetSystemTime(&st);
-    return fmt::format(
-      "{:04}-{:02}-{:02}",
-      st.wYear, st.wMonth, st.wDay
-    );
+    return fmt::format( "{:04}-{:02}-{:02}", st.wYear, st.wMonth, st.wDay );
   }
 
   /*
@@ -107,10 +108,7 @@ namespace Utils {
   get_day_time() {
     SYSTEMTIME st;
     GetSystemTime(&st);
-    return fmt::format(
-      "{:02}-{:02}-{:02}",
-      st.wHour, st.wMinute, st.wSecond
-    );
+    return fmt::format( "{:02}-{:02}-{:02}", st.wHour, st.wMinute, st.wSecond );
   }
 
   /*
@@ -157,8 +155,16 @@ namespace Utils {
   */
   bool
   check_if_file_exists( char const * fname ) {
-    struct stat buffer;
-    return (stat (fname, &buffer) == 0);
+    #ifdef __MINGW32__
+      std::ifstream ifile;
+      ifile.open(fname);
+      bool ok = ifile ? true : false;
+      if ( ok ) ifile.close();
+      return ok;
+    #else
+      struct stat buffer;
+      return (stat (fname, &buffer) == 0);
+    #endif
   }
 
   /*

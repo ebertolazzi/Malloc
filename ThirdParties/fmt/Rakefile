@@ -12,8 +12,8 @@ task :install do
     extract_zip("fmt-#{VER}.zip");
   end
   #FileUtils.cp   "fmt-#{VER}/src/fmt.cc",    '../../src'
-  FileUtils.cp   "fmt-#{VER}/src/format.cc", '../../src'
-  FileUtils.cp   "fmt-#{VER}/src/os.cc",     '../../src'
+  FileUtils.cp   "fmt-#{VER}/src/format.cc", '../../src/format.cxx'
+  FileUtils.cp   "fmt-#{VER}/src/os.cc",     '../../src/os.cxx'
   FileUtils.cp_r "fmt-#{VER}/include/fmt",   '../../src/Utils'
 end
 
