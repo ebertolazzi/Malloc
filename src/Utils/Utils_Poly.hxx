@@ -181,7 +181,7 @@ namespace Utils {
   Poly<Real>::sign_variations() const {
     Integer sign_var  = 0;
     Integer last_sign = 0;
-    for ( Integer i=0 ; i < m_order; ++i ) {
+    for ( Integer i=0; i < m_order; ++i ) {
       Real v = this->coeff(i);
       if ( v > 0 ) {
         if ( last_sign == -1 ) ++sign_var;

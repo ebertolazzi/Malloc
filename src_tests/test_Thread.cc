@@ -64,6 +64,19 @@ main() {
     threads_tab.push_back(std::thread(do_test));
   }
   for ( auto & t : threads_tab ) t.join();
+  std::cout << "Test WorkerLoop\n\n";
+
+  Utils::WorkerLoop wl;
+  for ( int i = 0; i < 100; ++i ) {
+    std::function<void()> exe = [i]() -> void { std::cout << "passing i=" << i << '\n'; };
+    wl.exec( exe );
+  }
+  std::cout << "WorkerLoop done\n\n";
+  wl.exec();
+  wl.exec();
+  wl.exec();
+  wl.exec();
+  wl.wait();
   std::cout << "All done folks!\n\n";
   return 0;
 }

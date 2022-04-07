@@ -369,7 +369,7 @@ namespace Utils {
       integer nc         = this->num_columns();
       for ( integer i = 0; i < nc; ++i ) {
         integer width = this->column_width(i) + padding_LR;
-        for ( integer j = 0 ; j < width; ++j ) ss << sep;
+        for ( integer j = 0; j < width; ++j ) ss << sep;
         if ( i+1 < nc ) ss << mid;
         else            ss << right;
       }

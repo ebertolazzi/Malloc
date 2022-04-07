@@ -104,7 +104,7 @@ namespace Utils {
   string
   demang( char const * mangled_name ) {
     if ( mangled_name == nullptr ) return string{""};
-    int status = 0 ;
+    int status = 0;
     string retval = mangled_name;
     char * name = abi::__cxa_demangle( mangled_name, nullptr, nullptr, &status );
     if ( status == 0 ) {
@@ -113,7 +113,7 @@ namespace Utils {
       char const * p = strchr(name,'(');
       if ( p != nullptr ) retval = retval.substr(0,p-name);
     }
-    if ( name != nullptr ) free(name) ;
+    if ( name != nullptr ) free(name);
     return retval;
   }
 

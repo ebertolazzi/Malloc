@@ -413,6 +413,47 @@ namespace Utils {
   };
 
   /*\
+   |  __        __         _             _
+   |  \ \      / /__  _ __| | _____ _ __| |    ___   ___  _ __
+   |   \ \ /\ / / _ \| '__| |/ / _ \ '__| |   / _ \ / _ \| '_ \
+   |    \ V  V / (_) | |  |   <  __/ |  | |__| (_) | (_) | |_) |
+   |     \_/\_/ \___/|_|  |_|\_\___|_|  |_____\___/ \___/| .__/
+   |                                                     |_|
+  \*/
+  class WorkerLoop {
+
+    bool                    m_active;
+    bool                    m_running;
+    bool                    m_do_job;
+    std::thread             m_running_thread;
+    std::function<void()>   m_job;
+
+    std::mutex              m_mutex;
+    std::condition_variable m_cv;
+
+    void worker_loop();
+
+  public:
+
+    WorkerLoop( WorkerLoop && rhs )               = delete;
+    WorkerLoop( WorkerLoop const & )              = delete;
+    WorkerLoop& operator = ( WorkerLoop const & ) = delete;
+    WorkerLoop& operator = ( WorkerLoop && )      = delete;
+
+    WorkerLoop();
+    ~WorkerLoop();
+
+    void exec( std::function<void()> & fun );
+    void exec();
+    void wait();
+
+    std::thread::id     get_id()     const { return m_running_thread.get_id(); }
+    std::thread const & get_thread() const { return m_running_thread; }
+    std::thread &       get_thread()       { return m_running_thread; }
+  };
+
+
+  /*\
    |  __      __    _ _ __      __       _
    |  \ \    / /_ _(_) |\ \    / /__ _ _| |_____ _ _
    |   \ \/\/ / _` | |  _\ \/\/ / _ \ '_| / / -_) '_|

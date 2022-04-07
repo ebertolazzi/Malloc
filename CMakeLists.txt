@@ -147,7 +147,7 @@ if ( EB_ENABLE_TESTS )
   set( LIBS ${EB_NAMESPACE}_${PROJECT_NAME}_Static ${ZLIB_LIBRARIES} ${CMAKE_DL_LIBS} )
 
   if( UNIX )
-    if ( AND NOT APPLE )
+    if ( NOT APPLE )
       set( THREADS_PREFER_PTHREAD_FLAG ON )
       find_package( Threads REQUIRED )
       set( LIBS ${LIBS} Threads::Threads )

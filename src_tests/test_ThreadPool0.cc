@@ -24,7 +24,7 @@ static std::atomic<unsigned> accumulator;
 
 static
 void
-do_test( int n, int sz ) {
+do_test( int, int ) {
   return;
 }
 
