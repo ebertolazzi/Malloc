@@ -46,8 +46,9 @@ task :install_linux do
   sh "rake install_linux"
   FileUtils.cd "../zstr"
   sh "rake install_linux"
-  #FileUtils.cd "../zlib-ng"
-  #sh "rake install_linux"
+  # TEMPORANEO
+  FileUtils.cd "../zlib-ng"
+  sh "rake install_linux"
   #FileUtils.cd "../miniz"
   #sh "rake install_linux"
   FileUtils.cd ".."
@@ -69,15 +70,26 @@ task :install_win do
   FileUtils.mkdir_p "../lib3rd/include"
   FileUtils.mkdir_p "../lib3rd/lib"
   FileUtils.mkdir_p "../lib3rd/dll"
-  # copy zlib into zstr folder
-  FileUtils.cp "zlib-ng/include/zlib.h",      "../src/Utils/zstr/zlib.h"
-  FileUtils.cp "zlib-ng/include/zconf.h",     "../src/Utils/zstr/zconf.h"
-  FileUtils.cp "zlib-ng/bin/zlib1.dll",       "../lib3rd/dll"
-  FileUtils.cp "zlib-ng/bin/zlibd1.dll",      "../lib3rd/dll"
-  FileUtils.cp "zlib-ng/lib/zlib.lib",        "../lib3rd/lib"
-  FileUtils.cp "zlib-ng/lib/zlibd.lib",       "../lib3rd/lib"
-  FileUtils.cp "zlib-ng/lib/zlibstatic.lib",  "../lib3rd/lib"
-  FileUtils.cp "zlib-ng/lib/zlibstaticd.lib", "../lib3rd/lib"
+  if USE_MINGW
+    # copy zlib into zstr folder
+    base = "zlib-ng/mingw";
+    FileUtils.cp "#{base}/include/zlib.h",      "../src/Utils/zstr/zlib.h"
+    FileUtils.cp "#{base}/include/zconf.h",     "../src/Utils/zstr/zconf.h"
+    FileUtils.cp "#{base}/bin/libzlib1.dll",    "../lib3rd/dll"
+    FileUtils.cp "#{base}/lib/libz.a",          "../lib3rd/lib"
+    FileUtils.cp "#{base}/lib/libzlib.dll.a",   "../lib3rd/lib"
+  else
+    # copy zlib into zstr folder
+    base = "zlib-ng/win";
+    FileUtils.cp "#{base}/include/zlib.h",      "../src/Utils/zstr/zlib.h"
+    FileUtils.cp "#{base}/include/zconf.h",     "../src/Utils/zstr/zconf.h"
+    FileUtils.cp "#{base}/bin/zlib1.dll",       "../lib3rd/dll"
+    FileUtils.cp "#{base}/bin/zlibd1.dll",      "../lib3rd/dll"
+    FileUtils.cp "#{base}/lib/zlib.lib",        "../lib3rd/lib"
+    FileUtils.cp "#{base}/lib/zlibd.lib",       "../lib3rd/lib"
+    FileUtils.cp "#{base}/lib/zlibstatic.lib",  "../lib3rd/lib"
+    FileUtils.cp "#{base}/lib/zlibstaticd.lib", "../lib3rd/lib"
+  end
 end
 
 desc "clean 3rd parties"
