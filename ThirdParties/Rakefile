@@ -31,10 +31,6 @@ task :install_osx do
   sh "rake install_osx"
   FileUtils.cd "../zstr"
   sh "rake install_osx"
-  #FileUtils.cd "../zlib-ng"
-  #sh "rake install_osx"
-  #FileUtils.cd "../miniz"
-  #sh "rake install_osx"
   FileUtils.cd ".."
 end
 
@@ -46,11 +42,6 @@ task :install_linux do
   sh "rake install_linux"
   FileUtils.cd "../zstr"
   sh "rake install_linux"
-  # TEMPORANEO
-  FileUtils.cd "../zlib-ng"
-  sh "rake install_linux"
-  #FileUtils.cd "../miniz"
-  #sh "rake install_linux"
   FileUtils.cd ".."
 end
 
@@ -62,10 +53,6 @@ task :install_win do
   sh "rake install_win"
   FileUtils.cd "../zstr"
   sh "rake install_win"
-  #FileUtils.cd "../zlib-ng"
-  #sh "rake install_win"
-  #FileUtils.cd "../miniz"
-  #sh "rake install_win"
   FileUtils.cd ".."
   FileUtils.mkdir_p "../lib3rd/include"
   FileUtils.mkdir_p "../lib3rd/lib"
