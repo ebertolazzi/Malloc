@@ -435,7 +435,7 @@ namespace Utils {
 
   public:
 
-    WorkerLoop( WorkerLoop && rhs )               = delete;
+    WorkerLoop( WorkerLoop && )                   = delete;
     WorkerLoop( WorkerLoop const & )              = delete;
     WorkerLoop& operator = ( WorkerLoop const & ) = delete;
     WorkerLoop& operator = ( WorkerLoop && )      = delete;
@@ -446,6 +446,13 @@ namespace Utils {
     void exec( std::function<void()> & fun );
     void exec();
     void wait();
+
+    template <typename Func, typename... Args>
+    void
+    run( Func && func, Args && ... args ) {
+      std::function<void()> f = std::bind( func, std::forward<Args>(args)... );
+      this->exec( f );
+    }
 
     std::thread::id     get_id()     const { return m_running_thread.get_id(); }
     std::thread const & get_thread() const { return m_running_thread; }

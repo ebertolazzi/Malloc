@@ -1,17 +1,18 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <stdio.h>
-#include <sys/types.h>
 #include <string.h>
+
 #include <net/if.h>
 #include <ifaddrs.h>
 #include <netdb.h>
-#include <sys/socket.h>
 #include <arpa/inet.h>
-#include <sys/ioctl.h>
 #include <unistd.h>
 
+#include <sys/ioctl.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
+
 #include <fstream>
 #include <dirent.h>
 
@@ -152,6 +153,18 @@ namespace Utils {
   /*
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   */
+  std::string
+  get_executable_path_name() {
+    char     pathName[1024];
+    uint32_t pathNameCapacity = 1024;
+    uint32_t pathNameSize     = uint32_t( readlink("/proc/self/exe", pathName, pathNameCapacity - 1) );
+    pathName[pathNameSize]    = '\0';
+    return std::string{pathName};
+  }
+
+  /*
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  */
   bool
   check_if_file_exists( char const * fname ) {
     struct stat buffer;
@@ -175,13 +188,11 @@ namespace Utils {
   /*
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   */
-  std::string
-  get_executable_path_name() {
-    char     pathName[1024];
-    uint32_t pathNameCapacity = 1024;
-    uint32_t pathNameSize     = uint32_t( readlink("/proc/self/exe", pathName, pathNameCapacity - 1) );
-    pathName[pathNameSize]    = '\0';
-    return std::string{pathName};
+  bool
+  make_directory( char const * dirname, unsigned mode ) {
+    bool ok = check_if_dir_exists( dirname );
+    if ( !ok ) ok = mkdir( dirname, mode_t(mode) ) == 0;
+    return ok;
   }
 
 }

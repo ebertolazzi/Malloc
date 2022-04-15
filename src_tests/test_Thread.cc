@@ -56,6 +56,12 @@ do_test() {
   c.print();
 }
 
+static
+void
+do_passa( int ii ) {
+  std::cout << "passa ii=" << ii << '\n';
+}
+
 int
 main() {
   std::vector<std::thread> threads_tab;
@@ -70,6 +76,7 @@ main() {
   for ( int i = 0; i < 100; ++i ) {
     std::function<void()> exe = [i]() -> void { std::cout << "passing i=" << i << '\n'; };
     wl.exec( exe );
+    wl.run( do_passa, i );
   }
   std::cout << "WorkerLoop done\n\n";
   wl.exec();

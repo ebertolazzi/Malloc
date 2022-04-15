@@ -79,7 +79,7 @@ namespace Utils {
   WorkerLoop::wait() {
     std::unique_lock<std::mutex> lk(m_mutex);
     m_cv.wait(lk, [this]{ return !this->m_do_job;} );
-     m_cv.notify_one();
+    m_cv.notify_one();
   }
 
 }

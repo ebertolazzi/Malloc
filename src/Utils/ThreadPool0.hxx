@@ -49,8 +49,8 @@ namespace Utils {
     virtual ~ThreadPool0() = default;
 
     void         exec( Func && fun )  override { fun(); }
-    void         wait()               override {}
-    void         join()               override {}
+    void         wait()               override { }
+    void         join()               override { }
     unsigned     thread_count() const override { return 1; }
     void         resize( unsigned )   override { }
     char const * name() const         override { return "ThreadPool0 (fake thread)"; }

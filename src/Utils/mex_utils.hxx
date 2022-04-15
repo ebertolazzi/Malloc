@@ -167,19 +167,13 @@ namespace Utils {
       case mxUINT64_CLASS: res = *static_cast<uint64_t*>(ptr); break;
       case mxDOUBLE_CLASS:
         { double tmp = *static_cast<double*>(ptr);
-          UTILS_MEX_ASSERT(
-            tmp == std::floor(tmp),
-            "{} expected int, found {}\n", msg, tmp
-          );
+          UTILS_MEX_ASSERT( tmp == std::floor(tmp), "{} expected int, found {}\n", msg, tmp );
           res = static_cast<int64_t>(tmp);
         }
         break;
       case mxSINGLE_CLASS:
         { float tmp = *static_cast<float*>(ptr);
-          UTILS_MEX_ASSERT(
-            tmp == std::floor(tmp),
-            "{} expected int, found {}\n", msg, tmp
-          );
+          UTILS_MEX_ASSERT( tmp == std::floor(tmp), "{} expected int, found {}\n", msg, tmp );
           res = static_cast<int64_t>(tmp);
         }
         break;
@@ -324,24 +318,30 @@ namespace Utils {
 
   template <typename base>
   class mex_class_handle {
-    uint32_t    signature_m;
+    uint32_t    m_signature;
     base *      m_ptr;
     std::string m_name;
+
   public:
-    mex_class_handle(base *ptr)
-    : signature_m(CLASS_HANDLE_SIGNATURE)
+
+    mex_class_handle<base> const & operator = ( mex_class_handle<base> const & ) = delete;
+    mex_class_handle() = delete;
+
+    explicit
+    mex_class_handle( base * ptr )
+    : m_signature(CLASS_HANDLE_SIGNATURE)
     , m_ptr(ptr)
     , m_name(typeid(base).name())
     {}
 
     ~mex_class_handle()
-    { signature_m = 0; delete m_ptr; }
+    { m_signature = 0; delete m_ptr; m_ptr = nullptr; }
 
     bool is_valid()
-    { return ((signature_m == CLASS_HANDLE_SIGNATURE) &&
+    { return ((m_signature == CLASS_HANDLE_SIGNATURE) &&
               !strcmp(m_name.c_str(), typeid(base).name())); }
 
-    base *ptr() { return m_ptr; }
+    base * ptr() { return m_ptr; }
   };
 
   template <typename base>

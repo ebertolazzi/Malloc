@@ -114,6 +114,20 @@ namespace Utils {
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   */
   string
+  get_log_date_time() {
+    SYSTEMTIME st;
+    GetSystemTime(&st);
+    return fmt::format(
+      "date_{:04}-{:02}-{:02}_time_{:02}-{:02}-{:02}",
+      st.wYear, st.wMonth, st.wDay,
+      st.wHour, st.wMinute, st.wSecond,
+    );
+  }
+
+  /*
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  */
+  string
   get_day_time_and_date() {
     SYSTEMTIME st;
     GetSystemTime(&st);
@@ -152,6 +166,17 @@ namespace Utils {
   /*
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   */
+  std::string
+  get_executable_path_name() {
+    char  pathName[1024];
+    DWORD pathNameCapacity = 1024;
+    GetModuleFileNameA( nullptr, pathName, pathNameCapacity );
+    return std::string(pathName);
+  }
+
+  /*
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  */
   bool
   check_if_file_exists( char const * fname ) {
     #ifndef _MSC_VER
@@ -162,7 +187,7 @@ namespace Utils {
       return ok;
     #else
       struct stat buffer;
-      return (stat (fname, &buffer) == 0);
+      return stat(fname, &buffer) == 0;
     #endif
   }
 
@@ -180,12 +205,11 @@ namespace Utils {
   /*
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   */
-  std::string
-  get_executable_path_name() {
-    char  pathName[1024];
-    DWORD pathNameCapacity = 1024;
-    GetModuleFileNameA( nullptr, pathName, pathNameCapacity );
-    return std::string(pathName);
+  bool
+  make_directory( char const * dirname, unsigned mode ) {
+    bool ok = check_if_dir_exists( dirname );
+    if ( !ok ) ok = _mkdir( dirname ) == 0;
+    return ok;
   }
 
 }

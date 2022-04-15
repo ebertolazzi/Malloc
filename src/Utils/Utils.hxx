@@ -183,11 +183,14 @@ namespace Utils {
   string get_date();
   string get_day_time();
   string get_day_time_and_date();
+  string get_log_date_time();
   string get_user_name();
   string get_home_directory();
-  bool   check_if_file_exists( char const * dirname );
-  bool   check_if_dir_exists( char const * dirname );
   string get_executable_path_name();
+  bool   check_if_file_exists( char const * fname );
+  bool   check_if_dir_exists( char const * dirname );
+  bool   make_directory( char const * dirname, unsigned mode = 0777 );
+
 
   template <typename T_int, typename T_real>
   void

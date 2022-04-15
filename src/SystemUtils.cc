@@ -66,6 +66,17 @@ namespace Utils {
     return std::string{buffer};
   }
 
+  std::string
+  get_log_date_time() {
+    char   buffer[100];
+    time_t rawtime;
+    time( &rawtime );
+    struct tm timeinfo;
+    localtime_r( &rawtime, &timeinfo );
+    strftime( buffer, 100, "date_%Y-%m-%d_time_%H-%M-%S", &timeinfo );
+    return std::string{buffer};
+  }
+
   #endif
 
 }

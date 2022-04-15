@@ -22,3 +22,4 @@ ThirdParties/miniz/miniz-master
 ThirdParties/zstr/zstr-master
 .idea
 cmake-build-debug
+*.mexmaci64

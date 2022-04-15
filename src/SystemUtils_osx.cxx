@@ -1,7 +1,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 //#include <stdio.h>
-#include <sys/types.h>
 #include <string.h>
 #include <net/if_dl.h>
 #include <net/if.h>
@@ -10,7 +9,9 @@
 #include <cstdio>
 #include <unistd.h>
 
+#include <sys/types.h>
 #include <sys/stat.h>
+
 #include <fstream>
 #include <dirent.h>
 
@@ -118,6 +119,19 @@ namespace Utils {
   /*
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   */
+  std::string
+  get_executable_path_name() {
+    uint32_t pathNameSize = 0;
+    _NSGetExecutablePath( nullptr, &pathNameSize );
+    std::vector<char> res(pathNameSize+1);
+    std::fill(res.begin(),res.end(),'\0');
+    if ( _NSGetExecutablePath( res.data(), &pathNameSize) != 0 ) return "NOT FOUND";
+    return std::string{res.data()};
+  }
+
+  /*
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  */
   bool
   check_if_file_exists( char const * fname ) {
     struct stat buffer;
@@ -141,14 +155,11 @@ namespace Utils {
   /*
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   */
-  std::string
-  get_executable_path_name() {
-    uint32_t pathNameSize = 0;
-    _NSGetExecutablePath( nullptr, &pathNameSize );
-    std::vector<char> res(pathNameSize+1);
-    if (!_NSGetExecutablePath( res.data(), &pathNameSize)) return "";
-    res.push_back('\0');
-    return std::string{res.data()};
+  bool
+  make_directory( char const * dirname, unsigned mode ) {
+    bool ok = check_if_dir_exists( dirname );
+    if ( !ok ) ok = mkdir( dirname, mode_t(mode) ) == 0;
+    return ok;
   }
 
 }

@@ -195,13 +195,13 @@ main() {
 
   fmt::print( "ROOTS = {}\n", STURM.roots() );
 
-  for ( auto & xx : STURM.roots() ) {
+  for ( auto const & xx : STURM.roots() ) {
     fmt::print( "P({}) = {}\n", xx, P.eval(xx) );
   }
 
   Poly<double> const & SP = STURM.get(0);
 
-  for ( auto & xx : STURM.roots() ) {
+  for ( auto const & xx : STURM.roots() ) {
     fmt::print("P[sturm]({}) = {}\n", xx, SP.eval(xx) );
   }
 
