@@ -1,6 +1,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifndef _MSC_VER
+#ifdef _MSC_VER
+  #include <direct.h>
+#else
   #include <fstream>
 #endif
 
@@ -119,8 +121,7 @@ namespace Utils {
     GetSystemTime(&st);
     return fmt::format(
       "date_{:04}-{:02}-{:02}_time_{:02}-{:02}-{:02}",
-      st.wYear, st.wMonth, st.wDay,
-      st.wHour, st.wMinute, st.wSecond,
+      st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond
     );
   }
 
