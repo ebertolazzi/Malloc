@@ -751,8 +751,9 @@ namespace Utils {
         if ( ok1 && ok2 ) break;
         if ( ok1 || ok2 ) { if ( ++num_ok > 3 ) break; }
         else              { num_ok = 0; }
-        if ( fa*fx < 0 ) { b = x; fb = fx; } // interval [a,x]
-        else             { a = x; fa = fx; } // interval [c,b]
+        if      ( fa*fx < 0 ) { b = x; fb = fx; } // interval [a,x]
+        else if ( fb*fx < 0 ) { a = x; fa = fx; } // interval [c,b]
+        else break;
       }
       m_roots.coeffRef(n++) = x;
     }

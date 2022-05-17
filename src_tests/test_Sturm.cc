@@ -22,8 +22,9 @@
 using namespace std;
 using Utils::Poly;
 
-int
-main() {
+static
+void
+test1() {
 
   Poly<double> P( 9 );
 
@@ -56,9 +57,12 @@ main() {
     fmt::print( "P({}) = {}\n", x, P.eval(x) );
   }
 
-  // ---------------------------------------------------------------
+}
 
-  P.set_order(9);
+static
+void
+test2() {
+  Poly<double> P( 9 );
   P <<
     0, 0,
     88740968089804.640625,
@@ -69,10 +73,11 @@ main() {
     -91691443933113974784.0,
     2.0953255012137562931e+20;
 
+  Utils::Sturm<double> S;
   P.normalize();
   S.build( P );
 
-  n_roots = S.separate_roots( 0, 0.1094 );
+  Utils::Sturm<double>::Integer n_roots = S.separate_roots( 0, 0.1094 );
   S.refine_roots(1e-18);
   fmt::print( "Sturm sequence\n{}\n", S );
 
@@ -83,10 +88,15 @@ main() {
   for ( auto & x : S.roots() ) {
     fmt::print( "P({}) = {}\n", x, P.eval(x) );
   }
+}
+
+static
+void
+test3() {
+
+  Poly<double> P( 9 );
 
   // ---------------------------------------------------------------
-
-  P.set_order(9);
   P(0) = 0;
   P(1) = 0;
   P(2) = 87.4724022594292e12+46.8750000000000e-3;
@@ -97,10 +107,11 @@ main() {
   P(7) = -87.2871961975953e18-49.1520000000000e3;
   P(8) = 198.379991358171e18+262.144000000000e3;
 
+  Utils::Sturm<double> S;
   P.normalize();
   S.build( P );
 
-  n_roots = S.separate_roots( 0, 0.11 );
+  Utils::Sturm<double>::Integer n_roots = S.separate_roots( 0, 0.11 );
   S.refine_roots(1e-18);
   fmt::print( "Sturm sequence\n{}\n", S );
 
@@ -111,14 +122,21 @@ main() {
   for ( auto & x : S.roots() ) {
     fmt::print( "P({}) = {}\n", x, P.eval(x) );
   }
+}
 
-  P.set_order(9);
+static
+void
+test4() {
+
+  Poly<double> P( 9 );
+
   P << 0, 0, -0.005134583085657, 0.211003985866756,-1.363267351305853, 0, 0, 0, 0;
 
+  Utils::Sturm<double> S;
   P.normalize();
   S.build( P );
 
-  n_roots = S.separate_roots( 0, 0.15 );
+  Utils::Sturm<double>::Integer n_roots = S.separate_roots( 0, 0.15 );
   S.refine_roots(1e-18);
   fmt::print( "Sturm sequence\n{}\n", S );
 
@@ -129,7 +147,48 @@ main() {
   for ( auto & x : S.roots() ) {
     fmt::print( "P({}) = {}\n", x, P.eval(x) );
   }
+}
 
+static
+void
+test5() {
+
+  Poly<double> P( 4 );
+
+  // ---------------------------------------------------------------
+  P << -3, -1, 3, 1;
+  //P << 1, 3, -1, -3;
+
+  Utils::Sturm<double> S;
+  //P.normalize();
+  S.build( P );
+
+  Utils::Sturm<double>::Integer n_roots = S.separate_roots( -4, 4 );
+  S.refine_roots(1e-10);
+  fmt::print( "Sturm sequence\n{}\n", S );
+
+  //x_roots = P.real_roots_in_the_interval( 0, ell, 1e-20 )
+
+  fmt::print( "ROOTS = {}\n", S.roots().transpose() );
+
+  for ( auto & x : S.roots() ) {
+    fmt::print( "P({}) = {}\n", x, P.eval(x) );
+  }
+}
+
+int
+main() {
+
+  test1();
+  std::cout << "\n\n\n\n\n\n\n";
+  test2();
+  std::cout << "\n\n\n\n\n\n\n";
+  test3();
+  std::cout << "\n\n\n\n\n\n\n";
+  test4();
+  std::cout << "\n\n\n\n\n\n\n";
+  test5();
+  std::cout << "\n\n\n\n\n\n\n";
 
   return 0;
 }

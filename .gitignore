@@ -23,3 +23,4 @@ ThirdParties/zstr/zstr-master
 .idea
 cmake-build-debug
 *.mexmaci64
+Xcode
