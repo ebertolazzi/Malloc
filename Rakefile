@@ -7,6 +7,10 @@
   end
 end
 
+require 'rake/clean'
+
+CLEAN.clear_exclude.exclude { |fn| fn == "Core" }
+
 case RUBY_PLATFORM
 when /darwin/
   OS = :mac
@@ -74,6 +78,7 @@ task :build do
   end
 end
 
+desc "setup Eigen3, FMT and ZSTR"
 task :install_3rd do
   FileUtils.cd "ThirdParties"
     sh "rake install"
