@@ -43,13 +43,20 @@ namespace Utils {
   template <typename T> T NaN();
   template <typename T> T Inf();
   /// machine epsilon
-  template <typename T> T machineEps();
+  template <typename T> T machine_eps();
+  template <typename T> inline T machineEps() { return machine_eps<T>(); }
+
   /// square root of machine epsilon
-  template <typename T> T sqrtMachineEps();
+  template <typename T> T sqrt_machine_eps();
+  template <typename T> inline T sqrtMachineEps() { return sqrt_machine_eps<T>(); }
+
   /// maximum representable value
-  template <typename T> T maximumValue();
+  template <typename T> T maximum_value();
+  template <typename T> inline T maximumValue() { return maximum_value<T>(); }
+
   /// minimum representable value
-  template <typename T> T minimumValue();
+  template <typename T> T minimum_value();
+  template <typename T> inline T minimumValue() { return minimum_value<T>(); }
 
   #ifndef DOXYGEN_SHOULD_SKIP_THIS
   template <> inline float
@@ -65,113 +72,127 @@ namespace Utils {
   Inf() { return numeric_limits<double>::infinity(); }
 
   template <> inline float
-  machineEps() { return numeric_limits<float>::epsilon(); }
+  machine_eps() { return numeric_limits<float>::epsilon(); }
 
   template <> inline double
-  machineEps() { return numeric_limits<double>::epsilon(); }
+  machine_eps() { return numeric_limits<double>::epsilon(); }
 
   template <> inline float
-  sqrtMachineEps() { return sqrt(numeric_limits<float>::epsilon()); }
+  sqrt_machine_eps() { return sqrt(numeric_limits<float>::epsilon()); }
 
   template <> inline double
-  sqrtMachineEps() { return sqrt(numeric_limits<double>::epsilon()); }
+  sqrt_machine_eps() { return sqrt(numeric_limits<double>::epsilon()); }
 
   template <> inline float
-  maximumValue() { return sqrt(numeric_limits<float>::max()); }
+  maximum_value() { return sqrt(numeric_limits<float>::max()); }
 
   template <> inline double
-  maximumValue() { return sqrt(numeric_limits<double>::max()); }
+  maximum_value() { return sqrt(numeric_limits<double>::max()); }
 
   template <> inline float
-  minimumValue() { return sqrt(numeric_limits<float>::min()); }
+  minimum_value() { return sqrt(numeric_limits<float>::min()); }
 
   template <> inline double
-  minimumValue() { return sqrt(numeric_limits<double>::min()); }
+  minimum_value() { return sqrt(numeric_limits<double>::min()); }
   #endif
 
   static
   inline
-  bool isZero( double x )
+  bool is_zero( double x )
   { return FP_ZERO == fpclassify(x); }
 
   static
   inline
-  bool isZero( float x )
+  bool is_zero( float x )
   { return FP_ZERO == fpclassify(x); }
 
+  static inline bool isZero( double x ) { return is_zero(x); }
+  static inline bool isZero( float x )  { return is_zero(x); }
+
   static
   inline
-  bool isInfinite( double x )
+  bool is_infinite( double x )
   { return FP_INFINITE == fpclassify(x); }
 
   static
   inline
-  bool isInfinite( float x )
+  bool is_infinite( float x )
   { return FP_INFINITE == fpclassify(x); }
 
+  static inline bool isInfinite( double x ) { return is_infinite(x); }
+  static inline bool isInfinite( float x )  { return is_infinite(x); }
+
   static
   inline
-  bool isNaN( double x )
+  bool is_NaN( double x )
   { return FP_NAN == fpclassify(x); }
 
   static
   inline
-  bool isNaN( float x )
+  bool is_NaN( float x )
   { return FP_NAN == fpclassify(x); }
 
+  static inline bool isNaN( double x ) { return is_NaN(x); }
+  static inline bool isNaN( float x )  { return is_NaN(x); }
+
   static
   inline
-  bool isRegular( double x )
+  bool is_regular( double x )
   { return !( FP_INFINITE == fpclassify(x) ||
               FP_NAN      == fpclassify(x) ); }
 
   static
   inline
-  bool isRegular( float x )
+  bool is_regular( float x )
   { return !( FP_INFINITE == fpclassify(x) ||
               FP_NAN      == fpclassify(x) ); }
 
-  // added alias
-  static
-  inline
-  bool isFinite( double x )
-  { return !( FP_INFINITE == fpclassify(x) ||
-              FP_NAN      == fpclassify(x) ); }
+  static inline bool isRegular( double x ) { return is_regular(x); }
+  static inline bool isRegular( float x )  { return is_regular(x); }
+  static inline bool isFinite( double x )  { return is_regular(x); }
+  static inline bool isFinite( float x )   { return is_regular(x); }
+  static inline bool is_finite( double x ) { return is_regular(x); }
+  static inline bool is_finite( float x )  { return is_regular(x); }
 
   static
   inline
-  bool isFinite( float x )
-  { return !( FP_INFINITE == fpclassify(x) ||
-              FP_NAN      == fpclassify(x) ); }
+  bool is_integer( double x )
+  { return is_zero( x-floor(x) ); }
 
   static
   inline
-  bool isInteger( double x )
-  { return isZero( x-floor(x) ); }
+  bool is_integer( float x )
+  { return is_zero( x-floor(x) ); }
+
+  static inline bool isInteger( double x ) { return is_integer(x); }
+  static inline bool isInteger( float x )  { return is_integer(x); }
 
   static
   inline
-  bool isInteger( float x )
-  { return isZero( x-floor(x) ); }
+  bool is_unsigned( double x ) { return is_integer(x) && x >= 0; }
 
   static
   inline
-  bool isUnsigned( double x ) { return isInteger(x) && x >= 0; }
+  bool is_unsigned( float x ) { return is_integer(x) && x >= 0; }
 
-  static
-  inline
-  bool isUnsigned( float x ) { return isInteger(x) && x >= 0; }
+  static inline bool isUnsigned( double x ) { return is_unsigned(x); }
+  static inline bool isUnsigned( float x )  { return is_unsigned(x); }
 
   //============================================================================
 
-  bool
-  foundNaN( double const * pv, int DIM );
+  bool found_NaN( double const * pv, int DIM );
+  bool found_NaN( float const * pv, int DIM );
 
-  bool
-  foundNaN( float const * pv, int DIM );
+  static inline bool
+  foundNaN( double const * pv, int DIM )
+  { return found_NaN( pv, DIM ); }
+
+  static inline bool
+  foundNaN( float const * pv, int DIM )
+  { return found_NaN( pv, DIM ); }
 
   void
-  checkNaN(
+  check_NaN(
     double const * pv,
     char   const * v_name,
     int            DIM,
@@ -180,13 +201,35 @@ namespace Utils {
   );
 
   void
-  checkNaN(
+  check_NaN(
     float const * pv,
     char  const * v_name,
     int           DIM,
     int           line,
     char  const * file
   );
+
+  static inline void
+  checkNaN(
+    double const * pv,
+    char   const * v_name,
+    int            DIM,
+    int            line,
+    char   const * file
+  ) {
+    check_NaN( pv, v_name, DIM, line, file );
+  }
+
+  static inline void
+  checkNaN(
+    float const * pv,
+    char  const * v_name,
+    int           DIM,
+    int           line,
+    char  const * file
+  ) {
+    check_NaN( pv, v_name, DIM, line, file );
+  }
 
   //============================================================================
 

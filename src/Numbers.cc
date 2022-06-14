@@ -4,7 +4,7 @@
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
- |         | __/ _   ,_         | __/ _   ,_                                | 
+ |         | __/ _   ,_         | __/ _   ,_                                |
  |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
  |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
  |                           /|                   /|                        |
@@ -36,17 +36,17 @@ namespace Utils {
   */
   //! check if the vector `pv` os size `DIM` contains only regular floats
   bool
-  foundNaN( double const * pv, int DIM ) {
+  found_NaN( double const * pv, int DIM ) {
     for ( int i = 0; i < DIM; ++i )
-      if ( !isRegular(pv[i]) )
+      if ( !is_regular(pv[i]) )
         return true;
     return false;
   }
 
   bool
-  foundNaN( float const * pv, int DIM ) {
+  found_NaN( float const * pv, int DIM ) {
     for ( int i = 0; i < DIM; ++i )
-      if ( !isRegular(pv[i]) )
+      if ( !is_regular(pv[i]) )
         return true;
     return false;
   }
@@ -62,7 +62,7 @@ namespace Utils {
 
   //! check if the vector `pv` os size `DIM` contains only regular floats. If not an error is issued
   void
-  checkNaN(
+  check_NaN(
     double const * pv,
     char   const * v_name,
     int            DIM,
@@ -89,7 +89,7 @@ namespace Utils {
   }
 
   void
-  checkNaN(
+  check_NaN(
     float const * pv,
     char  const * v_name,
     int           DIM,
@@ -121,4 +121,3 @@ namespace Utils {
 ///
 /// eof: Numbers.cc
 ///
-
