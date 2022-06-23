@@ -45,14 +45,14 @@ if (UNIX)
     COMMAND bash "-c" "rake install_3rd"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMAND_ECHO STDOUT
-    ECHO_OUTPUT_VARIABLE
+    #ECHO_OUTPUT_VARIABLE
   )
 else()
   execute_process(
     COMMAND cmd /c "rake install_3rd"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMAND_ECHO STDOUT
-    ECHO_OUTPUT_VARIABLE
+    #ECHO_OUTPUT_VARIABLE
   )
 endif()
 

@@ -9,7 +9,7 @@ end
 
 require 'rake/clean'
 
-CLEAN.clear_exclude.exclude { |fn| fn == "Core" }
+CLEAN.clear_exclude.exclude { |fn| fn.pathmap("%f").downcase == "core" }
 
 case RUBY_PLATFORM
 when /darwin/

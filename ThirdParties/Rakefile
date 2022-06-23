@@ -1,5 +1,8 @@
-require "rake"
+require 'rake/clean'
+
 require_relative "../Rakefile_common.rb"
+
+CLEAN.clear_exclude.exclude { |fn| fn.pathmap("%f").downcase == "core" }
 
 case RUBY_PLATFORM
 when /darwin/

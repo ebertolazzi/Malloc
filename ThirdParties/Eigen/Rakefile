@@ -1,7 +1,9 @@
-require "rake"
+require 'rake/clean'
 require "fileutils"
 
 require_relative "../../Rakefile_common.rb"
+
+CLEAN.clear_exclude.exclude { |fn| fn.pathmap("%f").downcase == "core" }
 
 VER = "3.4.0"
 
