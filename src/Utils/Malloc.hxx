@@ -45,7 +45,7 @@ namespace Utils {
   extern int64_t MaximumAllocatedBytes;
   extern bool    MallocDebug;
 
-  std::string outBytes( size_t nb );
+  std::string out_bytes( size_t nb );
 
   /*\
   :|:   __  __       _ _
@@ -69,7 +69,7 @@ namespace Utils {
     std::size_t m_num_total_values;
     std::size_t m_num_total_reserved;
     std::size_t m_num_allocated;
-    valueType * m_pMalloc;
+    valueType * m_p_memory;
 
     void allocate_internal( std::size_t n );
     void memory_exausted( std::size_t sz );
@@ -89,7 +89,7 @@ namespace Utils {
     , m_num_total_values(0)
     , m_num_total_reserved(0)
     , m_num_allocated(0)
-    , m_pMalloc(nullptr)
+    , m_p_memory(nullptr)
     { }
 
     //!
@@ -131,7 +131,7 @@ namespace Utils {
       size_t offs = m_num_allocated;
       m_num_allocated += sz;
       if ( m_num_allocated > m_num_total_values ) memory_exausted( sz );
-      return m_pMalloc + offs;
+      return m_p_memory + offs;
     }
 
     //!

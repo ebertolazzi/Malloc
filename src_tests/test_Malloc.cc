@@ -4,7 +4,7 @@
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
- |         | __/ _   ,_         | __/ _   ,_                                | 
+ |         | __/ _   ,_         | __/ _   ,_                                |
  |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
  |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
  |                           /|                   /|                        |
@@ -25,8 +25,8 @@ mem_info( char const msg[] ) {
   fmt::print(
     "{}: mem actual {} max {}\n",
     msg,
-    Utils::outBytes( Utils::AllocatedBytes ),
-    Utils::outBytes( Utils::MaximumAllocatedBytes )
+    Utils::out_bytes( Utils::AllocatedBytes ),
+    Utils::out_bytes( Utils::MaximumAllocatedBytes )
   );
 }
 

@@ -44,7 +44,7 @@ namespace Utils {
   bool    MallocDebug           = false;
 
   string
-  outBytes( size_t nb ) {
+  out_bytes( size_t nb ) {
     size_t Kb = nb>>10;
     size_t Mb = Kb>>10;
     size_t Gb = Mb>>10;
@@ -74,10 +74,10 @@ namespace Utils {
         ++CountFreed; AllocatedBytes -= nb;
       }
 
-      delete [] m_pMalloc;
+      delete [] m_p_memory;
       m_num_total_values   = n;
       m_num_total_reserved = n + (n>>3); // 12% more values
-      m_pMalloc            = new T[m_num_total_reserved];
+      m_p_memory           = new T[m_num_total_reserved];
 
       {
         lock_guard<mutex> lock(Utils::MallocMutex);
@@ -89,7 +89,7 @@ namespace Utils {
       }
 
       if ( MallocDebug )
-        fmt::print( "Allocating {} for {}\n", outBytes( nb ), m_name );
+        fmt::print( "Allocating {} for {}\n", out_bytes( nb ), m_name );
     }
     catch ( exception const & exc ) {
       string reason = fmt::format(
@@ -147,7 +147,7 @@ namespace Utils {
     if ( n > m_num_total_reserved ) allocate_internal( n );
     m_num_total_values = n;
     m_num_allocated    = n;
-    return m_pMalloc;
+    return m_p_memory;
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -158,7 +158,7 @@ namespace Utils {
     if ( n > m_num_total_reserved ) allocate_internal( n );
     m_num_total_values = n;
     m_num_allocated    = n;
-    return m_pMalloc;
+    return m_p_memory;
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -166,7 +166,7 @@ namespace Utils {
   template <typename T>
   void
   Malloc<T>::hard_free() {
-    if ( m_pMalloc != nullptr ) {
+    if ( m_p_memory != nullptr ) {
       size_t nb;
       {
         lock_guard<mutex> lock(Utils::MallocMutex);
@@ -175,9 +175,9 @@ namespace Utils {
       }
 
       if ( MallocDebug )
-        fmt::print( "Freeing {} for {}\n", outBytes( nb ), m_name );
+        fmt::print( "Freeing {} for {}\n", out_bytes( nb ), m_name );
 
-      delete [] m_pMalloc; m_pMalloc = nullptr;
+      delete [] m_p_memory; m_p_memory = nullptr;
       m_num_total_values   = 0;
       m_num_total_reserved = 0;
       m_num_allocated      = 0;

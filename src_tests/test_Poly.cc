@@ -191,7 +191,7 @@ main() {
     fmt::print( "x = {:<10}, sign var = {}\n", xx, s0 );
   }
 
-  STURM.refine_roots( 1e-18 );
+  STURM.refine_roots();
 
   fmt::print( "ROOTS = {}\n", STURM.roots() );
 
