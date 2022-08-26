@@ -39,12 +39,22 @@ namespace Utils {
 
   template <typename Real>
   class Point2D : public Eigen::Matrix<Real,2,1> {
+    typedef Eigen::Matrix<Real,2,1> P2D;
   public:
     Point2D() = default;
-    ~Point2D() = default;
+    //~Point2D() = default;
+
+    //Point2D<Real> &
+    //operator = ( Point2D<Real> const & RHS ) {
+    //  this->to_eigen() = RHS.to_eigen();
+    //  return *this;
+    //}
 
     Real x() const { return this->coeff(0); }
     Real y() const { return this->coeff(1); }
+
+    P2D const & to_eigen() const { return *static_cast<P2D const *>(this); }
+    P2D &       to_eigen()       { return *static_cast<P2D*>(this); }
 
   };
 
@@ -62,13 +72,38 @@ namespace Utils {
     Point2D<Real> m_Pa;
     Point2D<Real> m_Pb;
   public:
-    Segment2D() = default;
-    ~Segment2D() = default;
+    //Segment2D() = default;
+    //~Segment2D() = default;
+
+    Segment2D( Point2D<Real> const & A, Point2D<Real> const & B )
+    : m_Pa(A)
+    , m_Pb(B)
+    {}
+
+    void
+    setup( Point2D<Real> const & A, Point2D<Real> const & B ) {
+      m_Pa = A;
+      m_Pb = B;
+    }
+
+    //Segment2D<Real> const &
+    //operator = ( Segment2D<Real> const & RHS ) {
+    //  m_Pa = RHS.m_Pa;
+    //  m_Pb = RHS.m_Pb;
+    //  return *this;
+    //}
 
     Real          signed_distance( Point2D<Real> const & P ) const;
+    bool          projection( Point2D<Real> const & P, Real & s ) const;
     Point2D<Real> projection( Point2D<Real> const & P, Real & s, Real & t ) const;
     Point2D<Real> eval( Real & s ) const;
     Point2D<Real> eval( Real & s, Real & t ) const;
+
+    Point2D<Real> const & Pa() const { return m_Pa; }
+    Point2D<Real> const & Pb() const { return m_Pb; }
+
+    void bbox( Point2D<Real> & pmin, Point2D<Real> & pmax ) const;
+    bool intersect( Segment2D<Real> & S, Real & s, Real & t ) const;
 
   };
 

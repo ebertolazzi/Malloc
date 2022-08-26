@@ -1,62 +1,114 @@
-%MAKETREE assemble an AABB search tree for a collection of
-%(hyper-)rectangles.
-%   [TR] = MAKETREE(RP) returns an axis-aligned bounding-box
-%   (AABB) tree for a collection of d-rectangles embedded in
-%   R^d. The rectangles are defined as an NR-by-NDIM*2 array
-%   of min/max coordinates RP = [PMIN,PMAX], where PMIN =
-%   [A1,A2,...,ANDIM] and PMAX = [B1,B2,...,BNDIM] are the
-%   minimum/maximum coordinates associated with each rectan-
-%   gle.
+%-------------------------------------------------------+
+%                                                       |
+% Copyright (C) 2022                                    |
+%                                                       |
+%        , __                 , __                      |
+%       /|/  \               /|/  \                     |
+%        | __/ _   ,_         | __/ _   ,_              |
+%        |   \|/  /  |  |   | |   \|/  /  |  |   |      |
+%        |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/     |
+%                          /|                   /|      |
+%                          \|                   \|      |
+%                                                       |
+%     Enrico Bertolazzi                                 |
+%     Dipartimento di Ingegneria Industriale            |
+%     Universita` degli Studi di Trento                 |
+%     email: enrico.bertolazzi@unitn.it                 |
+%                                                       |
+%-------------------------------------------------------+
 %
-%   The resulting tree is returned as a structure containing
-%   an NT-by-NDIM*2 array of tree-node coordinates TR.XX =
-%   [PMIN,PMAX], an NT-by-2 array of tree-node indexing
-%   TR.II = [PI,CI], and an NT-by-1 cell array of node lists
-%   TR.LL. PI,CI are the parent/child pointers associated
-%   with each node in the tree, and TR.LL{II} is the list of
-%   rectangles associated with the II-th node.
+%   Build an axis-aligned bounding-box (AABB) tree for a
+%   collection of d-dimensional bounding-box.
 %
-%   MAKETREE forms a binary search tree, such that each
-%   "leaf" node in the tree encloses a maximum number of re-
-%   ctangles. The tree is formed by recursively subdividing
-%   the bounding-box of the collection. At each division, a
-%   simple heuristic is used to determine a splitting axis
-%   and to position an axis-aligned splitting (hyper-)plane.
+%   Method `build` forms a binary search tree, such that
+%   each "leaf" node in the tree encloses a maximum number
+%   of rectangles.
+%   The tree is formed by recursively subdividing the
+%   bounding-box of the collection.
+%
+%   At each division, a simple heuristic is used to
+%   determine a splitting axis and to position an
+%   axis-aligned splitting (hyper-)plane.
+%
 %   The associated collection of rectangles is partitioned
 %   between two new child nodes. The dimensions of each node
 %   in the tree are selected to provide a minimal enclosure
-%   of the rectangles in its associated sub-tree. Tree nodes
-%   may overlap as a result.
+%   of the rectangles in its associated sub-tree.
+%   Tree nodes may overlap as a result.
 %
-%   [...] = MAKETREE(RP,OP) also passes an additional user-
-%   defined options structure. OP.NOBJ = {32} is the maximum
-%   allowable number of rectangles per tree-node. OP.LONG =
-%   {.75} is a relative length tolerance for "long" rectang-
-%   les, such that any rectangles with RMAX(IX)-RMIN(IX) >=
-%   OP.LONG * (NMAX(IX)-NMIN(IX)) remain in the parent node.
-%   Here RMIN,RMAX are the coordinates of the rectangle,
-%   NMIN,NMAX are the coordinates of the enclosing node in
-%   the tree, and IX is the splitting axis. Nodes that beco-
-%   me "full" of "long" items may exceed their maximum rect-
-%   angle capacity. OP.VTOL = {.55} is a "volume" splitting
-%   criteria, designed to continue subdivision while the net
-%   node volume is reducing. Specifically, a node is split
-%   if V1+V2 <= OP.VTOL*VP, where VP is the d-dim. "volume"
-%   of the parent node, and V1,V2 are the volumes associated
-%   with its children.
+%   The bounding-boxes are defined as two N-by-d array
+%   of min and max coordinates associated with each
+%   bounding-box.
 %
-%   See also DRAWTREE, QUERYSET, MAPVERT, MAPRECT
-
-% Please see the following for additional information:
+%   The resulting tree with (M >= N nodes) is stored
+%   in the class as a set of arrays containing
 %
-%   Darren Engwirda, "Locally-optimal Delaunay-refinement &
-%   optimisation-based mesh generation". Ph.D. Thesis, Scho-
-%   ol of Mathematics and Statistics, Univ. of Sydney, 2014:
+%   - bb_min, bb_max: M-by-d arrays of tree-node bounding-box
+%
+%   - father: M-by-1 array with the index of the "father" node.
+%             for the root node father(root)is equal to 0.
+%
+%   - child:  M-by-1 array with the index of the "child" nodes.
+%             For a leaf node child(node) is equal to 0.
+%             The index of the two children are child(node)
+%             and child(node)+1
+%
+%   - id_nodes: N-by-1 array with the index of the objects
+%               (with bounding-box) used in the AABB tree
+%               construction. This array is internally reordered
+%               to match the partition with the associated node tree.
+%
+%   - ptr_nodes: N-by-1 array with the index of the objects
+%                in id_nodes associated with the tree nodes.
+%                For a node at index IDX the number ptr_nodes(IDX)
+%                is the starting index in id_nodes for the objects
+%                associated.
+%
+%   - num_nodes: N-by-1 array with the number of the objects
+%                in id_nodes associated with the tree nodes.
+%                For a node at index IDX the objects associated
+%                are at indices: ptr_nodes(IDX:IDX+num_nodes(IDX)-1)
+%
+%   - max_object_per_node: (default 32) is the maximum allowable number
+%                          of bounding-boxes per tree-node.
+%
+%   - long_bbox_tolerance: (default 0.8) is a relative length tolerance
+%                          for "long" rectangles, such that any rectangles with
+%
+%                          RMAX(IX)-RMIN(IX) >= long_bbox_tolerance * (NMAX(IX)-NMIN(IX))
+%
+%                          remain in the parent node.
+%                          Here RMIN, RMAX are the coordinates of the rectangle,
+%                          NMIN,NMAX are the coordinates of the enclosing node in
+%                          the tree, and IX is the splitting axis.
+%                          Nodes that become "full" of "long" items may exceed their
+%                          max_object_per_node capacity.
+%
+%   - volume_tolerance:    (default 0.1) is a "volume" splitting criteria,
+%                          designed to continue subdivision while the net
+%                          node volume is reducing.
+%                          Specifically, a node is split if
+%
+%                          VO <= VU*volume_tolerance
+%
+%                          where VO is the volume of the overlapping
+%                          boinding-boxes of the two childred and VU
+%                          is the volume of the union of the volumes
+%                          associated with its children.
+%
+%   REMARK:
+%
+%   The code is an (hopefully) improved object oriented version
+%   of the original code of Darren Engwirda (de2363@columbia.edu)
+%   devoloped in its PhD thesis
+%
+%   Darren Engwirda
+%   "Locally-optimal Delaunay-refinement & optimisation-based mesh generation".
+%   Ph.D. Thesis, School of Mathematics and Statistics,
+%   Univ. of Sydney, 2014:
 %   http://hdl.handle.net/2123/13148
-
-%   Darren Engwirda : 2014 --
-%   Email           : de2363@columbia.edu
-%   Last updated    : 08/10/2017
+%
+%   and available on Mathworks: https://it.mathworks.com/matlabcentral/profile/authors/870403
 %
 classdef AABBtree < matlab.mixin.Copyable
   properties (SetAccess = private, Hidden = true)
@@ -70,24 +122,24 @@ classdef AABBtree < matlab.mixin.Copyable
     bb_min;
     bb_max;
     % --------
-    long;
-    vtol;
-    NOBJ;
+    max_object_per_node;
+    long_bbox_tolerance;
+    volume_tolerance;
   end
   methods(Access = protected)
     % Override copyElement method:
     function obj = copyElement( self )
-      obj           = copyElement@matlab.mixin.Copyable(self);
-      obj.father    = self.father;
-      obj.child     = self.child;
-      obj.ptr_nodes = self.ptr_nodes;
-      obj.num_nodes = self.num_nodes;
-      obj.id_nodes  = self.id_nodes;
-      obj.bb_min    = self.bb_min;
-      obj.bb_max    = self.bb_max;
-      obj.long      = self.long;
-      obj.vtol      = self.vtol;
-      obj.NOBJ      = self.NOBJ;
+      obj                     = copyElement@matlab.mixin.Copyable(self);
+      obj.father              = self.father;
+      obj.child               = self.child;
+      obj.ptr_nodes           = self.ptr_nodes;
+      obj.num_nodes           = self.num_nodes;
+      obj.id_nodes            = self.id_nodes;
+      obj.bb_min              = self.bb_min;
+      obj.bb_max              = self.bb_max;
+      obj.max_object_per_node = self.max_object_per_node;
+      obj.long_bbox_tolerance = self.long_bbox_tolerance;
+      obj.volume_tolerance    = self.volume_tolerance;
     end
   end
   methods
@@ -96,26 +148,41 @@ classdef AABBtree < matlab.mixin.Copyable
       isoctave = exist('OCTAVE_VERSION','builtin') > 0;
       if (isoctave)
         %-- faster for OCTAVE with large tree block size; slower loop execution.
-        NOBJ = 1024;
+        max_object_per_node = 1024;
       else
         %-- faster for MATLAB with small tree block size; better loop execution.
-        NOBJ = 32;
+        max_object_per_node = 32;
       end
-      long = 0.8;
-      vtol = 0.1;
-      if nargin > 0; NOBJ = varargin{1}; end
-      if nargin > 1; long = varargin{2}; end
-      if nargin > 2; vtol = varargin{3}; end
-      self.setup( NOBJ, long, vtol );
+      long_bbox_tolerance = 0.8;
+      volume_tolerance    = 0.1;
+      if nargin > 0; max_object_per_node = varargin{1}; end
+      if nargin > 1; long_bbox_tolerance = varargin{2}; end
+      if nargin > 2; volume_tolerance    = varargin{3}; end
+      self.setup( max_object_per_node, long_bbox_tolerance, volume_tolerance );
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     function str = is_type( ~ )
       str = 'AABBtree';
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    setup( self, NOBJ, long, vtol )
+    setup( self, max_object_per_node, long_bbox_tolerance, volume_tolerance )
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     build( self, bb_min, bb_max )
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ok = bbox_overlap( self, A_min, A_max, B_min, B_max )
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    function [bb_min,bb_max] = get_bb_min_max( self )
+      bb_min = self.bb_min;
+      bb_max = self.bb_max;
+    end
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    function bb_min = get_bb_min( self )
+      bb_min = self.bb_min;
+    end
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    function bb_max = get_bb_max( self )
+      bb_max = self.bb_max;
+    end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     function [f,c,ptr,num,id] = get_tree_structure( self )
       f   = self.father;
@@ -135,7 +202,15 @@ classdef AABBtree < matlab.mixin.Copyable
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     id_list = scan_bbox( self, bb_min, bb_max )
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    plot( self )
+    id_list = intersect( self, aabb )
+    id_list = intersect2( self, aabb )
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ok_list = intersect_with_one_bbox( self, bb_min, bb_max )
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    plot( self, varargin )
+    plot_bbox( self, mi, ma, fc, ec )
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    info( self )
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   end
 end

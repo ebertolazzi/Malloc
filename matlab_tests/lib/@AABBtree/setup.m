@@ -1,18 +1,18 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function setup( self, NOBJ, long, vtol )
+function setup( self, max_object_per_node, long_bbox_tolerance, volume_tolerance )
   % bound population count
-  if NOBJ <= 0
-    error('NOBJ must be > 0, found %g', NOBJ );
+  if max_object_per_node <= 0
+    error('max_object_per_node must be > 0, found %g', max_object_per_node );
   end
   % bound "long" tolerance
-  if long < 0 || long > 1
-    error('long must be in (0,1) found %g', long );
+  if long_bbox_tolerance < 0 || long_bbox_tolerance > 1
+    error('long_bbox_tolerance must be in (0,1) found %g', long_bbox_tolerance );
   end
-  % bound "vtol" tolerance
-  if vtol < 0 || vtol > 1
-    error('vtol must be in (0,1) found %g', vtol );
+  % bound "volume_tolerance" tolerance
+  if volume_tolerance < 0 || volume_tolerance > 1
+    error('volume_tolerance must be in (0,1) found %g', volume_tolerance );
   end
-  self.NOBJ = NOBJ;
-  self.long = long;
-  self.vtol = vtol;
+  self.max_object_per_node = max_object_per_node;
+  self.long_bbox_tolerance = long_bbox_tolerance;
+  self.volume_tolerance    = volume_tolerance;
 end

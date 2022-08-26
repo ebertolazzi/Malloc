@@ -29,26 +29,25 @@ function build( self, pmin, pmax )
   bb_min(1,:) = min(pmin,[],1);
   bb_max(1,:) = max(pmax,[],1);
 
-  %-- main loop : divide nodes until all constraints satisfied
+  % main loop: divide nodes until all constraints satisfied
   stack(1)  = 1;
   top_stack = 1;
   nn        = 1;
   while top_stack > 0
+
     % pop node from stack
     id_father = stack(top_stack);
     top_stack = top_stack - 1;
-    % child indexing
-    id_left  = nn + 1;
-    id_right = nn + 2;
 
     % get rectangles id in parent
-    ptr = ptr_nodes(id_father);
     num = num_nodes(id_father);
-    if num > 0
-      inodes = id_nodes(ptr:ptr+num-1);
-    else
-      inodes = [];
-    end
+
+    % if few bbox stop splitting
+    if num < self.max_object_per_node; continue; end
+
+    ptr    = ptr_nodes(id_father);
+    inodes = id_nodes(ptr:ptr+num-1);
+
     % split plane on longest axis, use euristic
     dd = bb_max(id_father,:) - bb_min(id_father,:);
     [dd,ia] = sort(dd);
@@ -57,11 +56,11 @@ function build( self, pmin, pmax )
       ax = ia(id);
       mx = dd(id);
 
-      il          = dlength(inodes,ax) > self.long * mx;
+      il          = dlength(inodes,ax) > self.long_bbox_tolerance * mx;
       long_nodes  = inodes( il); % "long" rectangles
       short_nodes = inodes(~il); % "short" rectangles
 
-      if length(long_nodes) < 0.5*min(length(short_nodes),self.NOBJ)
+      if length(long_nodes) < 0.5*min(length(short_nodes),self.max_object_per_node)
         break;
       end
     end
@@ -89,17 +88,19 @@ function build( self, pmin, pmax )
       continue;
     end
 
+    % child indexing
+    id_left  = nn + 1;
+    id_right = nn + 2;
+
     % compute bbox of left and right child
     bb_min(id_left,:)  = min(pmin(left_nodes,:),[],1) ;
     bb_max(id_left,:)  = max(pmax(left_nodes,:),[],1) ;
     bb_min(id_right,:) = min(pmin(right_nodes,:),[],1) ;
     bb_max(id_right,:) = max(pmax(right_nodes,:),[],1) ;
 
-    % check again if split improve the AABBtree otherwise
-    % stop exploration
-    if nleft < self.NOBJ || nright < self.NOBJ
+    % check again if split improve the AABBtree otherwise stop exploration
+    if nleft < self.max_object_per_node || nright < self.max_object_per_node
       % few nodes, check if improve volume
-      % compute overlap volume
       dvo = min(bb_max(id_left,:),bb_max(id_right,:)) - ...
             max(bb_min(id_left,:),bb_min(id_right,:));
       if all(dvo > 0)
@@ -107,7 +108,7 @@ function build( self, pmin, pmax )
         vo = prod( dvo );
         v1 = prod( bb_max(id_left,:)  - bb_min(id_left,:) );
         v2 = prod( bb_max(id_right,:) - bb_min(id_right,:) );
-        if vo > (v1+v2-vo)*self.vtol
+        if vo > (v1+v2-vo)*self.volume_tolerance
           % do not improve volume, stop split at this level!
           continue;
         end
@@ -115,12 +116,11 @@ function build( self, pmin, pmax )
     end
 
     % push child nodes onto stack
-    % parent--child indexing
     father(id_left)  = id_father;
     father(id_right) = id_father;
     child(id_father) = id_left;
 
-    % reorder nodes
+    % reorder nodes in id_nodes
     ptr1 = ptr+nlong;
     ptr2 = ptr1+nleft;
     ptr3 = ptr2+nright;
@@ -144,8 +144,7 @@ function build( self, pmin, pmax )
     nn                 = nn+2;
 
   end
-  %----------------------------------------------- trim alloc.
-  %----------------------------------------------- pack struct
+  % pack memory and store in class
   self.bb_min    = bb_min(1:nn,:);
   self.bb_max    = bb_max(1:nn,:);
   self.father    = father(1:nn);

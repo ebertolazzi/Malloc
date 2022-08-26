@@ -35,6 +35,14 @@ classdef BBox < matlab.mixin.Copyable
       self.id   = id;
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    function ma = get_max( self )
+      ma = self.Pmax;
+    end
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    function mi = get_min( self )
+      mi = self.Pmin;
+    end
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     function [ma,mi] = get_max_min( self )
       ma = self.Pmax;
       mi = self.Pmin;

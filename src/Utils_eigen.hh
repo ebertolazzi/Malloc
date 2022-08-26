@@ -37,6 +37,7 @@
 #define EIGEN_DONT_PARALLELIZE
 #define EIGEN_NO_AUTOMATIC_RESIZING
 #include <Eigen/Core>
+#include <Eigen/Dense>
 
 #ifdef __clang__
 #pragma clang diagnostic pop
