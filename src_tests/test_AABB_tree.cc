@@ -46,7 +46,7 @@ main() {
 
   TicToc tm;
 
-  integer const NS  = 50000;
+  integer const NS  = 10000;
   integer const dim = 2;
   real_type bb_min1[NS*dim];
   real_type bb_max1[NS*dim];
@@ -122,12 +122,20 @@ main() {
   }
 
   Utils::AABBtree<real_type> T1, T2;
-  T1.set_max_object_per_node( 256 );
-  T2.set_max_object_per_node( 256 );
+  T1.set_max_object_per_node( 16 );
+  T2.set_max_object_per_node( 16 );
 
   tm.tic();
-  T1.build( bb_min1, bb_max1, NS, dim );
-  T2.build( bb_min2, bb_max2, NS, dim );
+  T1.build(
+    bb_min1, dim, NS,
+    bb_max1, dim, NS,
+    NS, dim
+  );
+  T2.build(
+    bb_min2, dim, NS,
+    bb_max2, dim, NS,
+    NS, dim
+  );
   tm.toc();
 
   fmt::print("T1 T2 build elapsed {} ms\n", tm.elapsed_ms() );
@@ -145,7 +153,7 @@ main() {
   std::set<integer> bb_index;
   real_type const pnt[2] = { 4, 4 };
   tm.tic();
-  T1.intersect( pnt, bb_index );
+  T1.intersect_with_one_point( pnt, bb_index );
   tm.toc();
 
   fmt::print( "intersect: ({} ms) -> {} ms \n", tm.elapsed_ms(), NS*tm.elapsed_ms() );
@@ -164,6 +172,20 @@ main() {
   T2.intersect( T1, bbb_index );
   tm.toc();
   fmt::print("T2 vs T1 elapsed {} ms\nsize = {}\n", tm.elapsed_ms(), bbb_index.size() );
+
+  bbb_index.clear();
+
+  tm.tic();
+  T1.intersect_and_refine(
+    T2,
+    bb_min1, dim, NS,
+    bb_max1, dim, NS,
+    bb_min2, dim, NS,
+    bb_max2, dim, NS,
+    bbb_index
+  );
+  tm.toc();
+  fmt::print("intersect_with_refine T1 vs T2 elapsed {} ms\nsize = {}\n", tm.elapsed_ms(), bbb_index.size() );
 
 
   fmt::print("T1\n{}\n", T1.info() );

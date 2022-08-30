@@ -2,6 +2,7 @@ function info( self )
   nleaf = sum(self.child == 0);
   nlong = sum(self.num_nodes > 0) - nleaf;
   fprintf('AABB tree info-----------------\n');
+  fprintf('Dimension           %d\n',size(self.bb_min,2));
   fprintf('Number of nodes     %d\n',length(self.father));
   fprintf('Number of leaf      %d\n',nleaf);
   fprintf('Number of long node %d\n',nlong);

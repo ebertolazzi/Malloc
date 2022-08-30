@@ -1,6 +1,6 @@
-function ok_list = intersect_with_one_bbox( self, bb_min, bb_max )
+function id_list = intersect_with_one_bbox( self, bb_min, bb_max )
   sz      = length(self.father);
-  ok_list = false(sz,1);
+  id_list = [];
 
   % quick return on empty inputs
   if sz == 0; return; end
@@ -12,37 +12,25 @@ function ok_list = intersect_with_one_bbox( self, bb_min, bb_max )
   root       = 1;
   stack(1)   = root;
   top_stack  = 1;
-  bmin       = self.bb_min(root,:);
-  bmax       = self.bb_max(root,:);
-  if self.bbox_overlap( bb_min, bb_max, bmin, bmax )
-    ok_list(1) = true;
-  end
   while top_stack > 0
     % pop node from stack
     id_father = stack(top_stack);
     top_stack = top_stack - 1;
 
-    % list of points that may intersect
-    if self.num_nodes(id_father) == 0
-      ok_list(id_father) = false;
-    end
+    % get BBOX
+    father_min = self.bb_min(id_father,:);
+    father_max = self.bb_max(id_father,:);
 
-    if self.child(id_father) == 0
-      % no children, nothing to do
-      continue;
-    end
+    if self.bbox_overlap( bb_min, bb_max, father_min, father_max )
+      % get rectangles id in parent
+      id_list = [ id_list; self.get_bb_index_by_nodes( id_father ) ];
 
-    for kkk=0:1
-      id_lr  = self.child(id_father)+kkk;
-      lr_min = self.bb_min(id_lr,:);
-      lr_max = self.bb_max(id_lr,:);
-
-      % check intersetion
-      if self.bbox_overlap( bb_min, bb_max, lr_min, lr_max )
-        % push nonempty node onto stack
-        top_stack        = top_stack + 1;
-        stack(top_stack) = id_lr;
-        ok_list(id_lr)   = true;
+      nn = self.child(id_father);
+      if nn > 0
+        % push on stack children
+        stack(top_stack+1) = nn;
+        stack(top_stack+2) = nn+1;
+        top_stack          = top_stack+2;
       end
     end
   end

@@ -5,7 +5,7 @@ function [s,t,ok] = intersect( self, S )
   % check if collinear
   D1 = self.Pb-self.Pa;
   D2 = S.Pb-S.Pa;
-  CX = (D1(1)*D2(2)-D1(2)*D2(1))/(norm(D1)*norm(D2));
+  CX = ( D1(1)*D2(2) - D1(2)*D2(1) ) / (norm(D1)*norm(D2));
   if abs(CX) <= 10*eps
     % collinear point check if overlap
     [s,t,PP] = self.point_coord( S.Pa );

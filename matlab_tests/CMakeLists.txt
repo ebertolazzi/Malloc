@@ -16,7 +16,7 @@
 
 cmake_minimum_required( VERSION 3.14 )
 
-project( Utils )
+project( AABB )
 
 include(./cmake/CMakeLists-common.txt)
 
@@ -34,6 +34,10 @@ endif()
 
 include(./cmake/CMakeLists-cflags.txt)
 include(./cmake/CMakeLists-utilities.txt)
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
 
 # Evaluating the suffix to append to target built by this CMake file
 ebertolazzi_artifacts_suffix(ARTIFACTS_STATIC_SUFFIX TRUE)
@@ -120,19 +124,63 @@ if ( EB_BUILD_SHARED )
   )
 endif()
 
-ebertolazzi_final_messages()
+#   _____       _
+#  |_   _|__ __| |_ ___
+#    | |/ -_|_-<  _(_-<
+#    |_|\___/__/\__/__/
+#
+if ( EB_ENABLE_TESTS )
 
-if ( UNIX OR LINUX )
-  if ( NOT APPLE )
-    set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
-    set(CMAKE_SHARED_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+  enable_testing()
+
+  set( EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin )
+  set( LIBS ${EB_NAMESPACE}_${PROJECT_NAME}_Static ${CMAKE_DL_LIBS} )
+
+  if( UNIX AND NOT APPLE )
+    set( THREADS_PREFER_PTHREAD_FLAG ON )
+    find_package( Threads REQUIRED )
+    set( LIBS ${LIBS} Threads::Threads )
   endif()
-else()
-  #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mwindows")
-  add_definitions(-mwindows)
+
+  set( EXELISTCPP )
+  file(
+    GLOB S
+    ${CMAKE_CURRENT_SOURCE_DIR}/src_tests/*.cc
+  )
+  foreach(F ${S})
+    file( RELATIVE_PATH RF "${CMAKE_CURRENT_SOURCE_DIR}/src_tests/" "${F}" )
+    get_filename_component( RFF ${RF} NAME_WLE )
+    list( APPEND EXELISTCPP ${RFF} )
+  endforeach(F ${S})
+
+  add_custom_target( "${PROJECT_NAME}_all_tests" ALL )
+
+  foreach( S ${EXELISTCPP} )
+    add_executable( ${S} ${CMAKE_CURRENT_SOURCE_DIR}/src_tests/${S}.cc )
+    target_link_libraries( ${S} ${LIBS} )
+    add_test( NAME "${S}" COMMAND ./bin/${S} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
+    add_dependencies( "${PROJECT_NAME}_all_tests" ${S} )
+  endforeach()
+
 endif()
 
-set( MEX_LIST TestClass )
+#   ___         _        _ _
+#  |_ _|_ _  __| |_ __ _| | |
+#   | || ' \(_-<  _/ _` | | |
+#  |___|_||_/__/\__\__,_|_|_|
+#
+install(
+  TARGETS ${TARGETS_TO_BE_INSTALLED}
+  # EXPORT (da definire)
+  LIBRARY DESTINATION ${INSTALL_PREFIX}/dll
+  ARCHIVE DESTINATION ${INSTALL_PREFIX}/lib
+  RUNTIME DESTINATION ${INSTALL_PREFIX}/bin
+  PUBLIC_HEADER DESTINATION ${PROJECT_PUBLIC_HEADER_DESTINATION}
+)
+
+ebertolazzi_final_messages()
+
+set( MEX_LIST AABB_tree Segment2D )
 foreach(MEX ${MEX_LIST})
   matlab_add_mex(
     NAME mex_${MEX}
@@ -145,7 +193,4 @@ foreach(MEX ${MEX_LIST})
     "$<TARGET_FILE:mex_${MEX}>"
     "${CMAKE_CURRENT_SOURCE_DIR}/lib"
   )
-  if ( NOT UNIX )
-    target_link_libraries( ${MEX}MexWrapper ws2_32.lib iphlpapi.lib iphlpapi.lib kernel32.lib winpthread )
-  endif()
 endforeach()

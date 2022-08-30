@@ -14,11 +14,12 @@ function id_list = intersect2( self, aabb )
   top_stack  = 1;
   while top_stack > 0
     % pop node from stack
-    root1     = stack(top_stack,1);
+    sroot1    = stack(top_stack,1);
     root2     = stack(top_stack,2);
     top_stack = top_stack - 1;
 
     % check for intersection
+    root1 = abs(sroot1);
     if self.bbox_overlap( self.bb_min(root1,:), self.bb_max(root1,:), ...
                           aabb.bb_min(root2,:), aabb.bb_max(root2,:) )
 
@@ -26,19 +27,27 @@ function id_list = intersect2( self, aabb )
       nn1 = self.num_nodes(root1);
       nn2 = aabb.num_nodes(root2);
       if nn1 > 0 && nn2 > 0
-        id_list{root1} = [id_list{root1}; aabb.get_nodes(root2)];
+        id_list{root1} = [id_list{root1}; aabb.get_bbox_indexes_of_a_node(root2)];
       end
 
-      id_lr1 = self.child(root1);
+      if sroot1 < 0
+        id_lr1 = 0;
+      else
+        id_lr1 = self.child(root1);
+      end
       id_lr2 = aabb.child(root2);
 
       if id_lr1 > 0
+        if nn1 > 0
+          stack(top_stack+1,:) = [ -root1, root2 ];
+          top_stack = top_stack + 1;
+        end
         stack(top_stack+1,:) = [ id_lr1,   root2 ];
         stack(top_stack+2,:) = [ id_lr1+1, root2 ];
         top_stack = top_stack + 2;
       elseif id_lr2 > 0
-        stack(top_stack+1,:) = [ root1, id_lr2   ];
-        stack(top_stack+2,:) = [ root1, id_lr2+1 ];
+        stack(top_stack+1,:) = [ sroot1, id_lr2   ];
+        stack(top_stack+2,:) = [ sroot1, id_lr2+1 ];
         top_stack = top_stack + 2;
       end
     end

@@ -22,8 +22,11 @@ function test_AABB2
 '   and a user-defined query function as inputs. See the  \n',...
 '   DEMO-3 code in AABBDEMO.m for additional details.\n\n']);
 
-  nc = 10000*4;
-  np = 50000*4;
+  %nc = 10000;
+  %np = 50000;
+
+  nc = 10000/5;
+  np = 50000/5;
 
   pc = randcirc(nc,2,0.02);
   pi = rand(np,size(pc,2)-1);
@@ -41,6 +44,7 @@ function test_AABB2
   toc(start)
 
   fprintf(1,'   Equivalent results? \n');
+  fprintf('n.slow = %d n.fast = %d\n',length(ii_slow),length(ii_fast));
 
   if size(ii_slow) == size(ii_fast)
     same = true ;
@@ -55,6 +59,7 @@ function test_AABB2
           break;
         end
       else
+        fprintf('n.c1 = %d n.c2 = %d\n',length(c1),length(c2));
         same = false;
         break;
       end
@@ -102,11 +107,11 @@ function [ii,ip,cj] = slowfindcirc(pc,pi)
 
   [pj,cj] = incircle(ip,ic,pi,[pc(:,1:2),pc(:,3).^2]);
 
-  pj = pj( :);
-  cj = cj( :);
+  pj = pj(:);
+  cj = cj(:);
 
   %-- re-index to the sparse-style representation of QUERYSET
-  [pj,ix] = sort (pj);
+  [pj,ix] = sort(pj);
   cj = cj(ix);
   ix = find(diff(pj)>0);
 
@@ -151,14 +156,19 @@ function [ii,ip,cj,tr] = fastfindcirc(pc,pi)
   end
 
   %-- compute aabb-tree for circles
+  %tr = AABB_tree();
   tr = AABBtree();
+  tr.set_max_object_per_node(2);
+  %tr.build(bb_min,bb_max,true);
   tr.build(bb_min,bb_max);
-  %tr.info
+  tr.info
 
   %-- compute aabb-tree for points
+  %tr2 = AABB_tree();
   tr2 = AABBtree();
+  %tr2.build(pi,pi,true);
   tr2.build(pi,pi);
-  %tr2.info
+  tr2.info
 
   toc
 
@@ -166,29 +176,58 @@ function [ii,ip,cj,tr] = fastfindcirc(pc,pi)
   tic
   %id_list = tr.scan_points( pi );
   %id_list = tr.scan_bbox( pi, pi );
-  id_list = tr.intersect(tr2);
+  id_list = cell(size(pc,1),1);
+  if true
+    if false
+      id_list = tr.intersect_and_refine( tr2, bb_min, bb_max, pi, pi, true );
+    else
+      id1_list = tr.intersect( tr2 );
+      for k=1:length(id1_list)
+        idk = double(id1_list{k});
+        if ~isempty(idk)
+          idx = double(tr.get_bbox_indexes_of_a_node(k));
+          for kkk=1:length(idx)
+            id_list{idx(kkk)} = [id_list{idx(kkk)};idk];
+          end
+        end
+      end
+    end
+  else
+    for k=1:size(pc,1)
+      idx        = tr2.intersect_with_one_bbox( bb_min(k,:), bb_max(k,:) );
+      id_list{k} = double(idx);
+    end
+  end
   toc
+
+  acc = 0;
+  for k=1:length(id_list)
+    tmp = length(id_list{k});
+    id_list{k} = unique(sort(id_list{k}));
+    acc = acc + tmp-length(id_list{k});
+  end
+
+  acc
 
   fprintf('INTERSECT: ');
   tic
-  nn = tr.get_num_nodes();
-  pj = cell(nn,1);
-  cj = cell(nn,1);
-  for k=1:nn
-    if ~isempty(id_list{k})
-      [pj{k},cj{k}] = incircle(id_list{k},tr.get_nodes(k),pi,[pc(:,1:2),pc(:,3).^2]);
+  pj = cell(length(id_list),1);
+  cj = cell(length(id_list),1);
+  for k=1:length(id_list)
+    idx = id_list{k};
+    if ~isempty(idx)
+      [pj{k},cj{k}] = incircle( idx, k, pi, [pc(:,1:2),pc(:,3).^2] );
     end
   end
   pj = vertcat(pj{:});
   cj = vertcat(cj{:});
   toc
 
-
   %pj = pj(:);
   %cj = cj(:);
 
   %-- re-index to the sparse-style representation of QUERYSET
-  [pj,ix] = sort (pj);
+  [pj,ix] = sort(pj);
   cj = cj(ix);
   ix = find(diff(pj)>0);
 

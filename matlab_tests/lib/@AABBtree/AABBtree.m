@@ -165,6 +165,18 @@ classdef AABBtree < matlab.mixin.Copyable
       str = 'AABBtree';
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    function set_max_object_per_node( self, max_object_per_node )
+      self.max_object_per_node = max_object_per_node;
+    end
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    function set_long_bbox_tolerance( self, long_bbox_tolerance )
+      self.long_bbox_tolerance = long_bbox_tolerance;
+    end
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    function set_volume_tolerance( self, volume_tolerance )
+      self.volume_tolerance = volume_tolerance;
+    end
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     setup( self, max_object_per_node, long_bbox_tolerance, volume_tolerance )
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     build( self, bb_min, bb_max )
@@ -192,7 +204,7 @@ classdef AABBtree < matlab.mixin.Copyable
       id  = self.id_nodes;
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    inodes = get_nodes( self, id )
+    inodes = get_bbox_indexes_of_a_node( self, id )
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     function N = get_num_nodes( self )
       N = length(self.father);

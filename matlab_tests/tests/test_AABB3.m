@@ -12,7 +12,7 @@ close all;
 addpath('../lib');
 
 NN = 100;
-MM = 10;
+MM = 100;
 
 % check constructors
 fprintf('Generate lines\n');
@@ -30,7 +30,8 @@ for k=1:NN
   len      = 0.01+2*rand;
   Pa       = [x;y];
   Pb       = Pa + len*[cos(theta);sin(theta)];
-  SEGS1{k} = Segment(Pa,Pb);
+  SEGS1{k} = Segment2D(Pa,Pb);
+  %SEGS1{k} = Segment(Pa,Pb);
 end
 
 SEGS2 = {};
@@ -49,10 +50,11 @@ for k=1:MM
   len      = 0.01+2*rand;
   Pa       = [x;y];
   Pb       = Pa + len*[cos(theta);sin(theta)];
-  SEGS2{k} = Segment(Pa,Pb);
+  SEGS2{k} = Segment2D(Pa,Pb);
+  %SEGS2{k} = Segment(Pa,Pb);
 end
 
-subplot(1,2,1);
+subplot(2,2,1);
 hold on;
 bb_max1 = zeros(NN,2);
 bb_min1 = zeros(NN,2);
@@ -67,8 +69,10 @@ nobj = 2;
 long = 0.8;
 vtol = 0.55;
 
-tr1 = AABBtree(nobj,long,vtol);
-tr1.build(bb_min1,bb_max1);
+tr1 = AABB_tree(nobj,long,vtol);
+tr1.build( bb_min1, bb_max1, true );
+tr1.plot_bbox( bb_min1, bb_max1, 'red', 'black' );
+
 tr1.plot('red', 'black');
 tr1.info
 %xlim([0,20]);
@@ -85,8 +89,8 @@ for k=1:MM
   bb_max2(k,:) = B2.get_max().';
 end
 
-tr2 = AABBtree(nobj,long,vtol);
-tr2.build(bb_min2,bb_max2);
+tr2 = AABB_tree(nobj,long,vtol);
+tr2.build( bb_min2, bb_max2, true );
 tr2.plot('blue', 'black');
 tr2.info
 %xlim([0,15]);
@@ -96,59 +100,90 @@ axis equal
 % trovo candidati intersezioni
 %
 
-subplot(1,2,2);
-
-if false
-
-  [b1min,b1max] = tr1.get_bb_min_max();
-  [b2min,b2max] = tr2.get_bb_min_max();
-
-  ii = 2;
-  ok_list1 = tr1.intersect_with_one_bbox(b2min(ii,:),b2max(ii,:));
-  ok_list2 = tr2.intersect_with_one_bbox(b1min(ii,:),b1max(ii,:));
-
-  if false
-    tr1.plot_bbox( b1min(ok_list1,:), b1max(ok_list1,:), 'red',  'black' );
-    tr1.plot_bbox( b2min(ii,:),       b2max(ii,:),       'blue', 'black' );
-  else
-    tr2.plot_bbox( b2min(ok_list2,:), b2max(ok_list2,:), 'blue', 'black' );
-    tr2.plot_bbox( b1min(ii,:),       b1max(ii,:),       'red',  'black' );
-  end
-else
-
-  id_list = tr1.intersect(tr2);
-
-  [mi1,ma1] = tr1.get_bb_min_max();
-  [mi2,ma2] = tr2.get_bb_min_max();
-  
-  %ok = ~cellfun(@isempty,id_list1);
-  %tr1.plot_bbox( mi1(ok,:), ma1(ok,:), 'red', 'black' );
-
-  %ok = ~cellfun(@isempty,id_list2);
-  %tr2.plot_bbox( mi2(ok,:), ma2(ok,:), 'blue', 'black' );
-
-  for k=1:length(id_list)
-    idx = id_list{k};
-    if ~isempty(idx)
-      tr1.plot_bbox( mi1(k,:),     ma1(k,:),     'red',  'black' );
-      %tr2.plot_bbox( b2min(idx,:), b2max(idx,:), 'blue', 'cyan'  );
-      tr2.plot_bbox( bb_min2(idx,:), bb_max2(idx,:), 'blue', 'cyan'  );
-      %break;
-    end
-  end
-
-  %ok = ~cellfun(@isempty,id_list2);
-  %[mi,ma] = tr2.get_bb_min_max();
-  %tr2.plot_bbox( mi(ok,:), ma(ok,:), 'blue', 'black' );
-
-end
-
+subplot(2,2,2);
 hold on;
+
+for ii=1:size(bb_min2,1)
+  ok_list = tr1.intersect_with_one_bbox( bb_min2(ii,:), bb_max2(ii,:) );
+  if ~isempty(ok_list)
+    tr1.plot_bbox( bb_min2(ii,:),      bb_max2(ii,:),      'cyan',  'black' );
+    tr1.plot_bbox( bb_min1(ok_list,:), bb_max1(ok_list,:), 'green', 'white' );
+  end
+end
 for k=1:NN
   SEGS1{k}.plot( '-r', 'LineWidth', 1 );
 end
 for k=1:MM
   SEGS2{k}.plot( '-b', 'LineWidth', 1 );
+end
+
+axis equal
+
+subplot(2,2,3);
+hold on;
+
+if false
+  id_list = tr1.intersect(tr2);
+  idx_all = false(size(bb_min2,1),1);
+  for k=1:length(id_list)
+    idx = id_list{k};
+    if ~isempty(idx)
+      idx_all(idx) = true;
+      id_list2 = tr1.get_bb_index_by_nodes( k );
+      for kk=id_list2
+        tr1.plot_bbox( bb_min1(kk,:), bb_max1(kk,:), 'red', 'black' );
+      end
+    end
+  end
+  tr2.plot_bbox( bb_min2(idx_all,:), bb_max2(idx_all,:), 'blue', 'black' );
+else
+  id_list = tr1.intersect_and_refine( tr2, bb_min1, bb_max1, bb_min2, bb_max2, true );
+  idx_all = false(size(bb_min2,1),1);
+  for k=1:length(id_list)
+    idx = id_list{k};
+    if ~isempty(idx)
+      idx_all(idx) = true;
+      tr1.plot_bbox( bb_min1(k,:), bb_max1(k,:), 'red', 'black' );
+    end
+  end
+  tr2.plot_bbox( bb_min2(idx_all,:), bb_max2(idx_all,:), 'blue', 'black' );
+
+end
+
+for k=1:NN
+  SEGS1{k}.plot( '-r', 'LineWidth', 1 );
+end
+for k=1:MM
+  SEGS2{k}.plot( '-b', 'LineWidth', 1 );
+end
+
+%xlim([0,15]);
+axis equal
+
+subplot(2,2,4);
+hold on;
+
+for k=1:NN
+  SEGS1{k}.plot( '-r', 'LineWidth', 1 );
+end
+for k=1:MM
+  SEGS2{k}.plot( '-b', 'LineWidth', 1 );
+end
+
+for k=1:length(id_list)
+  idx = id_list{k};
+  if length(idx)>0
+    %SEGS1{k}.plot( '-r', 'LineWidth', 2 );
+    for j=1:length(idx)
+      id = idx(j);
+      %SEGS2{id}.plot( '-b', 'LineWidth', 2 );
+      [s,t,ok] = SEGS1{k}.intersect( SEGS2{id} );
+      if ok
+        P = SEGS1{k}.eval(s);
+        plot( P(1), P(2), 'o', 'MarkerFaceColor', 'green', 'MarkerSize', 5 );
+      end
+    end
+  end
 end
 
 %xlim([0,15]);
