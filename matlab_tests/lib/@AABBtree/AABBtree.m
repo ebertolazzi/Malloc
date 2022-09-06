@@ -69,32 +69,35 @@
 %                For a node at index IDX the objects associated
 %                are at indices: ptr_nodes(IDX:IDX+num_nodes(IDX)-1)
 %
-%   - max_object_per_node: (default 32) is the maximum allowable number
-%                          of bounding-boxes per tree-node.
+%   - max_object_per_node:
+%       (default 32) is the maximum allowable number
+%       of bounding-boxes per tree-node.
 %
-%   - long_bbox_tolerance: (default 0.8) is a relative length tolerance
-%                          for "long" rectangles, such that any rectangles with
+%   - bbox_long_edge_ratio:
+%       (default 0.8) is a relative length tolerance
+%       for "long" rectangles, such that any rectangles with
 %
-%                          RMAX(IX)-RMIN(IX) >= long_bbox_tolerance * (NMAX(IX)-NMIN(IX))
+%       RMAX(IX)-RMIN(IX) >= bbox_long_edge_ratio * (NMAX(IX)-NMIN(IX))
 %
-%                          remain in the parent node.
-%                          Here RMIN, RMAX are the coordinates of the rectangle,
-%                          NMIN,NMAX are the coordinates of the enclosing node in
-%                          the tree, and IX is the splitting axis.
-%                          Nodes that become "full" of "long" items may exceed their
-%                          max_object_per_node capacity.
+%       remain in the parent node.
+%       Here RMIN, RMAX are the coordinates of the rectangle,
+%       NMIN,NMAX are the coordinates of the enclosing node in
+%       the tree, and IX is the splitting axis.
+%       Nodes that become "full" of "long" items may exceed their
+%       max_object_per_node capacity.
 %
-%   - volume_tolerance:    (default 0.1) is a "volume" splitting criteria,
-%                          designed to continue subdivision while the net
-%                          node volume is reducing.
-%                          Specifically, a node is split if
+%   - bbox_overlap_tolerance:
+%       (default 0.1) is a "volume" splitting criteria,
+%       designed to continue subdivision while the net
+%       node volume is reducing.
+%       Specifically, a node is split if
 %
-%                          VO <= VU*volume_tolerance
+%       VO <= VU*bbox_overlap_tolerance
 %
-%                          where VO is the volume of the overlapping
-%                          boinding-boxes of the two childred and VU
-%                          is the volume of the union of the volumes
-%                          associated with its children.
+%       where VO is the volume of the overlapping
+%       bonding-boxes of the two children and VU
+%       is the volume of the union of the volumes
+%       associated with its children.
 %
 %   REMARK:
 %
@@ -123,23 +126,23 @@ classdef AABBtree < matlab.mixin.Copyable
     bb_max;
     % --------
     max_object_per_node;
-    long_bbox_tolerance;
-    volume_tolerance;
+    bbox_long_edge_ratio;
+    bbox_overlap_tolerance;
   end
   methods(Access = protected)
     % Override copyElement method:
     function obj = copyElement( self )
-      obj                     = copyElement@matlab.mixin.Copyable(self);
-      obj.father              = self.father;
-      obj.child               = self.child;
-      obj.ptr_nodes           = self.ptr_nodes;
-      obj.num_nodes           = self.num_nodes;
-      obj.id_nodes            = self.id_nodes;
-      obj.bb_min              = self.bb_min;
-      obj.bb_max              = self.bb_max;
-      obj.max_object_per_node = self.max_object_per_node;
-      obj.long_bbox_tolerance = self.long_bbox_tolerance;
-      obj.volume_tolerance    = self.volume_tolerance;
+      obj                        = copyElement@matlab.mixin.Copyable(self);
+      obj.father                 = self.father;
+      obj.child                  = self.child;
+      obj.ptr_nodes              = self.ptr_nodes;
+      obj.num_nodes              = self.num_nodes;
+      obj.id_nodes               = self.id_nodes;
+      obj.bb_min                 = self.bb_min;
+      obj.bb_max                 = self.bb_max;
+      obj.max_object_per_node    = self.max_object_per_node;
+      obj.bbox_long_edge_ratio   = self.bbox_long_edge_ratio;
+      obj.bbox_overlap_tolerance = self.bbox_overlap_tolerance;
     end
   end
   methods
@@ -153,12 +156,12 @@ classdef AABBtree < matlab.mixin.Copyable
         %-- faster for MATLAB with small tree block size; better loop execution.
         max_object_per_node = 32;
       end
-      long_bbox_tolerance = 0.8;
-      volume_tolerance    = 0.1;
-      if nargin > 0; max_object_per_node = varargin{1}; end
-      if nargin > 1; long_bbox_tolerance = varargin{2}; end
-      if nargin > 2; volume_tolerance    = varargin{3}; end
-      self.setup( max_object_per_node, long_bbox_tolerance, volume_tolerance );
+      bbox_long_edge_ratio   = 0.8;
+      bbox_overlap_tolerance = 0.1;
+      if nargin > 0; max_object_per_node    = varargin{1}; end
+      if nargin > 1; bbox_long_edge_ratio   = varargin{2}; end
+      if nargin > 2; bbox_overlap_tolerance = varargin{3}; end
+      self.setup( max_object_per_node, bbox_long_edge_ratio, bbox_overlap_tolerance );
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     function str = is_type( ~ )
@@ -169,15 +172,15 @@ classdef AABBtree < matlab.mixin.Copyable
       self.max_object_per_node = max_object_per_node;
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    function set_long_bbox_tolerance( self, long_bbox_tolerance )
-      self.long_bbox_tolerance = long_bbox_tolerance;
+    function set_bbox_long_edge_ratio( self, bbox_long_edge_ratio )
+      self.bbox_long_edge_ratio = bbox_long_edge_ratio;
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    function set_volume_tolerance( self, volume_tolerance )
-      self.volume_tolerance = volume_tolerance;
+    function set_bbox_overlap_tolerance( self, bbox_overlap_tolerance )
+      self.bbox_overlap_tolerance = bbox_overlap_tolerance;
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    setup( self, max_object_per_node, long_bbox_tolerance, volume_tolerance )
+    setup( self, max_object_per_node, bbox_long_edge_ratio, bbox_overlap_tolerance )
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     build( self, bb_min, bb_max )
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

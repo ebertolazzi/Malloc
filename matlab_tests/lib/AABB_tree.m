@@ -49,10 +49,10 @@ classdef AABB_tree < matlab.mixin.Copyable
       AABB_treeMexWrapper( 'delete', self.objectHandle );
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    function setup( self, max_object_per_node, long_bbox_tolerance, volume_tolerance )
+    function setup( self, max_object_per_node, bbox_long_edge_ratio, bbox_overlap_tolerance )
       self.set_max_object_per_node( max_object_per_node );
-      self.set_long_bbox_tolerance( long_bbox_tolerance );
-      self.set_volume_tolerance( volume_tolerance );
+      self.set_bbox_long_edge_ratio( bbox_long_edge_ratio );
+      self.set_bbox_overlap_tolerance( bbox_overlap_tolerance );
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     function set_max_object_per_node( self, max_object_per_node )
@@ -61,15 +61,15 @@ classdef AABB_tree < matlab.mixin.Copyable
       );
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    function set_long_bbox_tolerance( self, long_bbox_tolerance )
+    function set_bbox_long_edge_ratio( self, bbox_long_edge_ratio )
       AABB_treeMexWrapper( ...
-        'set_long_bbox_tolerance', self.objectHandle, long_bbox_tolerance ...
+        'set_bbox_long_edge_ratio', self.objectHandle, bbox_long_edge_ratio ...
       );
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    function set_volume_tolerance( self, volume_tolerance )
+    function set_bbox_overlap_tolerance( self, bbox_overlap_tolerance )
       AABB_treeMexWrapper( ...
-        'set_volume_tolerance', self.objectHandle, volume_tolerance ...
+        'set_bbox_overlap_tolerance', self.objectHandle, bbox_overlap_tolerance ...
       );
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -56,7 +56,7 @@ function build( self, pmin, pmax )
       ax = ia(id);
       mx = dd(id);
 
-      il          = dlength(inodes,ax) > self.long_bbox_tolerance * mx;
+      il          = dlength(inodes,ax) > self.bbox_long_edge_ratio * mx;
       long_nodes  = inodes( il); % "long" rectangles
       short_nodes = inodes(~il); % "short" rectangles
 
@@ -108,7 +108,7 @@ function build( self, pmin, pmax )
         vo = prod( dvo );
         v1 = prod( bb_max(id_left,:)  - bb_min(id_left,:) );
         v2 = prod( bb_max(id_right,:) - bb_min(id_right,:) );
-        if vo > (v1+v2-vo)*self.volume_tolerance
+        if vo > (v1+v2-vo)*self.bbox_overlap_tolerance^dim
           % do not improve volume, stop split at this level!
           continue;
         end

@@ -25,8 +25,8 @@ function test_AABB2
   %nc = 10000;
   %np = 50000;
 
-  nc = 10000/5;
-  np = 50000/5;
+  nc = 10000*2;
+  np = 50000*2;
 
   pc = randcirc(nc,2,0.02);
   pi = rand(np,size(pc,2)-1);

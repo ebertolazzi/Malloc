@@ -62,7 +62,7 @@ namespace Utils {
 
     // AABBtree structure
     integer m_dim            = 0;
-    integer m_num_bb         = 0;
+    integer m_num_objects    = 0;
     integer m_num_tree_nodes = 0;
 
     integer * m_father    = nullptr;
@@ -75,9 +75,9 @@ namespace Utils {
     Real    * m_bb_max    = nullptr;
 
     // parameters
-    integer m_max_object_per_node = 16;
-    Real    m_long_bbox_tolerance = 0.8;
-    Real    m_volume_tolerance    = 0.1;
+    integer m_max_object_per_node    = 16;
+    Real    m_bbox_long_edge_ratio   = 0.8;
+    Real    m_bbox_overlap_tolerance = 0.1;
 
     // statistic
     mutable integer m_num_check = 0;
@@ -89,13 +89,13 @@ namespace Utils {
     AABBtree( AABBtree<Real> const & t );
 
     void set_max_object_per_node( integer n );
-    void set_long_bbox_tolerance( Real tol );
-    void set_volume_tolerance( Real tol );
+    void set_bbox_long_edge_ratio( Real tol );
+    void set_bbox_overlap_tolerance( Real tol );
 
     void
     build(
-      Real const * bb_min, integer ldim0, integer ncol0,
-      Real const * bb_max, integer ldim1, integer ncol1,
+      Real const * bb_min, integer ldim0,
+      Real const * bb_max, integer ldim1,
       integer nbox,
       integer dim
     );
@@ -107,8 +107,8 @@ namespace Utils {
     void
     intersect_with_one_point_and_refine(
       Real const * pnt,
-      Real const * bbox_min, integer ldim0, integer ncol0,
-      Real const * bbox_max, integer ldim1, integer ncol1,
+      Real const * bbox_min, integer ldim0,
+      Real const * bbox_max, integer ldim1,
       SET        & bb_index
     ) const;
 
@@ -116,31 +116,31 @@ namespace Utils {
     intersect_with_one_bbox_and_refine(
       Real const * bb_min,
       Real const * bb_max,
-      Real const * bbox_min, integer ldim0, integer ncol0,
-      Real const * bbox_max, integer ldim1, integer ncol1,
+      Real const * bbox_min, integer ldim0,
+      Real const * bbox_max, integer ldim1,
       SET & bb_index
     ) const;
 
     void
     intersect_and_refine(
       AABBtree<Real> const & aabb,
-      Real const * bb1_min, integer ldim0, integer ncol0,
-      Real const * bb1_max, integer ldim1, integer ncol1,
-      Real const * bb2_min, integer ldim2, integer ncol2,
-      Real const * bb2_max, integer ldim3, integer ncol3,
+      Real const * bb1_min, integer ldim0,
+      Real const * bb1_max, integer ldim1,
+      Real const * bb2_min, integer ldim2,
+      Real const * bb2_max, integer ldim3,
       MAP        & bb_index
     ) const;
 
     integer dim()            const { return m_dim; }
-    integer num_bb()         const { return m_num_bb; }
+    integer num_objects()    const { return m_num_objects; }
     integer num_tree_nodes() const { return m_num_tree_nodes; }
     integer num_check()      const { return m_num_check; }
 
     integer num_tree_nodes( integer nmin ) const;
     void
     get_bboxes_of_the_tree(
-      Real * bb_min, integer ldim0, integer ncol0,
-      Real * bb_max, integer ldim1, integer ncol1,
+      Real * bb_min, integer ldim0,
+      Real * bb_max, integer ldim1,
       integer nmin
     ) const;
 

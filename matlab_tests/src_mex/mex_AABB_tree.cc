@@ -94,16 +94,16 @@ namespace Utils {
 
   static
   void
-  do_set_long_bbox_tolerance(
+  do_set_bbox_long_edge_ratio(
     int nlhs, mxArray       *[],
     int nrhs, mxArray const *prhs[]
   ) {
-    #define MEX_ERROR_MESSAGE_5 "AABB_treeMexWrapper('set_long_bbox_tolerance',obj,V)"
+    #define MEX_ERROR_MESSAGE_5 "AABB_treeMexWrapper('set_bbox_long_edge_ratio',obj,V)"
     #define CMD MEX_ERROR_MESSAGE_5
     IN_OUT(3,0);
     AABB_TREE * ptr = Utils::mex_convert_mx_to_ptr<AABB_TREE>(arg_in_1);
     double V = Utils::mex_get_scalar_value( arg_in_2, CMD ": parameter V" );
-    ptr->set_long_bbox_tolerance( V );
+    ptr->set_bbox_long_edge_ratio( V );
     #undef CMD
   }
 
@@ -111,16 +111,16 @@ namespace Utils {
 
   static
   void
-  do_set_volume_tolerance(
+  do_set_bbox_overlap_tolerance(
     int nlhs, mxArray       *[],
     int nrhs, mxArray const *prhs[]
   ) {
-    #define MEX_ERROR_MESSAGE_6 "AABB_treeMexWrapper('set_volume_tolerance',obj,V)"
+    #define MEX_ERROR_MESSAGE_6 "AABB_treeMexWrapper('set_bbox_overlap_tolerance',obj,V)"
     #define CMD MEX_ERROR_MESSAGE_6
     IN_OUT(3,0);
     AABB_TREE * ptr = Utils::mex_convert_mx_to_ptr<AABB_TREE>(arg_in_1);
     double V = Utils::mex_get_scalar_value( arg_in_2, CMD ": parameter V" );
-    ptr->set_volume_tolerance( V );
+    ptr->set_bbox_overlap_tolerance( V );
     #undef CMD
   }
 
@@ -145,8 +145,8 @@ namespace Utils {
       CMD, ldim0, ncol0, ldim1, ncol1
     );
     ptr->build(
-      bb_min, ldim0, ncol0,
-      bb_max, ldim1, ncol1,
+      bb_min, ldim0,
+      bb_max, ldim1,
       ncol0, ldim0 // nbox, dim
     );
     #undef CMD
@@ -281,10 +281,10 @@ namespace Utils {
     //mexPrintf( "call ptr->intersect_and_refine\n" );
     ptr->intersect_and_refine(
       *ptr2,
-      bb1_min, ldim0, ncol0,
-      bb1_max, ldim1, ncol1,
-      bb2_min, ldim2, ncol2,
-      bb2_max, ldim3, ncol3,
+      bb1_min, ldim0,
+      bb1_max, ldim1,
+      bb2_min, ldim2,
+      bb2_max, ldim3,
       bb_index
     );
     //mexPrintf( "intersect_and_refine ncheck: %d\n", ptr->num_check() );
@@ -439,8 +439,8 @@ namespace Utils {
     {"delete",do_delete},
     {"copy",do_copy},
     {"set_max_object_per_node",do_set_max_object_per_node},
-    {"set_long_bbox_tolerance",do_set_long_bbox_tolerance},
-    {"set_volume_tolerance",do_set_volume_tolerance},
+    {"set_bbox_long_edge_ratio",do_set_bbox_long_edge_ratio},
+    {"set_bbox_overlap_tolerance",do_set_bbox_overlap_tolerance},
     {"build",do_build},
     {"get_bboxes_of_the_tree",do_get_bboxes_of_the_tree},
     {"get_bbox_indexes_of_a_node",do_get_bbox_indexes_of_a_node},

@@ -127,13 +127,13 @@ main() {
 
   tm.tic();
   T1.build(
-    bb_min1, dim, NS,
-    bb_max1, dim, NS,
+    bb_min1, dim,
+    bb_max1, dim,
     NS, dim
   );
   T2.build(
-    bb_min2, dim, NS,
-    bb_max2, dim, NS,
+    bb_min2, dim,
+    bb_max2, dim,
     NS, dim
   );
   tm.toc();
@@ -178,10 +178,10 @@ main() {
   tm.tic();
   T1.intersect_and_refine(
     T2,
-    bb_min1, dim, NS,
-    bb_max1, dim, NS,
-    bb_min2, dim, NS,
-    bb_max2, dim, NS,
+    bb_min1, dim,
+    bb_max1, dim,
+    bb_min2, dim,
+    bb_max2, dim,
     bbb_index
   );
   tm.toc();

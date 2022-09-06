@@ -55,7 +55,7 @@ namespace Utils {
   {
 
     m_dim            = T.m_dim;
-    m_num_bb         = T.m_num_bb;
+    m_num_objects    = T.m_num_objects;
     m_num_tree_nodes = T.m_num_tree_nodes;
 
     integer nmax = 2*m_num_tree_nodes;
@@ -64,7 +64,7 @@ namespace Utils {
     m_imem.free();
 
     m_rmem.allocate( size_t(2*nmax*m_dim) );
-    m_imem.allocate( size_t(6*nmax+m_num_bb) );
+    m_imem.allocate( size_t(6*nmax+m_num_objects) );
 
     m_bb_min    = m_rmem( size_t(nmax*m_dim) );
     m_bb_max    = m_rmem( size_t(nmax*m_dim) );
@@ -73,20 +73,20 @@ namespace Utils {
     m_child     = m_imem( size_t(nmax) );
     m_ptr_nodes = m_imem( size_t(nmax) );
     m_num_nodes = m_imem( size_t(nmax) );
-    m_id_nodes  = m_imem( size_t(m_num_bb) );
+    m_id_nodes  = m_imem( size_t(m_num_objects) );
     m_stack     = m_imem( size_t(2*nmax) );
 
     std::copy_n( T.m_father,    m_num_tree_nodes, m_father );
     std::copy_n( T.m_child,     m_num_tree_nodes, m_child );
     std::copy_n( T.m_ptr_nodes, m_num_tree_nodes, m_ptr_nodes );
     std::copy_n( T.m_num_nodes, m_num_tree_nodes, m_num_nodes );
-    std::copy_n( T.m_id_nodes,  m_num_bb,         m_id_nodes );
+    std::copy_n( T.m_id_nodes,  m_num_objects,    m_id_nodes );
     std::copy_n( T.m_bb_min,    nmax*m_dim,       m_bb_min );
     std::copy_n( T.m_bb_max,    nmax*m_dim,       m_bb_max );
 
-    m_max_object_per_node = T.m_max_object_per_node;
-    m_long_bbox_tolerance = T.m_long_bbox_tolerance;
-    m_volume_tolerance    = T.m_volume_tolerance;
+    m_max_object_per_node    = T.m_max_object_per_node;
+    m_bbox_long_edge_ratio   = T.m_bbox_long_edge_ratio;
+    m_bbox_overlap_tolerance = T.m_bbox_overlap_tolerance;
   }
 
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -101,14 +101,14 @@ namespace Utils {
       else if ( m_num_nodes[i] > 0 ) ++nlong;
     }
     string res = "-------- AABB tree info --------\n";
-    res += fmt::format( "  Dimension           {}\n", m_dim );
-    res += fmt::format( "  Number of nodes     {}\n", m_num_tree_nodes );
-    res += fmt::format( "  Number of leaf      {}\n", nleaf );
-    res += fmt::format( "  Number of long node {}\n", nlong );
-    res += fmt::format( "  Number of objects   {}\n", m_num_bb );
-    res += fmt::format( "  max_object_per_node {}\n", m_max_object_per_node );
-    res += fmt::format( "  long_bbox_tolerance {}\n", m_long_bbox_tolerance );
-    res += fmt::format( "  volume_tolerance    {}\n", m_volume_tolerance );
+    res += fmt::format( "  Dimension              {}\n", m_dim );
+    res += fmt::format( "  Number of nodes        {}\n", m_num_tree_nodes );
+    res += fmt::format( "  Number of leaf         {}\n", nleaf );
+    res += fmt::format( "  Number of long node    {}\n", nlong );
+    res += fmt::format( "  Number of objects      {}\n", m_num_objects );
+    res += fmt::format( "  max_object_per_node    {}\n", m_max_object_per_node );
+    res += fmt::format( "  bbox_long_edge_ratio   {}\n", m_bbox_long_edge_ratio );
+    res += fmt::format( "  bbox_overlap_tolerance {}\n", m_bbox_overlap_tolerance );
     res += "--------------------------------\n";
     return res;
   }
@@ -131,28 +131,28 @@ namespace Utils {
 
   template <typename Real>
   void
-  AABBtree<Real>::set_long_bbox_tolerance( Real tol ) {
+  AABBtree<Real>::set_bbox_long_edge_ratio( Real tol ) {
     UTILS_ASSERT(
       tol > 0 && tol < 1,
-      "AABBtree::set_long_bbox_tolerance( tol = {} )\n"
+      "AABBtree::set_bbox_long_edge_ratio( tol = {} )\n"
       "tol must be > 0 and < 1\n",
       tol
     );
-    m_long_bbox_tolerance = tol;
+    m_bbox_long_edge_ratio = tol;
   }
 
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
   template <typename Real>
   void
-  AABBtree<Real>::set_volume_tolerance( Real tol ) {
+  AABBtree<Real>::set_bbox_overlap_tolerance( Real tol ) {
     UTILS_ASSERT(
       tol > 0 && tol < 1,
-      "AABBtree::set_volume_tolerance( tol = {} )\n"
+      "AABBtree::set_bbox_overlap_tolerance( tol = {} )\n"
       "tol must be > 0 and < 1\n",
       tol
     );
-    m_volume_tolerance = tol;
+    m_bbox_overlap_tolerance = tol;
   }
 
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -160,35 +160,37 @@ namespace Utils {
   template <typename Real>
   void
   AABBtree<Real>::build(
-    Real const * bbox_obj_min, integer ldim0, integer ncol0,
-    Real const * bbox_obj_max, integer ldim1, integer ncol1,
+    Real const * bbox_obj_min, integer ldim0,
+    Real const * bbox_obj_max, integer ldim1,
     integer      nbox,
     integer      dim
   ) {
 
+    Real otol = pow(m_bbox_overlap_tolerance,m_dim);
+
     UTILS_ASSERT(
-      ldim0 >= dim && ldim1 >= dim && ncol0 >= nbox && ncol1 >= nbox,
-      "AABBtree::build( bb_min, ldim0={}, ncol0={},\n"
-      "                 bb_max, ldim1={}, ncol1={},\n"
+      ldim0 >= dim && ldim1 >= dim,
+      "AABBtree::build( bb_min, ldim0={},\n"
+      "                 bb_max, ldim1={},\n"
       "                 nbox={}, dim={} )\n"
-      "must be ldim0, ldim1 >= dim and ncol0, ncol1 >= nbox\n",
-      ldim0, ncol0, ldim1, ncol1, nbox, dim
+      "must be ldim0, ldim1 >= dim\n",
+      ldim0, ldim1, nbox, dim
     );
 
     UTILS_WARNING(
       dim <= 10,
-      "AABBtree::build( bbox_min, ldim0, ncol0, bbox_max, ldim1, ncol1, nbox, dim={})\n"
+      "AABBtree::build( bbox_min, ldim0, bbox_max, ldim1, nbox, dim={})\n"
       "dim is greather that 10!!!",
       dim
     );
 
-    m_dim    = dim;
-    m_num_bb = nbox;
+    m_dim         = dim;
+    m_num_objects = nbox;
 
-    integer nmax = 2*m_num_bb; // estimate max memory usage
+    integer nmax = 2*m_num_objects; // estimate max memory usage
 
     m_rmem.allocate( size_t(2*nmax*dim) );
-    m_imem.allocate( size_t(6*nmax+m_num_bb) );
+    m_imem.allocate( size_t(6*nmax+m_num_objects) );
 
     m_bb_min    = m_rmem( size_t(nmax*dim) );
     m_bb_max    = m_rmem( size_t(nmax*dim) );
@@ -197,17 +199,17 @@ namespace Utils {
     m_child     = m_imem( size_t(nmax) );
     m_ptr_nodes = m_imem( size_t(nmax) );
     m_num_nodes = m_imem( size_t(nmax) );
-    m_id_nodes  = m_imem( size_t(m_num_bb) );
+    m_id_nodes  = m_imem( size_t(m_num_objects) );
     m_stack     = m_imem( size_t(2*nmax) );
 
     // initialize id nodes, will be reordered during the tree build
-    for ( integer i = 0; i < m_num_bb; ++i ) m_id_nodes[i] = i;
+    for ( integer i = 0; i < m_num_objects; ++i ) m_id_nodes[i] = i;
 
     // setup root node
     m_father[0]    = -1;
     m_child[0]     = -1;
     m_ptr_nodes[0] = 0;
-    m_num_nodes[0] = m_num_bb;
+    m_num_nodes[0] = m_num_objects;
 
     // root contains all rectangles, build its bbox
     for ( integer j = 0; j < m_dim; ++j ) {
@@ -218,7 +220,7 @@ namespace Utils {
       minj = *pmin;
       maxj = *pmax;
       UTILS_ASSERT0( maxj >= minj, "AABBtree::build, bad bbox N.0 max < min" );
-      for ( integer i = 1; i < m_num_bb; ++i ) {
+      for ( integer i = 1; i < m_num_objects; ++i ) {
         pmin += ldim0;
         pmax += ldim1;
         if ( minj > *pmin ) minj = *pmin;
@@ -228,8 +230,8 @@ namespace Utils {
     }
 
     // main loop: divide nodes until all constraints satisfied
-    m_stack[0] = 0;
-    integer n_stack = 1;
+    m_stack[0]       = 0;
+    integer n_stack  = 1;
     m_num_tree_nodes = 1;
 
     while ( n_stack > 0 ) {
@@ -258,7 +260,7 @@ namespace Utils {
         Real mx1 = father_max[i] - father_min[i];
         if ( mx < mx1 ) { mx = mx1; idim = i; }
       }
-      Real tol_len = m_long_bbox_tolerance * mx;
+      Real tol_len = m_bbox_long_edge_ratio * mx;
       Real sp      = 0;
 
       // separate short/long and accumulate short baricenter
@@ -360,7 +362,7 @@ namespace Utils {
           vR *= Rmax - Rmin;
         }
         // if do not improve volume, stop split at this level!
-        if ( vo > (vL+vR-vo)*m_volume_tolerance ) continue;
+        if ( vo > (vL+vR-vo)*otol ) continue;
       }
 
       // push child nodes onto stack
@@ -432,19 +434,19 @@ namespace Utils {
   void
   AABBtree<Real>::intersect_with_one_point_and_refine(
     Real const * pnt,
-    Real const * bbox_min, integer ldim0, integer ncol0,
-    Real const * bbox_max, integer ldim1, integer ncol1,
+    Real const * bbox_min, integer ldim0,
+    Real const * bbox_max, integer ldim1,
     SET        & bb_index
   ) const {
 
     UTILS_ASSERT(
-      ldim0 >= m_dim && ldim1 >= m_dim && ncol0 >= m_num_bb && ncol1 >= m_num_bb,
+      ldim0 >= m_dim && ldim1 >= m_dim,
       "AABBtree::intersect_with_one_point_and_refine(\n"
-      " pnt, bb_min, ldim0={}, ncol0={},\n"
-      "      bb_max, ldim1={}, ncol1={},\n"
+      " pnt, bb_min, ldim0={},\n"
+      "      bb_max, ldim1={},\n"
       "      bb_index )\n"
-      "must be ldim0, ldim1 >= {} and ncol0, ncol1 >= {}\n",
-      ldim0, ncol0, ldim1, ncol1, m_dim, m_num_bb
+      "must be ldim0, ldim1 >= {}\n",
+      ldim0, ldim1, m_dim
     );
 
     // BBOX
@@ -540,20 +542,20 @@ namespace Utils {
   AABBtree<Real>::intersect_with_one_bbox_and_refine(
     Real const * bb_min,
     Real const * bb_max,
-    Real const * bbox_min, integer ldim0, integer ncol0,
-    Real const * bbox_max, integer ldim1, integer ncol1,
+    Real const * bbox_min, integer ldim0,
+    Real const * bbox_max, integer ldim1,
     SET        & bb_index
   ) const {
 
     UTILS_ASSERT(
-      ldim0 >= m_dim && ldim1 >= m_dim && ncol0 >= m_num_bb && ncol1 >= m_num_bb,
+      ldim0 >= m_dim && ldim1 >= m_dim,
       "AABBtree::intersect_with_one_bbox_and_refine(\n"
       " bb_min, bb_max, \n"
-      " bbox_min, ldim0={}, ncol0={},\n"
-      " bbox_max, ldim1={}, ncol1={},\n"
+      " bbox_min, ldim0={},\n"
+      " bbox_max, ldim1={},\n"
       " bb_index )\n"
-      "must be ldim0, ldim1 >= {} and ncol0, ncol1 >= {}\n",
-      ldim0, ncol0, ldim1, ncol1, m_dim, m_num_bb
+      "must be ldim0, ldim1 >= {}\n",
+      ldim0, ldim1, m_dim, m_num_objects
     );
 
     m_num_check = 0;
@@ -657,25 +659,24 @@ namespace Utils {
   void
   AABBtree<Real>::intersect_and_refine(
     AABBtree<Real> const & aabb,
-    Real const * bbox1_min, integer ldim0, integer ncol0,
-    Real const * bbox1_max, integer ldim1, integer ncol1,
-    Real const * bbox2_min, integer ldim2, integer ncol2,
-    Real const * bbox2_max, integer ldim3, integer ncol3,
+    Real const * bbox1_min, integer ldim0,
+    Real const * bbox1_max, integer ldim1,
+    Real const * bbox2_min, integer ldim2,
+    Real const * bbox2_max, integer ldim3,
     MAP        & bb_index
   ) const {
 
     UTILS_ASSERT(
-      ldim0 >= m_dim && ldim1 >= m_dim && ncol0 >= m_num_bb && ncol1 >= m_num_bb,
+      ldim0 >= m_dim && ldim1 >= m_dim,
       "AABBtree::intersect_and_refine(\n"
       " aabb, \n"
-      " bbox1_min, ldim0={}, ncol0={},\n"
-      " bbox1_max, ldim1={}, ncol1={},\n"
-      " bbox2_min, ldim2={}, ncol2={},\n"
-      " bbox2_max, ldim3={}, ncol3={},\n"
+      " bbox1_min, ldim0={},\n"
+      " bbox1_max, ldim1={},\n"
+      " bbox2_min, ldim2={},\n"
+      " bbox2_max, ldim3={},\n"
       " bb_index )\n"
-      "must be ldim0:3 >= {} and ncol0:3 >= {}\n",
-      ldim0, ncol0, ldim1, ncol1, ldim2, ncol2, ldim3, ncol3,
-      m_dim, m_num_bb
+      "must be ldim0:3 >= {}\n",
+      ldim0, ldim1, ldim2, ldim3, m_dim
     );
 
     m_num_check = 0;
@@ -771,30 +772,20 @@ namespace Utils {
   template <typename Real>
   void
   AABBtree<Real>::get_bboxes_of_the_tree(
-    Real * bbox_min, integer ldim0, integer ncol0,
-    Real * bbox_max, integer ldim1, integer ncol1,
+    Real * bbox_min, integer ldim0,
+    Real * bbox_max, integer ldim1,
     integer nmin
   ) const {
     UTILS_ASSERT(
       ldim0 >= m_dim && ldim1 >= m_dim,
       "AABBtree::get_bboxes_of_the_tree(\n"
-      "  bbox_min, ldim0={}, ncol0={},\n"
-      "  bbox_max, ldim1={}, ncol1={},\n"
+      "  bbox_min, ldim0={},\n"
+      "  bbox_max, ldim1={},\n"
       "  nmin={} )\n"
       "must be nmin >= 0 and ldim0:1 >= {}\n",
-      ldim0, ncol0, ldim1, ncol1, nmin, m_dim
+      ldim0, ldim1, nmin, m_dim
     );
 
-    integer nt = num_tree_nodes( nmin );
-    UTILS_ASSERT(
-      ncol0 >= nt && ncol1 >= nt,
-      "AABBtree::get_bboxes_of_the_tree(\n"
-      "  bbox_min, ldim0={}, ncol0={},\n"
-      "  bbox_max, ldim1={}, ncol1={},\n"
-      "  nmin={} )\n"
-      "must be ncol0:1 >= {}\n",
-      ldim0, ncol0, ldim1, ncol1, nmin, nt
-    );
     for ( integer i = 0; i < m_num_tree_nodes; ++i ) {
       if ( m_num_nodes[i] >= nmin ) {
         std::copy_n( m_bb_min+i*m_dim, m_dim, bbox_min ); bbox_min += ldim0;
