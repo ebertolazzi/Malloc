@@ -29,7 +29,7 @@ tic
 
 %-- compute aabb-tree for circles
 tr = AABB_tree();
-%tr.set_max_object_per_node(16);
+%tr.set_max_num_objects_per_node(16);
 tr.build(bb_min,bb_max);
 %tr.info
 
@@ -68,7 +68,7 @@ if false
   toc
 else
   tic
-  id_list = tr2.intersect_and_refine( tr, pnts, pnts, bb_min, bb_max );
+  id_list = tr2.intersect_and_refine( tr );
   toc
 
   tic

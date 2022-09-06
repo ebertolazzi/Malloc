@@ -30,7 +30,7 @@ tic
 %-- compute aabb-tree for circles
 %tr = AABB_tree();
 tr = AABBtree();
-tr.set_max_object_per_node(2);
+tr.set_max_num_objects_per_node(2);
 tr.build(bb_min.',bb_max.');
 %tr.info
 

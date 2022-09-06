@@ -49,15 +49,15 @@ classdef AABB_tree < matlab.mixin.Copyable
       AABB_treeMexWrapper( 'delete', self.objectHandle );
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    function setup( self, max_object_per_node, bbox_long_edge_ratio, bbox_overlap_tolerance )
-      self.set_max_object_per_node( max_object_per_node );
+    function setup( self, max_num_objects_per_node, bbox_long_edge_ratio, bbox_overlap_tolerance )
+      self.set_max_num_objects_per_node( max_num_objects_per_node );
       self.set_bbox_long_edge_ratio( bbox_long_edge_ratio );
       self.set_bbox_overlap_tolerance( bbox_overlap_tolerance );
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    function set_max_object_per_node( self, max_object_per_node )
+    function set_max_num_objects_per_node( self, max_num_objects_per_node )
       AABB_treeMexWrapper( ...
-        'set_max_object_per_node', self.objectHandle, max_object_per_node ...
+        'set_max_num_objects_per_node', self.objectHandle, max_num_objects_per_node ...
       );
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -123,20 +123,8 @@ classdef AABB_tree < matlab.mixin.Copyable
       id_list = AABB_treeMexWrapper( 'intersect', self.objectHandle, aabb.objectHandle );
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    function id_list = intersect_and_refine( self, aabb, bb1_min, bb1_max, bb2_min, bb2_max, varargin )
-      do_transpose = false;
-      if nargin > 6; do_transpose = varargin{1}; end
-      if do_transpose
-        id_list = AABB_treeMexWrapper( ...
-          'intersect_and_refine', self.objectHandle, ...
-          aabb.objectHandle, bb1_min.', bb1_max.', bb2_min.', bb2_max.' ...
-        );
-      else
-        id_list = AABB_treeMexWrapper( ...
-          'intersect_and_refine', self.objectHandle, ...
-          aabb.objectHandle, bb1_min, bb1_max, bb2_min, bb2_max ...
-        );
-      end
+    function id_list = intersect_and_refine( self, aabb )
+      id_list = AABB_treeMexWrapper( 'intersect_and_refine', self.objectHandle, aabb.objectHandle );
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     function plot( self, varargin )

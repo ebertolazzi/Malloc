@@ -32,19 +32,25 @@ namespace Utils {
   using std::swap;
   using std::copy_n;
 
-  #define CHECK_OVERLAP(OLAP,A,B)                       \
-    bool OLAP = true;                                   \
-    for ( integer iii = 0; OLAP && iii < m_dim; ++iii ) \
-      OLAP = ! ( A##_min[iii] > B##_max[iii] ||         \
-                 B##_min[iii] > A##_max[iii] )
+  template <typename Real>
+  inline
+  bool
+  check_overlap( Real const bb1, Real const bb2, unsigned dim ) {
+    bool overlap = true;
+    for ( unsigned i = 0; overlap && i < dim; ++i )
+      overlap = ! ( bb1[i] > bb2[i+dim] || bb1[i+dim] < bb2[i] );
+    return overlap;
+  }
 
-  #define GET_BB(NAME,FROM,ID)                       \
-  Real const * NAME##_min = FROM##_min + ID * m_dim; \
-  Real const * NAME##_max = FROM##_max + ID * m_dim
-
-  #define SET_BB(NAME,FROM,ID)                 \
-  Real * NAME##_min = FROM##_min + ID * m_dim; \
-  Real * NAME##_max = FROM##_max + ID * m_dim
+  template <typename Real>
+  inline
+  bool
+  check_overlap_with_point( Real const bb1, Real const pnt, unsigned dim ) {
+    bool overlap = true;
+    for ( unsigned i = 0; overlap && i < dim; ++i )
+      overlap = ! ( bb1[i] > pnt[i] || bb1[i+dim] < pnt[i] );
+    return overlap;
+  }
 
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -53,40 +59,21 @@ namespace Utils {
   : m_rmem("AABBtree")
   , m_imem("AABBtree")
   {
-
-    m_dim            = T.m_dim;
-    m_num_objects    = T.m_num_objects;
-    m_num_tree_nodes = T.m_num_tree_nodes;
-
-    integer nmax = 2*m_num_tree_nodes;
-
     m_rmem.free();
     m_imem.free();
 
-    m_rmem.allocate( size_t(2*nmax*m_dim) );
-    m_imem.allocate( size_t(6*nmax+m_num_objects) );
+    allocate( T.m_num_objects, T.m_dim );
 
-    m_bb_min    = m_rmem( size_t(nmax*m_dim) );
-    m_bb_max    = m_rmem( size_t(nmax*m_dim) );
+    std::copy_n( T.m_father,    m_num_tree_nodes,        m_father    );
+    std::copy_n( T.m_child,     m_num_tree_nodes,        m_child     );
+    std::copy_n( T.m_ptr_nodes, m_num_tree_nodes,        m_ptr_nodes );
+    std::copy_n( T.m_num_nodes, m_num_tree_nodes,        m_num_nodes );
+    std::copy_n( T.m_id_nodes,  m_num_objects,           m_id_nodes  );
+    std::copy_n( T.m_bbox_tree, m_num_tree_nodes*m_2dim, m_bbox_tree );
 
-    m_father    = m_imem( size_t(nmax) );
-    m_child     = m_imem( size_t(nmax) );
-    m_ptr_nodes = m_imem( size_t(nmax) );
-    m_num_nodes = m_imem( size_t(nmax) );
-    m_id_nodes  = m_imem( size_t(m_num_objects) );
-    m_stack     = m_imem( size_t(2*nmax) );
-
-    std::copy_n( T.m_father,    m_num_tree_nodes, m_father );
-    std::copy_n( T.m_child,     m_num_tree_nodes, m_child );
-    std::copy_n( T.m_ptr_nodes, m_num_tree_nodes, m_ptr_nodes );
-    std::copy_n( T.m_num_nodes, m_num_tree_nodes, m_num_nodes );
-    std::copy_n( T.m_id_nodes,  m_num_objects,    m_id_nodes );
-    std::copy_n( T.m_bb_min,    nmax*m_dim,       m_bb_min );
-    std::copy_n( T.m_bb_max,    nmax*m_dim,       m_bb_max );
-
-    m_max_object_per_node    = T.m_max_object_per_node;
-    m_bbox_long_edge_ratio   = T.m_bbox_long_edge_ratio;
-    m_bbox_overlap_tolerance = T.m_bbox_overlap_tolerance;
+    m_max_num_objects_per_node = T.m_max_num_objects_per_node;
+    m_bbox_long_edge_ratio     = T.m_bbox_long_edge_ratio;
+    m_bbox_overlap_tolerance   = T.m_bbox_overlap_tolerance;
   }
 
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -101,14 +88,14 @@ namespace Utils {
       else if ( m_num_nodes[i] > 0 ) ++nlong;
     }
     string res = "-------- AABB tree info --------\n";
-    res += fmt::format( "  Dimension              {}\n", m_dim );
-    res += fmt::format( "  Number of nodes        {}\n", m_num_tree_nodes );
-    res += fmt::format( "  Number of leaf         {}\n", nleaf );
-    res += fmt::format( "  Number of long node    {}\n", nlong );
-    res += fmt::format( "  Number of objects      {}\n", m_num_objects );
-    res += fmt::format( "  max_object_per_node    {}\n", m_max_object_per_node );
-    res += fmt::format( "  bbox_long_edge_ratio   {}\n", m_bbox_long_edge_ratio );
-    res += fmt::format( "  bbox_overlap_tolerance {}\n", m_bbox_overlap_tolerance );
+    res += fmt::format( "  Dimension                {}\n", m_dim );
+    res += fmt::format( "  Number of nodes          {}\n", m_num_tree_nodes );
+    res += fmt::format( "  Number of leaf           {}\n", nleaf );
+    res += fmt::format( "  Number of long node      {}\n", nlong );
+    res += fmt::format( "  Number of objects        {}\n", m_num_objects );
+    res += fmt::format( "  max_num_objects_per_node {}\n", m_max_num_objects_per_node );
+    res += fmt::format( "  bbox_long_edge_ratio     {}\n", m_bbox_long_edge_ratio );
+    res += fmt::format( "  bbox_overlap_tolerance   {}\n", m_bbox_overlap_tolerance );
     res += "--------------------------------\n";
     return res;
   }
@@ -117,28 +104,28 @@ namespace Utils {
 
   template <typename Real>
   void
-  AABBtree<Real>::set_max_object_per_node( integer n ) {
+  AABBtree<Real>::set_max_num_objects_per_node( integer n ) {
     UTILS_ASSERT(
       n > 0 && n <= 4096,
-      "AABBtree::set_max_object_per_node( nobj = {} )\n"
+      "AABBtree::set_max_num_objects_per_node( nobj = {} )\n"
       "nobj must be > 0 and <= 4096\n",
       n
     );
-    m_max_object_per_node = n;
+    m_max_num_objects_per_node = n;
   }
 
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
   template <typename Real>
   void
-  AABBtree<Real>::set_bbox_long_edge_ratio( Real tol ) {
+  AABBtree<Real>::set_bbox_long_edge_ratio( Real ratio ) {
     UTILS_ASSERT(
-      tol > 0 && tol < 1,
-      "AABBtree::set_bbox_long_edge_ratio( tol = {} )\n"
+      ratio > 0 && ratio < 1,
+      "AABBtree::set_bbox_long_edge_ratio( ratio = {} )\n"
       "tol must be > 0 and < 1\n",
-      tol
+      ratio
     );
-    m_bbox_long_edge_ratio = tol;
+    m_bbox_long_edge_ratio = ratio;
   }
 
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -159,41 +146,26 @@ namespace Utils {
 
   template <typename Real>
   void
-  AABBtree<Real>::build(
-    Real const * bbox_obj_min, integer ldim0,
-    Real const * bbox_obj_max, integer ldim1,
-    integer      nbox,
-    integer      dim
-  ) {
-
-    Real otol = pow(m_bbox_overlap_tolerance,m_dim);
-
-    UTILS_ASSERT(
-      ldim0 >= dim && ldim1 >= dim,
-      "AABBtree::build( bb_min, ldim0={},\n"
-      "                 bb_max, ldim1={},\n"
-      "                 nbox={}, dim={} )\n"
-      "must be ldim0, ldim1 >= dim\n",
-      ldim0, ldim1, nbox, dim
-    );
+  AABBtree<Real>::allocate( integer nbox, integer dim ) {
 
     UTILS_WARNING(
       dim <= 10,
-      "AABBtree::build( bbox_min, ldim0, bbox_max, ldim1, nbox, dim={})\n"
+      "AABBtree::allocate( nbox, dim={} )\n"
       "dim is greather that 10!!!",
       dim
     );
 
     m_dim         = dim;
+    m_2dim        = 2*dim;
     m_num_objects = nbox;
 
     integer nmax = 2*m_num_objects; // estimate max memory usage
 
-    m_rmem.allocate( size_t(2*nmax*dim) );
+    m_rmem.allocate( size_t((nmax+m_num_objects)*m_2dim) );
     m_imem.allocate( size_t(6*nmax+m_num_objects) );
 
-    m_bb_min    = m_rmem( size_t(nmax*dim) );
-    m_bb_max    = m_rmem( size_t(nmax*dim) );
+    m_bbox_tree = m_rmem( size_t(nmax*m_2dim) );
+    m_bbox_objs = m_rmem( size_t(m_num_objects*m_2dim) );
 
     m_father    = m_imem( size_t(nmax) );
     m_child     = m_imem( size_t(nmax) );
@@ -210,22 +182,66 @@ namespace Utils {
     m_child[0]     = -1;
     m_ptr_nodes[0] = 0;
     m_num_nodes[0] = m_num_objects;
+  }
+
+  // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+  template <typename Real>
+  void
+  AABBtree<Real>::add_bboxes(
+    Real const * bbox_min, integer ldim0,
+    Real const * bbox_max, integer ldim1
+  ) {
+
+    UTILS_ASSERT(
+      ldim0 >= m_dim && ldim1 >= m_dim,
+      "AABBtree::add_bboxes( bb_min, ldim0={}, bb_max, ldim1={} )\n"
+      "must be ldim0, ldim1 >= dim = {}\n",
+      ldim0, ldim1, m_dim
+    );
+
+    Real * bb = m_bbox_objs;
+    for ( integer i = 0; i < m_num_objects; ++i ) {
+      for ( integer j = 0; j < m_dim; ++j ) {
+        UTILS_ASSERT(
+          bbox_min[j] <= bbox_max[j],
+          "AABBtree::add_bboxes, bad bbox N.{} max < min", i
+        );
+      }
+      std::copy_n( bbox_min, m_dim, bb ); bb += m_dim;
+      std::copy_n( bbox_max, m_dim, bb ); bb += m_dim;
+      bbox_min += ldim0;
+      bbox_max += ldim1;
+    }
+  }
+
+  // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+  template <typename Real>
+  void
+  AABBtree<Real>::build() {
+
+    Real otol = pow( m_bbox_overlap_tolerance, m_dim );
 
     // root contains all rectangles, build its bbox
     for ( integer j = 0; j < m_dim; ++j ) {
-      Real & minj = m_bb_min[j];
-      Real & maxj = m_bb_max[j];
-      Real const * pmin = bbox_obj_min+j;
-      Real const * pmax = bbox_obj_max+j;
+      Real & minj = m_bbox_tree[j];
+      Real & maxj = m_bbox_tree[m_dim+j];
+      Real const * pmin = m_bbox_objs+j;
+      Real const * pmax = m_bbox_objs+j+m_dim;
       minj = *pmin;
       maxj = *pmax;
       UTILS_ASSERT0( maxj >= minj, "AABBtree::build, bad bbox N.0 max < min" );
       for ( integer i = 1; i < m_num_objects; ++i ) {
-        pmin += ldim0;
-        pmax += ldim1;
+        pmin += m_2dim;
+        pmax += m_2dim;
         if ( minj > *pmin ) minj = *pmin;
         if ( maxj < *pmax ) maxj = *pmax;
-        UTILS_ASSERT( *pmax >= *pmin, "AABBtree::build, bad bbox N.{} max < min", i );
+        UTILS_ASSERT(
+          *pmax >= *pmin,
+          "AABBtree::build, bad bbox N.{} max < min ({} < {})\n",
+          i, *pmax, *pmin
+        );
       }
     }
 
@@ -246,16 +262,17 @@ namespace Utils {
       integer num = m_num_nodes[id_father];
 
       // if few bbox stop splitting
-      if ( num < m_max_object_per_node ) continue;
+      if ( num < m_max_num_objects_per_node ) continue;
 
       integer  iptr = m_ptr_nodes[id_father];
       integer * ptr = m_id_nodes + iptr;
 
       // split plane on longest axis, use euristic
-      GET_BB(father,m_bb,id_father);
+      Real const * father_min = m_bbox_tree + id_father * m_2dim;
+      Real const * father_max = father_min + m_dim;
 
       integer idim = 0;
-      Real    mx = father_max[0] - father_min[0];
+      Real    mx   = father_max[0] - father_min[0];
       for ( integer i = 1; i < m_dim; ++i ) {
         Real mx1 = father_max[i] - father_min[i];
         if ( mx < mx1 ) { mx = mx1; idim = i; }
@@ -268,8 +285,8 @@ namespace Utils {
       integer n_short = 0;
       while ( n_long + n_short < num ) {
         integer id = ptr[n_long];
-        Real const * id_min = bbox_obj_min + id * ldim0;
-        Real const * id_max = bbox_obj_max + id * ldim1;
+        Real const * id_min = m_bbox_objs + id * m_2dim;
+        Real const * id_max = id_min + m_dim;
         Real id_len = id_max[idim] - id_min[idim];
         if ( id_len > tol_len ) {
           // found long BBOX, increment n_long and update position
@@ -295,8 +312,8 @@ namespace Utils {
 
       while ( n_long + n_left + n_right < num ) {
         integer id = ptr[n_long+n_left];
-        Real const * id_min = bbox_obj_min + id * ldim0;
-        Real const * id_max = bbox_obj_max + id * ldim1;
+        Real const * id_min = m_bbox_objs + id * m_2dim;
+        Real const * id_max = id_min + m_dim;
         Real id_mid = (id_max[idim] + id_min[idim])/2;
         if ( id_mid < sp ) {
           ++n_left; // in right position do nothing
@@ -314,49 +331,51 @@ namespace Utils {
       integer id_right = m_num_tree_nodes + 1;
 
       // compute bbox of left and right child
-      SET_BB(left,m_bb,id_left);
+      Real * bb_left_min = m_bbox_tree + id_left * m_2dim;
+      Real * bb_left_max = bb_left_min + m_dim;
       for ( integer i = 0; i < n_left; ++i ) {
         integer id = ptr[n_long+i];
-        Real const * id_min = bbox_obj_min + id * ldim0;
-        Real const * id_max = bbox_obj_max + id * ldim1;
+        Real const * bb_id_min = m_bbox_objs + id * m_2dim;
+        Real const * bb_id_max = bb_id_min + m_dim;
         if ( i == 0 ) {
-          copy_n( id_min, m_dim, left_min );
-          copy_n( id_max, m_dim, left_max );
+          copy_n( bb_id_min, m_2dim, bb_left_min );
+          //copy_n( bb_id_max, m_dim, left_max );
         } else {
           for ( integer j = 0; j < m_dim; ++j ) {
-            if ( left_min[j] > id_min[j] ) left_min[j] = id_min[j];
-            if ( left_max[j] < id_max[j] ) left_max[j] = id_max[j];
+            if ( bb_left_min[j] > bb_id_min[j] ) bb_left_min[j] = bb_id_min[j];
+            if ( bb_left_max[j] < bb_id_max[j] ) bb_left_max[j] = bb_id_max[j];
           }
         }
       }
 
-      SET_BB(right,m_bb,id_right);
+      Real * bb_right_min = m_bbox_tree + id_right * m_2dim;
+      Real * bb_right_max = bb_right_min + m_dim;
       for ( integer i = 0; i < n_right; ++i ) {
         integer id = ptr[n_long+n_left+i];
-        Real const * id_min = bbox_obj_min + id * ldim0;
-        Real const * id_max = bbox_obj_max + id * ldim1;
+        Real const * bb_id_min = m_bbox_objs + id * m_2dim;
+        Real const * bb_id_max = bb_id_min + m_dim;
         if ( i == 0 ) {
-          copy_n( id_min, m_dim, right_min );
-          copy_n( id_max, m_dim, right_max );
+          copy_n( bb_id_min, m_2dim, bb_right_min );
+          //copy_n( bb_id_max, m_dim, bb_right_max );
         } else {
           for ( integer j = 0; j < m_dim; ++j ) {
-            if ( right_min[j] > id_min[j] ) right_min[j] = id_min[j];
-            if ( right_max[j] < id_max[j] ) right_max[j] = id_max[j];
+            if ( bb_right_min[j] > bb_id_min[j] ) bb_right_min[j] = bb_id_min[j];
+            if ( bb_right_max[j] < bb_id_max[j] ) bb_right_max[j] = bb_id_max[j];
           }
         }
       }
 
       // check again if split improve the AABBtree otherwise stop exploration
-      if ( n_left < m_max_object_per_node || n_right < m_max_object_per_node ) {
+      if ( n_left < m_max_num_objects_per_node || n_right < m_max_num_objects_per_node ) {
         // few nodes, check if improve volume
         Real vo = 1;
         Real vL = 1;
         Real vR = 1;
         for ( integer j = 0l; j < m_dim; ++j ) {
-          Real Lmin = left_min[j];
-          Real Lmax = left_max[j];
-          Real Rmin = right_min[j];
-          Real Rmax = right_max[j];
+          Real Lmin = bb_left_min[j];
+          Real Lmax = bb_left_max[j];
+          Real Rmin = bb_right_min[j];
+          Real Rmax = bb_right_max[j];
           vo *= max(min(Lmax,Rmax) - max(Lmin,Rmin), Real(0));
           vL *= Lmax - Lmin;
           vR *= Rmax - Rmin;
@@ -391,10 +410,8 @@ namespace Utils {
   void
   AABBtree<Real>::intersect_with_one_point(
     Real const * pnt,
-    SET        & bb_index
+    SET & bb_index
   ) const {
-    Real const * pnt_min = pnt;
-    Real const * pnt_max = pnt;
 
     m_num_check = 0;
 
@@ -409,10 +426,11 @@ namespace Utils {
       integer id_father = m_stack[--n_stack];
 
       // get BBOX
-      GET_BB(father,m_bb,id_father);
+      Real const * bb_father = m_bbox_tree + id_father * m_2dim;
 
       ++m_num_check;
-      CHECK_OVERLAP( overlap, father, pnt );
+      bool overlap = check_overlap_with_point( bb_father, pnt, m_dim );
+
       // if do not overlap skip
       if ( !overlap ) continue;
 
@@ -434,24 +452,8 @@ namespace Utils {
   void
   AABBtree<Real>::intersect_with_one_point_and_refine(
     Real const * pnt,
-    Real const * bbox_min, integer ldim0,
-    Real const * bbox_max, integer ldim1,
     SET        & bb_index
   ) const {
-
-    UTILS_ASSERT(
-      ldim0 >= m_dim && ldim1 >= m_dim,
-      "AABBtree::intersect_with_one_point_and_refine(\n"
-      " pnt, bb_min, ldim0={},\n"
-      "      bb_max, ldim1={},\n"
-      "      bb_index )\n"
-      "must be ldim0, ldim1 >= {}\n",
-      ldim0, ldim1, m_dim
-    );
-
-    // BBOX
-    Real const * pnt_min = pnt;
-    Real const * pnt_max = pnt;
 
     m_num_check = 0;
 
@@ -466,10 +468,11 @@ namespace Utils {
       integer id_father = m_stack[--n_stack];
 
       // get BBOX
-      GET_BB(father,m_bb,id_father);
+      Real const * bb_father = m_bbox_tree + id_father * m_2dim;
 
       ++m_num_check;
-      CHECK_OVERLAP( overlap, father, pnt );
+      bool overlap = check_overlap_with_point( bb_father, pnt, m_dim );
+
       // if do not overlap skip
       if ( !overlap ) continue;
 
@@ -478,10 +481,9 @@ namespace Utils {
       integer const * ptr = this->m_id_nodes + this->m_ptr_nodes[id_father];
       for ( integer ii = 0; ii < num; ++ii ) {
         integer s = ptr[ii];
-        Real const * s_min = bbox_min + s * ldim0;
-        Real const * s_max = bbox_max + s * ldim1;
+        Real const * bb_s = m_bbox_objs + s * m_2dim;
         ++m_num_check;
-        CHECK_OVERLAP( olap, s, pnt );
+        bool olap = check_overlap_with_point( bb_s, pnt, m_dim );
         if ( olap ) bb_index.insert(s);
       }
 
@@ -499,8 +501,7 @@ namespace Utils {
   template <typename Real>
   void
   AABBtree<Real>::intersect_with_one_bbox(
-    Real const * bb_min,
-    Real const * bb_max,
+    Real const * bbox,
     SET        & bb_index
   ) const {
     m_num_check = 0;
@@ -516,10 +517,11 @@ namespace Utils {
       integer id_father = m_stack[--n_stack];
 
       // get BBOX
-      GET_BB(father,m_bb,id_father);
+      Real const * bb_father = m_bbox_tree + id_father * m_2dim;
 
       ++m_num_check;
-      CHECK_OVERLAP( overlap, father, bb );
+      bool overlap = check_overlap( bb_father, bbox, m_dim );
+
       // if do not overlap skip
       if ( !overlap ) continue;
 
@@ -540,23 +542,9 @@ namespace Utils {
   template <typename Real>
   void
   AABBtree<Real>::intersect_with_one_bbox_and_refine(
-    Real const * bb_min,
-    Real const * bb_max,
-    Real const * bbox_min, integer ldim0,
-    Real const * bbox_max, integer ldim1,
+    Real const * bbox,
     SET        & bb_index
   ) const {
-
-    UTILS_ASSERT(
-      ldim0 >= m_dim && ldim1 >= m_dim,
-      "AABBtree::intersect_with_one_bbox_and_refine(\n"
-      " bb_min, bb_max, \n"
-      " bbox_min, ldim0={},\n"
-      " bbox_max, ldim1={},\n"
-      " bb_index )\n"
-      "must be ldim0, ldim1 >= {}\n",
-      ldim0, ldim1, m_dim, m_num_objects
-    );
 
     m_num_check = 0;
 
@@ -571,10 +559,11 @@ namespace Utils {
       integer id_father = m_stack[--n_stack];
 
       // get BBOX
-      GET_BB(father,m_bb,id_father);
+      Real const * bb_father = m_bbox_tree + id_father * m_2dim;
 
       ++m_num_check;
-      CHECK_OVERLAP( overlap, father, bb );
+      bool overlap = check_overlap( bb_father, bbox, m_dim );
+
       // if do not overlap skip
       if ( !overlap ) continue;
 
@@ -583,10 +572,9 @@ namespace Utils {
       integer const * ptr = this->m_id_nodes + this->m_ptr_nodes[id_father];
       for ( integer ii = 0; ii < num; ++ii ) {
         integer s = ptr[ii];
-        Real const * s_min = bbox_min + s * ldim0;
-        Real const * s_max = bbox_max + s * ldim1;
+        Real const * bb_s = m_bbox_objs + ptr[ii] * m_2dim;
         ++m_num_check;
-        CHECK_OVERLAP( olap, s, bb );
+        bool olap = check_overlap( bb_s, bbox, m_dim );
         if ( olap ) bb_index.insert(s);
       }
 
@@ -624,11 +612,12 @@ namespace Utils {
       integer root1  = sroot1 >= 0 ? sroot1 : -1-sroot1;
 
       // check for intersection
-      GET_BB(root1,this->m_bb,root1);
-      GET_BB(root2,aabb.m_bb,root2);
+      Real const * bb_root1 = this->m_bbox_tree + root1 * m_2dim;
+      Real const * bb_root2 = aabb.m_bbox_tree + root2 * m_2dim;
 
       ++m_num_check;
-      CHECK_OVERLAP( overlap, root1, root2 );
+      bool overlap = check_overlap( bb_root1, bb_root2, m_dim );
+
       // if do not overlap skip
       if ( !overlap ) continue;
 
@@ -659,25 +648,8 @@ namespace Utils {
   void
   AABBtree<Real>::intersect_and_refine(
     AABBtree<Real> const & aabb,
-    Real const * bbox1_min, integer ldim0,
-    Real const * bbox1_max, integer ldim1,
-    Real const * bbox2_min, integer ldim2,
-    Real const * bbox2_max, integer ldim3,
-    MAP        & bb_index
+    MAP                  & bb_index
   ) const {
-
-    UTILS_ASSERT(
-      ldim0 >= m_dim && ldim1 >= m_dim,
-      "AABBtree::intersect_and_refine(\n"
-      " aabb, \n"
-      " bbox1_min, ldim0={},\n"
-      " bbox1_max, ldim1={},\n"
-      " bbox2_min, ldim2={},\n"
-      " bbox2_max, ldim3={},\n"
-      " bb_index )\n"
-      "must be ldim0:3 >= {}\n",
-      ldim0, ldim1, ldim2, ldim3, m_dim
-    );
 
     m_num_check = 0;
 
@@ -695,11 +667,12 @@ namespace Utils {
       integer root1  = sroot1 >= 0 ? sroot1 : -1-sroot1;
 
       // check for intersection
-      GET_BB(root1,this->m_bb,root1);
-      GET_BB(root2,aabb.m_bb,root2);
+      Real const * bb_root1 = this->m_bbox_tree + root1 * m_2dim;
+      Real const * bb_root2 = aabb.m_bbox_tree + root2 * m_2dim;
 
       ++m_num_check;
-      CHECK_OVERLAP( overlap, root1, root2 );
+      bool overlap = check_overlap( bb_root1, bb_root2, m_dim );
+
       // if do not overlap skip
       if ( !overlap ) continue;
 
@@ -712,15 +685,15 @@ namespace Utils {
         integer const * ptr2 = aabb.m_id_nodes + aabb.m_ptr_nodes[root2];
         for ( integer ii = 0; ii < nn1; ++ii ) {
           integer s1 = ptr1[ii];
-          Real const * s1_min = bbox1_min + s1 * ldim0;
-          Real const * s1_max = bbox1_max + s1 * ldim1;
+          Real const * bb_s1 = m_bbox_objs + s1 * m_2dim;
+          SET & BB = bb_index[s1];
           for ( integer jj = 0; jj < nn2; ++jj ) {
             integer s2 = ptr2[jj];
-            Real const * s2_min = bbox2_min + s2 * ldim2;
-            Real const * s2_max = bbox2_max + s2 * ldim3;
+            Real const * bb_s2 = aabb.m_bbox_objs + s2 * m_2dim;
             ++m_num_check;
-            CHECK_OVERLAP( olap, s1, s2 );
-            if ( olap ) bb_index[s1].insert(s2);
+            bool olap = check_overlap( bb_s1, bb_s2, m_dim );
+            //if ( olap ) bb_index[s1].insert(s2);
+            if ( olap ) BB.insert(s2);
           }
         }
       }
@@ -788,8 +761,10 @@ namespace Utils {
 
     for ( integer i = 0; i < m_num_tree_nodes; ++i ) {
       if ( m_num_nodes[i] >= nmin ) {
-        std::copy_n( m_bb_min+i*m_dim, m_dim, bbox_min ); bbox_min += ldim0;
-        std::copy_n( m_bb_max+i*m_dim, m_dim, bbox_max ); bbox_max += ldim1;
+        Real const * b_min = m_bbox_tree + i * m_2dim;
+        Real const * b_max = b_min + m_dim;
+        std::copy_n( b_min, m_dim, bbox_min ); bbox_min += ldim0;
+        std::copy_n( b_max, m_dim, bbox_max ); bbox_max += ldim1;
       }
     }
   }

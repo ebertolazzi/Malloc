@@ -62,6 +62,7 @@ namespace Utils {
 
     // AABBtree structure
     integer m_dim            = 0;
+    integer m_2dim           = 0;
     integer m_num_objects    = 0;
     integer m_num_tree_nodes = 0;
 
@@ -71,13 +72,13 @@ namespace Utils {
     integer * m_num_nodes = nullptr;
     integer * m_id_nodes  = nullptr;
     integer * m_stack     = nullptr;
-    Real    * m_bb_min    = nullptr;
-    Real    * m_bb_max    = nullptr;
+    Real    * m_bbox_tree = nullptr;
+    Real    * m_bbox_objs = nullptr;
 
     // parameters
-    integer m_max_object_per_node    = 16;
-    Real    m_bbox_long_edge_ratio   = 0.8;
-    Real    m_bbox_overlap_tolerance = 0.1;
+    integer m_max_num_objects_per_node = 16;
+    Real    m_bbox_long_edge_ratio     = 0.8;
+    Real    m_bbox_overlap_tolerance   = 0.1;
 
     // statistic
     mutable integer m_num_check = 0;
@@ -88,9 +89,19 @@ namespace Utils {
 
     AABBtree( AABBtree<Real> const & t );
 
-    void set_max_object_per_node( integer n );
-    void set_bbox_long_edge_ratio( Real tol );
+    void set_max_num_objects_per_node( integer n );
+    void set_bbox_long_edge_ratio( Real ratio );
     void set_bbox_overlap_tolerance( Real tol );
+
+    void allocate( integer nbox, integer dim );
+
+    void
+    add_bboxes(
+      Real const * bb_min, integer ldim0,
+      Real const * bb_max, integer ldim1
+    );
+
+    void build();
 
     void
     build(
@@ -98,38 +109,19 @@ namespace Utils {
       Real const * bb_max, integer ldim1,
       integer nbox,
       integer dim
-    );
+    ) {
+      allocate( nbox, dim );
+      add_bboxes( bb_min, ldim0, bb_max, ldim1 );
+      build();
+    }
 
     void intersect_with_one_point( Real const * pnt, SET & bb_index ) const;
-    void intersect_with_one_bbox( Real const * bb_min, Real const * bb_max, SET & bb_index ) const;
+    void intersect_with_one_bbox( Real const * bbox, SET & bb_index ) const;
     void intersect( AABBtree<Real> const & aabb, MAP & bb_index ) const;
 
-    void
-    intersect_with_one_point_and_refine(
-      Real const * pnt,
-      Real const * bbox_min, integer ldim0,
-      Real const * bbox_max, integer ldim1,
-      SET        & bb_index
-    ) const;
-
-    void
-    intersect_with_one_bbox_and_refine(
-      Real const * bb_min,
-      Real const * bb_max,
-      Real const * bbox_min, integer ldim0,
-      Real const * bbox_max, integer ldim1,
-      SET & bb_index
-    ) const;
-
-    void
-    intersect_and_refine(
-      AABBtree<Real> const & aabb,
-      Real const * bb1_min, integer ldim0,
-      Real const * bb1_max, integer ldim1,
-      Real const * bb2_min, integer ldim2,
-      Real const * bb2_max, integer ldim3,
-      MAP        & bb_index
-    ) const;
+    void intersect_with_one_point_and_refine( Real const * pnt, SET & bb_index ) const;
+    void intersect_with_one_bbox_and_refine( Real const * bbox, SET & bb_index ) const;
+    void intersect_and_refine( AABBtree<Real> const & aabb, MAP & bb_index ) const;
 
     integer dim()            const { return m_dim; }
     integer num_objects()    const { return m_num_objects; }

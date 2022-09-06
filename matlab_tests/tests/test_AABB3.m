@@ -137,7 +137,7 @@ if false
   end
   tr2.plot_bbox( bb_min2(idx_all,:), bb_max2(idx_all,:), 'blue', 'black' );
 else
-  id_list = tr1.intersect_and_refine( tr2, bb_min1, bb_max1, bb_min2, bb_max2, true );
+  id_list = tr1.intersect_and_refine( tr2 );
   idx_all = false(size(bb_min2,1),1);
   for k=1:length(id_list)
     idx = id_list{k};

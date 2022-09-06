@@ -43,7 +43,7 @@ function build( self, pmin, pmax )
     num = num_nodes(id_father);
 
     % if few bbox stop splitting
-    if num < self.max_object_per_node; continue; end
+    if num < self.max_num_objects_per_node; continue; end
 
     ptr    = ptr_nodes(id_father);
     inodes = id_nodes(ptr:ptr+num-1);
@@ -60,7 +60,7 @@ function build( self, pmin, pmax )
       long_nodes  = inodes( il); % "long" rectangles
       short_nodes = inodes(~il); % "short" rectangles
 
-      if length(long_nodes) < 0.5*min(length(short_nodes),self.max_object_per_node)
+      if length(long_nodes) < 0.5*min(length(short_nodes),self.max_num_objects_per_node)
         break;
       end
     end
@@ -99,7 +99,7 @@ function build( self, pmin, pmax )
     bb_max(id_right,:) = max(pmax(right_nodes,:),[],1) ;
 
     % check again if split improve the AABBtree otherwise stop exploration
-    if nleft < self.max_object_per_node || nright < self.max_object_per_node
+    if nleft < self.max_num_objects_per_node || nright < self.max_num_objects_per_node
       % few nodes, check if improve volume
       dvo = min(bb_max(id_left,:),bb_max(id_right,:)) - ...
             max(bb_min(id_left,:),bb_min(id_right,:));

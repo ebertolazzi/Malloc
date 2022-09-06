@@ -46,7 +46,7 @@ main() {
 
   TicToc tm;
 
-  integer const NS  = 10000;
+  integer const NS  = 50000;
   integer const dim = 2;
   real_type bb_min1[NS*dim];
   real_type bb_max1[NS*dim];
@@ -122,8 +122,8 @@ main() {
   }
 
   Utils::AABBtree<real_type> T1, T2;
-  T1.set_max_object_per_node( 16 );
-  T2.set_max_object_per_node( 16 );
+  T1.set_max_num_objects_per_node( 16 );
+  T2.set_max_num_objects_per_node( 16 );
 
   tm.tic();
   T1.build(
@@ -176,14 +176,7 @@ main() {
   bbb_index.clear();
 
   tm.tic();
-  T1.intersect_and_refine(
-    T2,
-    bb_min1, dim,
-    bb_max1, dim,
-    bb_min2, dim,
-    bb_max2, dim,
-    bbb_index
-  );
+  T1.intersect_and_refine( T2, bbb_index );
   tm.toc();
   fmt::print("intersect_with_refine T1 vs T2 elapsed {} ms\nsize = {}\n", tm.elapsed_ms(), bbb_index.size() );
 

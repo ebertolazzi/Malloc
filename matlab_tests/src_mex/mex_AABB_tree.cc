@@ -77,16 +77,16 @@ namespace Utils {
 
   static
   void
-  do_set_max_object_per_node(
+  do_set_max_num_objects_per_node(
     int nlhs, mxArray       *[],
     int nrhs, mxArray const *prhs[]
   ) {
-    #define MEX_ERROR_MESSAGE_4 "AABB_treeMexWrapper('set_max_object_per_node',obj,N)"
+    #define MEX_ERROR_MESSAGE_4 "AABB_treeMexWrapper('set_max_num_objects_per_node',obj,N)"
     #define CMD MEX_ERROR_MESSAGE_4
     IN_OUT(3,0);
     AABB_TREE * ptr = Utils::mex_convert_mx_to_ptr<AABB_TREE>(arg_in_1);
     int64_t N = Utils::mex_get_int64( arg_in_2, CMD ": parameter N" );
-    ptr->set_max_object_per_node( N );
+    ptr->set_max_num_objects_per_node( N );
     #undef CMD
   }
 
@@ -173,7 +173,7 @@ namespace Utils {
     double * bb_min = Utils::mex_create_matrix_value( arg_out_0, dim, ntn );
     double * bb_max = Utils::mex_create_matrix_value( arg_out_1, dim, ntn );
 
-    ptr->get_bboxes_of_the_tree( bb_min, dim, ntn, bb_max, dim, ntn, nmin );
+    ptr->get_bboxes_of_the_tree( bb_min, dim, bb_max, dim, nmin );
     #undef CMD
   }
 
@@ -243,55 +243,19 @@ namespace Utils {
     int nlhs, mxArray       *plhs[],
     int nrhs, mxArray const *prhs[]
   ) {
-    #define MEX_ERROR_MESSAGE_11 "id_list=AABB_treeMexWrapper( 'intersect_and_refine', obj, aabb, bb1_min, bb1_max, bb2_min, bb2_max )"
+    #define MEX_ERROR_MESSAGE_11 "id_list=AABB_treeMexWrapper( 'intersect_and_refine', obj, aabb )"
     #define CMD MEX_ERROR_MESSAGE_11
-    IN_OUT(7,1);
+    IN_OUT(3,1);
 
     AABB_TREE       * ptr  = Utils::mex_convert_mx_to_ptr<AABB_TREE>(arg_in_1);
     AABB_TREE const * ptr2 = Utils::mex_convert_mx_to_ptr<AABB_TREE>(arg_in_2);
 
-    mwSize ldim0, ncol0, ldim1, ncol1;
-
-    double const * bb1_min = Utils::mex_matrix_pointer( arg_in_3, ldim0, ncol0,  CMD ": parameter bb1_min" );
-    double const * bb1_max = Utils::mex_matrix_pointer( arg_in_4, ldim1, ncol1, CMD ": parameter bb1_max" );
-    UTILS_MEX_ASSERT(
-      ldim0 == ldim1 && ncol0 == ncol1,
-      "{}: size(bb1_min) = {} x {} must be equal to size(bb1_max) = {} x {}\n",
-      ldim0, ncol0, ldim1, ncol1
-    );
-
-    mwSize ldim2, ncol2, ldim3, ncol3;
-
-    double const * bb2_min = Utils::mex_matrix_pointer( arg_in_5, ldim2, ncol2,  CMD ": parameter bb2_min" );
-    double const * bb2_max = Utils::mex_matrix_pointer( arg_in_6, ldim3, ncol3, CMD ": parameter bb2_max" );
-    UTILS_MEX_ASSERT(
-      ldim2 == ldim3 && ncol2 == ncol3,
-      "{}: size(bb2_min) = {} x {} must be equal to size(bb2_max) = {} x {}\n",
-      ldim2, ncol2, ldim3, ncol3
-    );
-
     AABB_TREE::MAP bb_index;
 
-    //mexPrintf( "call ptr->intersect\n" );
-    //ptr->intersect( *ptr2, bb_index );
-    //mexPrintf( "intersect ncheck: %d\n", ptr->num_check() );
-    //mexPrintf( "intersect num intersect: %d\n", bb_index.size() );
-
-    //bb_index.clear();
-    //mexPrintf( "call ptr->intersect_and_refine\n" );
-    ptr->intersect_and_refine(
-      *ptr2,
-      bb1_min, ldim0,
-      bb1_max, ldim1,
-      bb2_min, ldim2,
-      bb2_max, ldim3,
-      bb_index
-    );
-    //mexPrintf( "intersect_and_refine ncheck: %d\n", ptr->num_check() );
-    //mexPrintf( "intersect_and_refine num intersect: %d\n", bb_index.size() );
+    ptr->intersect_and_refine( *ptr2, bb_index );
 
     // Create a nrhs x 1 cell mxArray.
-    arg_out_0 = mxCreateCellMatrix( ptr->num_bb(), 1 );
+    arg_out_0 = mxCreateCellMatrix( ptr->num_objects(), 1 );
     for ( auto const & S : bb_index ) {
       mxArray *tmp;
       int32_t * idx = Utils::mex_create_matrix_int32( tmp, S.second.size(), 1 );
@@ -325,8 +289,13 @@ namespace Utils {
       dim0, dim1
     );
 
+    std::vector<double> bbox;
+    bbox.resize( 2*dim0 );
+    std::copy_n( bb_min, dim0, bbox.data() );
+    std::copy_n( bb_max, dim0, bbox.data()+dim0 );
+
     AABB_TREE::SET bb_index;
-    ptr->intersect_with_one_bbox( bb_min, bb_max, bb_index );
+    ptr->intersect_with_one_bbox( bbox.data(), bb_index );
 
     //mexPrintf( "do_intersect_with_one_bbox ncheck: %d\n", ptr->num_check() );
     //mexPrintf( "do_intersect_with_one_bbox num intersect: %d\n", bb_index.size() );
@@ -408,7 +377,7 @@ namespace Utils {
     #define CMD MEX_ERROR_MESSAGE_16
     IN_OUT(2,1);
     AABB_TREE * ptr = Utils::mex_convert_mx_to_ptr<AABB_TREE>(arg_in_1);
-    Utils::mex_set_scalar_int32( arg_out_0, ptr->num_bb() );
+    Utils::mex_set_scalar_int32( arg_out_0, ptr->num_objects() );
     #undef CMD
   }
 
@@ -438,7 +407,7 @@ namespace Utils {
     {"new",do_new},
     {"delete",do_delete},
     {"copy",do_copy},
-    {"set_max_object_per_node",do_set_max_object_per_node},
+    {"set_max_num_objects_per_node",do_set_max_num_objects_per_node},
     {"set_bbox_long_edge_ratio",do_set_bbox_long_edge_ratio},
     {"set_bbox_overlap_tolerance",do_set_bbox_overlap_tolerance},
     {"build",do_build},
