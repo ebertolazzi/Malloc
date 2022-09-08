@@ -83,6 +83,8 @@ namespace Utils {
     // statistic
     mutable integer m_num_check = 0;
 
+    Real max_bbox_distance( Real const * bbox, Real const * pnt ) const;
+
   public:
 
     AABBtree() : m_rmem("AABBtree"), m_imem("AABBtree") {}
@@ -122,6 +124,8 @@ namespace Utils {
     void intersect_with_one_point_and_refine( Real const * pnt, SET & bb_index ) const;
     void intersect_with_one_bbox_and_refine( Real const * bbox, SET & bb_index ) const;
     void intersect_and_refine( AABBtree<Real> const & aabb, MAP & bb_index ) const;
+
+    Real minimum_max_bbox_distance( Real const * pnt ) const;
 
     integer dim()            const { return m_dim; }
     integer num_objects()    const { return m_num_objects; }

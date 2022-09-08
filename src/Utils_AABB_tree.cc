@@ -79,6 +79,20 @@ namespace Utils {
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
   template <typename Real>
+  Real
+  AABBtree<Real>::max_bbox_distance( Real const * bbox, Real const * pnt ) const {
+    Real res = 0;
+    for ( integer i = 0; i < m_dim; ++i ) {
+      Real r1 = pnt[i] - bbox[i];
+      Real r2 = pnt[i] - bbox[i+m_dim];
+      res += max(r1*r1,r2*r2);
+    }
+    return sqrt(res);
+  }
+
+  // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+  template <typename Real>
   string
   AABBtree<Real>::info() const {
     integer nleaf = 0;
@@ -710,6 +724,53 @@ namespace Utils {
       } else if ( id_lr2 >= 0 ) {
         m_stack[n_stack++] = sroot1; m_stack[n_stack++] = id_lr2;
         m_stack[n_stack++] = sroot1; m_stack[n_stack++] = id_lr2+1;
+      }
+    }
+  }
+
+  // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+  template <typename Real>
+  Real
+  AABBtree<Real>::minimum_max_bbox_distance( Real const * pnt ) const {
+
+    Real minDist = numeric_limits<Real>::infinity();
+
+    m_num_check = 0;
+
+    // quick return on empty inputs
+    if ( m_num_tree_nodes == 0 ) return 0;
+
+    // descend tree from root
+    m_stack[0] = 0;
+    integer n_stack = 1;
+    while ( n_stack > 0 ) {
+      // pop node from stack
+      integer id_father = m_stack[--n_stack];
+
+      // get BBOX
+      Real const * bb_father = m_bbox_tree + id_father * m_2dim;
+
+      ++m_num_check;
+      Real dst = max_bbox_distance( bb_father, pnt );
+      if ( dst < minDist ) minDist = dst;
+
+      // refine candidate
+      integer num = this->m_num_nodes[id_father];
+      integer const * ptr = this->m_id_nodes + this->m_ptr_nodes[id_father];
+      for ( integer ii = 0; ii < num; ++ii ) {
+        integer s = ptr[ii];
+        Real const * bb_s = m_bbox_objs + s * m_2dim;
+        ++m_num_check;
+        dst = max_bbox_distance( bb_s, pnt );
+        if ( dst < minDist ) minDist = dst;
+      }
+
+      integer nn = m_child[id_father];
+      if ( nn > 0 ) { // root == 0, children > 0
+        // push on stack children
+        m_stack[n_stack++] = nn;
+        m_stack[n_stack++] = nn+1;
       }
     }
   }
