@@ -70,10 +70,12 @@ def win_vs( bits, year )
 
   tmp = " -DBITS:VAR=#{bits} -DYEAR:VAR=#{year} "
 
-  if USE_MINGW then
-    tmp = 'cmake -G "MinGW Makefiles" ' + tmp
-  elsif USE_NMAKE then
+  if USE_NMAKE then
     tmp = 'cmake -G "NMake Makefiles" ' + tmp
+  elsif USE_MINGW then
+    tmp = 'cmake -G "MinGW Makefiles" ' + tmp
+  elsif USE_MSYS then
+    tmp = 'cmake -G "MSYS Makefiles" ' + tmp
   else
     win32_64  = ''
     win32_64_ = '-A Win32'

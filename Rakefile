@@ -18,6 +18,8 @@ when /linux/
   OS = :linux
 when /cygwin|mswin|mingw|bccwin|wince|emx/
   OS = :win
+when /msys/
+  OS = :win
 end
 
 require_relative "./Rakefile_common.rb"
@@ -58,7 +60,7 @@ task :run do
     Dir.glob('./bin/test_*.exe').each do |exe|
       next unless File.exist?(exe)
       puts "execute #{exe}".yellow
-      sh exe
+      system(exe)
     end
   end
 end
