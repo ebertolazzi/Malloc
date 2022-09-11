@@ -80,8 +80,11 @@ task :clean_osx => :clean
 desc "clean for LINUX"
 task :clean_linux => :clean
 
+desc "clean for MINGW"
+task :clean_mingw => :clean
+
 desc "clean for WINDOWS"
-task :clean_linux => :clean
+task :clean_win => :clean
 
 task :cppcheck do
   FileUtils.rm_rf   'lib'
