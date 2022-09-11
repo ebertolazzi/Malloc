@@ -36,12 +36,6 @@ task :build_win, [:year, :bits] do |t, args|
     sh 'cmake --build . --config Release --target install '+PARALLEL+QUIET
   end
 
-  if RUN_CPACK then
-    puts "run CPACK for UTILS".yellow
-    sh 'cpack -C CPackConfig.cmake'
-    sh 'cpack -C CPackSourceConfig.cmake'
-  end
-
   FileUtils.cd '..'
 end
 
@@ -62,12 +56,6 @@ task :build_osx_linux_mingw do
     sh 'cmake --build . --config Debug --target install '+PARALLEL+QUIET
   else
     sh 'cmake --build . --config Release --target install '+PARALLEL+QUIET
-  end
-
-  if RUN_CPACK then
-    puts "run CPACK for UTILS".yellow
-    sh 'cpack -C CPackConfig.cmake'
-    sh 'cpack -C CPackSourceConfig.cmake'
   end
 
   FileUtils.cd '..'
@@ -102,4 +90,13 @@ task :cppcheck do
   FileUtils.cd      'build'
   sh 'cmake -DCMAKE_EXPORT_COMPILE_COMMAND=ON ..'
   sh 'cppcheck --project=compile_commands.json'
+end
+
+desc 'pack for OSX/LINUX/MINGW/WINDOWS'
+task :cpack do
+  FileUtils.cd "build"
+  puts "run CPACK for ROOTS".yellow
+  sh 'cpack -C CPackConfig.cmake'
+  sh 'cpack -C CPackSourceConfig.cmake'
+  FileUtils.cd ".."
 end
