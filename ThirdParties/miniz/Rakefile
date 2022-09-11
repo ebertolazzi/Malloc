@@ -1,7 +1,7 @@
 require "rake"
 require "fileutils"
 
-require_relative "../../Rakefile_common.rb"
+require_relative "../../cmake_utils/Rakefile_common.rb"
 
 desc "install MINIZ"
 task :install do

@@ -1,7 +1,7 @@
 require 'rake/clean'
 require "fileutils"
 
-require_relative "../../Rakefile_common.rb"
+require_relative "../../cmake_utils/Rakefile_common.rb"
 
 CLEAN.clear_exclude.exclude { |fn| fn.pathmap("%f").downcase == "core" }
 

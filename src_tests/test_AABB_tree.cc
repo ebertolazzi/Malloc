@@ -46,7 +46,7 @@ main() {
 
   TicToc tm;
 
-  integer const NS  = 50000;
+  integer const NS  = 10000;
   integer const dim = 2;
   real_type bb_min1[NS*dim];
   real_type bb_max1[NS*dim];

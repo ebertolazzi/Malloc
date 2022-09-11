@@ -12,21 +12,21 @@
 cmake_minimum_required(VERSION 3.14)
 
 project( Utils )
-include(./cmake/CMakeLists-common.txt)
+include(./cmake_utils/CMakeLists-common.txt)
 
 project(
   ${PROJECT_NAME}
-  VERSION ${EB_PROJECT_VERSION}
+  VERSION ${UTILS_PROJECT_VERSION}
   HOMEPAGE_URL "https://ebertolazzi.github.io/Utils/"
 )
 
-include(./cmake/CMakeLists-cflags.txt)
-include(./cmake/CMakeLists-utilities.txt)
+include(./cmake_utils/CMakeLists-cflags.txt)
+include(./cmake_utils/CMakeLists-utilities.txt)
 
 # Evaluating the suffix to append to target built by this CMake file
-ebertolazzi_artifacts_suffix(ARTIFACTS_STATIC_SUFFIX TRUE)
-if( EB_BUILD_SHARED )
-  ebertolazzi_artifacts_suffix(ARTIFACTS_DYNAMIC_SUFFIX FALSE)
+utils_artifacts_suffix(ARTIFACTS_STATIC_SUFFIX TRUE)
+if( UTILS_BUILD_SHARED )
+  utils_artifacts_suffix(ARTIFACTS_DYNAMIC_SUFFIX FALSE)
 endif()
 
 message( STATUS "Compiler used: ${CMAKE_CXX_COMPILER_ID}" )
@@ -104,7 +104,7 @@ include_directories( ./src ./src/Utils ./lib3rd/include )
 #                |___/
 #
 # define target
-ebertolazzi_setup_target(
+utils_setup_target(
   ${PROJECT_NAME}
   TRUE # build static
   "${SOURCE_DIR}"
@@ -112,8 +112,8 @@ ebertolazzi_setup_target(
   "${SOURCE_DIR}"
   "${PUBLIC_HEADERS}"
 )
-if ( EB_BUILD_SHARED )
-  ebertolazzi_setup_target(
+if ( UTILS_BUILD_SHARED )
+  utils_setup_target(
     ${PROJECT_NAME}
     FALSE # build dynamic
     "${SOURCE_DIR}"
@@ -128,7 +128,7 @@ endif()
 #    | |/ -_|_-<  _(_-<
 #    |_|\___/__/\__/__/
 #
-if ( EB_ENABLE_TESTS )
+if ( UTILS_ENABLE_TESTS )
 
   enable_testing()
 
@@ -144,7 +144,7 @@ if ( EB_ENABLE_TESTS )
   endif()
 
   set( EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin )
-  set( LIBS ${EB_NAMESPACE}_${PROJECT_NAME}_Static ${ZLIB_LIBRARIES} ${CMAKE_DL_LIBS} )
+  set( LIBS ${UTILS_NAMESPACE}_${PROJECT_NAME}_Static ${ZLIB_LIBRARIES} ${CMAKE_DL_LIBS} )
 
   if( UNIX )
     if ( NOT APPLE )
@@ -161,8 +161,8 @@ if ( EB_ENABLE_TESTS )
     #find_library( WPTH pthread REQUIRED )
     #set( LIBS ${LIBS} ${WS2} ${IPH} ${KER} )
     set( LIBS ${LIBS} ws2_32 iphlpapi kernel32 )
-    if (EB_BUILD_SHARED)
-      target_link_libraries( ${EB_NAMESPACE}_${PROJECT_NAME} ${LIBS} ${ZLIB_LIBRARIES} ${CMAKE_DL_LIBS} )
+    if (UTILS_BUILD_SHARED)
+      target_link_libraries( ${UTILS_NAMESPACE}_${PROJECT_NAME} ${LIBS} ${ZLIB_LIBRARIES} ${CMAKE_DL_LIBS} )
     endif()
   endif()
 
@@ -182,8 +182,9 @@ if ( EB_ENABLE_TESTS )
 
   foreach( S ${EXELISTCPP} )
     add_executable( ${S} ${CMAKE_CURRENT_SOURCE_DIR}/src_tests/${S}.cc )
+    set_target_properties( ${S} PROPERTIES SUFFIX ".exe" )
     target_link_libraries( ${S} ${LIBS} )
-    add_test( NAME "${S}" COMMAND ./bin/${S} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
+    add_test( NAME "${S}" COMMAND ./bin/${S}.exe WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
     add_dependencies( "${PROJECT_NAME}_all_tests" ${S} )
   endforeach()
 
@@ -210,6 +211,6 @@ install(
 #                       |___/
 #
 
-include( ./cmake/CMakeLists-cpack.txt )
+include( ./cmake_utils/CMakeLists-cpack.txt )
 
-ebertolazzi_final_messages()
+utils_final_messages()
