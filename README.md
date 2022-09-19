@@ -21,20 +21,10 @@ class for easy allocation with traking of allocated memory.
 COMPILE AND TEST
 ----------------
 
-using rake
+using rake (with cmake and ninja)
 
 ```
-rake build
-```
-
-**On windows**
-
-using Visual Studio you can select a specific version of the
-compiler
-
-```
-rake build_win[2017,x64]
-rake build_win[2017,x86]
+rake
 ```
 
 to compile using mingw open MSYS2 shell and compile as in unix evironment.
