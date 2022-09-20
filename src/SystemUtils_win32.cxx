@@ -176,7 +176,10 @@ namespace Utils {
   */
   bool
   check_if_file_exists( char const * fname ) {
-    return FindFirstFileA( fname, NULL ) != INVALID_HANDLE_VALUE;
+    DWORD ftyp = GetFileAttributesA(dirname);
+    if (ftyp == INVALID_FILE_ATTRIBUTES) return false;  //something is wrong with your path!
+    if (ftyp & FILE_ATTRIBUTE_DIRECTORY) return false;  // this is a directory!
+    return true; // this is not a directory!
   }
 
   /*
@@ -187,7 +190,7 @@ namespace Utils {
     DWORD ftyp = GetFileAttributesA(dirname);
     if (ftyp == INVALID_FILE_ATTRIBUTES) return false;  //something is wrong with your path!
     if (ftyp & FILE_ATTRIBUTE_DIRECTORY) return true;   // this is a directory!
-    return false;    // this is not a directory!
+    return false; // this is not a directory!
   }
 
   /*
