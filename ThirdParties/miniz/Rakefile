@@ -4,7 +4,7 @@ require "fileutils"
 require_relative "../../cmake_utils/Rakefile_common.rb"
 
 desc "install MINIZ"
-task :install do
+task :install_common do
   puts "Copy miniz source".yellow
   if not Dir.exist?("miniz-master") then
     extract_zip("miniz-master.zip");
@@ -20,10 +20,14 @@ task :install do
   FileUtils.cp 'miniz_export.h', '../../src/Utils/miniz/miniz_export.h'
 end
 
-task :install_osx   => :install
-task :install_linux => :install
-task :install_win   => :install
-task :clean
-task :clean_osx
-task :clean_linux
-task :clean_win
+task :install_osx   => :install_common do end
+task :install_linux => :install_common do end
+task :install_mingw => :install_common do end
+task :install_win   => :install_common do end
+    
+task :clean       do end
+task :clean_osx   do end
+task :clean_linux do end
+task :clean_mingw do end
+task :clean_win   do end
+    

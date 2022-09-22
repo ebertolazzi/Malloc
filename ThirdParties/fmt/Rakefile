@@ -6,7 +6,7 @@ require_relative "../../cmake_utils/Rakefile_common.rb"
 VER = "8.1.1"
 
 desc "install FMT"
-task :install do
+task :install_common do
   puts "Copy FMT source".yellow
   if not Dir.exist?("fmt-#{VER}") then
     extract_zip("fmt-#{VER}.zip");
@@ -17,10 +17,14 @@ task :install do
   FileUtils.cp_r "fmt-#{VER}/include/fmt",   '../../src/Utils'
 end
 
-task :install_osx   => :install
-task :install_linux => :install
-task :install_win   => :install
-task :clean
-task :clean_osx
-task :clean_linux
-task :clean_win
+task :install_osx   => :install_common do end
+task :install_linux => :install_common do end
+task :install_mingw => :install_common do end
+task :install_win   => :install_common do end
+  
+task :clean       do end
+task :clean_osx   do end
+task :clean_linux do end
+task :clean_mingw do end
+task :clean_win   do end
+  
