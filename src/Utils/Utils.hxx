@@ -41,10 +41,19 @@
 #elif defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64)
   // windows architecture
   #define UTILS_OS_WINDOWS 1
-  #if defined(_M_X64) || defined(_M_AMD64) || defined(_WIN64) || defined(WIN64)
-    #define UTILS_ARCH64 1
+  // mingw subsystem
+  #if defined(__MINGW64__)
+    #define UTILS_OS_MINGW 1
+    #define UTILS_ARCH64   1
+  #elif defined(__MINGW32__)
+    #define UTILS_OS_MINGW 1
+    #define UTILS_ARCH32   1
   #else
-    #define UTILS_ARCH32 1
+    #if defined(_M_X64) || defined(_M_AMD64) || defined(_WIN64) || defined(WIN64)
+      #define UTILS_ARCH64 1
+    #else
+      #define UTILS_ARCH32 1
+    #endif
   #endif
   // windows headers, order matters!
   #include <Winsock2.h>
