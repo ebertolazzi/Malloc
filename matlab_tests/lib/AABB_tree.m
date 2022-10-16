@@ -21,6 +21,8 @@ classdef AABB_tree < matlab.mixin.Copyable
 
   properties (SetAccess = private, Hidden = true)
     objectHandle;
+    bb_min;
+    bb_max;
   end
   methods(Access = protected)
     % Override copyElement method:
@@ -77,9 +79,23 @@ classdef AABB_tree < matlab.mixin.Copyable
       do_transpose = false;
       if nargin > 3; do_transpose = varargin{1}; end
       if do_transpose
+        self.bb_min = bb_min.';
+        self.bb_max = bb_max.';
         AABB_treeMexWrapper( 'build', self.objectHandle, bb_min.', bb_max.' );
       else
+        self.bb_min = bb_min.';
+        self.bb_max = bb_max.';
         AABB_treeMexWrapper( 'build', self.objectHandle, bb_min, bb_max );
+      end
+    end
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    function [bb_min,bb_max] = get_bb_min_max( self, varargin )
+      if nargin > 1 && varargin{1}
+        bb_min = self.bb_min.';
+        bb_max = self.bb_max.';
+      else
+        bb_min = self.bb_min;
+        bb_max = self.bb_max;
       end
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -127,6 +143,10 @@ classdef AABB_tree < matlab.mixin.Copyable
       id_list = AABB_treeMexWrapper( 'intersect_and_refine', self.objectHandle, aabb.objectHandle );
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    function id_list = min_distance_candidates( self, pnt )
+      id_list = AABB_treeMexWrapper( 'min_distance_candidates', self.objectHandle, pnt );
+    end
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     function plot( self, varargin )
       % find non empty nodes
       [ bb_min, bb_max ] = self.get_bboxes_of_the_tree( 1 );
@@ -140,25 +160,45 @@ classdef AABB_tree < matlab.mixin.Copyable
       else
         ec = [.15,.15,.15];
       end
-      self.plot_bbox( bb_min.', bb_max.', fc, ec );
+      self.plot_bbox( bb_min, bb_max, fc, ec, true );
+      %self.plot_bbox( bb_min, bb_max, fc, ec );
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    function plot_bbox( self, mi, ma, fc, ec )
-      np    = size(mi,1);
+    function plot_bbox( self, mi, ma, fc, ec, varargin )
+      transpose = false;
+      if nargin > 5
+        transpose = varargin{1};
+      end
+      if transpose
+        nr    = size(mi,1);
+        np    = size(mi,2);
+        min_x = mi(1,:).';
+        min_y = mi(2,:).';
+        max_x = ma(1,:).';
+        max_y = ma(2,:).';
+      else
+        np    = size(mi,1);
+        nr    = size(mi,2);
+        min_x = mi(:,1);
+        min_y = mi(:,2);
+        max_x = ma(:,1);
+        max_y = ma(:,2);
+      end
       idx   = (1:np)';
-      min_x = mi(:,1);
-      min_y = mi(:,2);
-      max_x = ma(:,1);
-      max_y = ma(:,2);
       % draw all "leaf" nodes as patches
-      switch(size(mi,2))
+      switch nr
       case 2
         pp = [ min_x, min_y; max_x, min_y; max_x, max_y; min_x, max_y ];
         % faces
         bb = [ idx, idx+np, idx+2*np, idx+3*np ];
       case 3
-        min_z = mi(:,3);
-        max_z = ma(:,3);
+        if transpose
+          min_z = mi(3,:).';
+          max_z = ma(3,:).';
+        else
+          min_z = mi(:,3);
+          max_z = ma(:,3);
+        end
         pp = [ ...
           min_x, min_y, min_z; ...
           max_x, min_y, min_z; ...

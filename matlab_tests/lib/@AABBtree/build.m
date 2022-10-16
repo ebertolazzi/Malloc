@@ -1,5 +1,5 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function build( self, pmin, pmax )
+function build( self, pmin, pmax, varargin )
   % get dimensions
   dim = size(pmin,2); % 2D or 3D or more...
   nbb = size(pmin,1); % number of BBOX

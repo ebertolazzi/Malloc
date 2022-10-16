@@ -401,6 +401,31 @@ namespace Utils {
 
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+  static
+  void
+  do_min_distance_candidates(
+    int nlhs, mxArray       *plhs[], // unused
+    int nrhs, mxArray const *prhs[]
+  ) {
+    #define MEX_ERROR_MESSAGE_18 "res=AABB_treeMexWrapper('min_distance_candidates',obj,pnt)"
+    #define CMD MEX_ERROR_MESSAGE_18
+    IN_OUT(3,1);
+    AABB_TREE * ptr = Utils::mex_convert_mx_to_ptr<AABB_TREE>(arg_in_1);
+    mwSize dim0;
+    double const * pnt = Utils::mex_vector_pointer( arg_in_2, dim0, CMD ": pnt" );
+
+    AABB_TREE::SET bb_index;
+    ptr->min_distance_candidates( pnt, bb_index );
+
+    // Create a nrhs x 1 cell mxArray.
+    int32_t * idx = Utils::mex_create_matrix_int32( arg_out_0, bb_index.size(), 1 );
+    for ( auto const & v : bb_index ) *idx++ = v+1;
+
+    #undef CMD
+  }
+
+  // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
   typedef void (*DO_CMD)( int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[] );
 
   static std::map<std::string,DO_CMD> cmd_to_fun = {
@@ -420,7 +445,8 @@ namespace Utils {
     {"info",do_info},
     {"get_dim",do_get_dim},
     {"get_num_bb",do_get_num_bb},
-    {"get_num_tree_nodes",do_get_num_tree_nodes}
+    {"get_num_tree_nodes",do_get_num_tree_nodes},
+    {"min_distance_candidates",do_min_distance_candidates}
   };
 
 #define MEX_ERROR_MESSAGE \
@@ -450,6 +476,7 @@ namespace Utils {
 "   " MEX_ERROR_MESSAGE_15 "\n" \
 "   " MEX_ERROR_MESSAGE_16 "\n" \
 "   " MEX_ERROR_MESSAGE_17 "\n" \
+"   " MEX_ERROR_MESSAGE_18 "\n" \
 "=====================================================================================\n"
 
   extern "C"

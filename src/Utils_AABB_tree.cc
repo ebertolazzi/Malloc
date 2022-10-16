@@ -70,6 +70,7 @@ namespace Utils {
     std::copy_n( T.m_num_nodes, m_num_tree_nodes,        m_num_nodes );
     std::copy_n( T.m_id_nodes,  m_num_objects,           m_id_nodes  );
     std::copy_n( T.m_bbox_tree, m_num_tree_nodes*m_2dim, m_bbox_tree );
+    std::copy_n( T.m_bbox_objs, m_num_objects*m_2dim,    m_bbox_objs );
 
     m_max_num_objects_per_node = T.m_max_num_objects_per_node;
     m_bbox_long_edge_ratio     = T.m_bbox_long_edge_ratio;
@@ -227,6 +228,26 @@ namespace Utils {
       bbox_min += ldim0;
       bbox_max += ldim1;
     }
+  }
+
+  // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+  template <typename Real>
+  void
+  AABBtree<Real>::replace_bbox(
+    Real const * bbox_min,
+    Real const * bbox_max,
+    integer      ipos
+  ) {
+    Real * bb = m_bbox_objs + ipos*m_2dim;
+    for ( integer j = 0; j < m_dim; ++j ) {
+      UTILS_ASSERT(
+        bbox_min[j] <= bbox_max[j],
+        "AABBtree::replace_bbox, bad bbox N.{} max < min", ipos
+      );
+    }
+    std::copy_n( bbox_min, m_dim, bb );
+    std::copy_n( bbox_max, m_dim, bb+m_dim );
   }
 
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -731,49 +752,86 @@ namespace Utils {
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
   template <typename Real>
-  Real
-  AABBtree<Real>::minimum_max_bbox_distance( Real const * pnt ) const {
+  void
+  AABBtree<Real>::pnt_bbox_minmax(
+    Real const * pnt,
+    Real const * bbox,
+    Real       & dmin2,
+    Real       & dmax2
+  ) const {
+    Real const * bb_max = bbox+m_dim;
+    Real const * bb_min = bbox;
+    dmin2 = 0;
+    dmax2 = 0;
+    for ( integer i = 0; i < m_dim; ++i ) {
+      // check overlap
+      Real pi    = pnt[i];
+      Real dpmin = 0;
+      Real dpmax = 0;
+      Real t1    = pi-bb_max[i];
+      Real t2    = bb_min[i]-pi;
+      if ( t1 > 0 ) dpmin = t1; else dpmax = t1;
+      if ( t2 > 0 ) dpmin = t2; else dpmax = t2;
+      dmin2 += dpmin*dpmin;
+      dmax2 += dpmax*dpmax;
+    }
+  }
 
-    Real minDist = numeric_limits<Real>::infinity();
+  // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-    m_num_check = 0;
+  template <typename Real>
+  void
+  AABBtree<Real>::min_distance_candidates( Real const * pnt, SET & bb_index ) const {;
+
+    Real dst2_min, dst2_max;
 
     // quick return on empty inputs
-    if ( m_num_tree_nodes == 0 ) return 0;
+    bb_index.clear();
+    if ( this->m_num_tree_nodes == 0 ) return;
+
+    Real min_max_distance2 = Utils::Inf<Real>();
+
+    // descend tree from root
+    m_stack[0]         = 0;
+    integer top_stack  = 1;
+    while ( top_stack > 0 ) {
+      // pop node from stack
+      integer id_father = m_stack[--top_stack];
+
+      // get BBOX
+      // check for intersection
+      Real const * father_bbox = this->m_bbox_tree + id_father * m_2dim;
+      this->pnt_bbox_minmax( pnt, father_bbox, dst2_min, dst2_max );
+
+      if ( dst2_min <= min_max_distance2 ) {
+        if ( dst2_max < min_max_distance2 ) min_max_distance2 = dst2_max;
+        integer nn = m_child[id_father];
+        if ( nn > 0 ) { // root == 0, children > 0
+          // push on stack childrens
+          m_stack[top_stack++] = nn;
+          m_stack[top_stack++] = nn+1;
+        }
+      }
+    }
 
     // descend tree from root
     m_stack[0] = 0;
-    integer n_stack = 1;
-    while ( n_stack > 0 ) {
+    top_stack  = 1;
+    while ( top_stack > 0 ) {
       // pop node from stack
-      integer id_father = m_stack[--n_stack];
-
-      // get BBOX
-      Real const * bb_father = m_bbox_tree + id_father * m_2dim;
-
-      ++m_num_check;
-      Real dst = max_bbox_distance( bb_father, pnt );
-      if ( dst < minDist ) minDist = dst;
-
-      // refine candidate
-      integer num = this->m_num_nodes[id_father];
-      integer const * ptr = this->m_id_nodes + this->m_ptr_nodes[id_father];
-      for ( integer ii = 0; ii < num; ++ii ) {
-        integer s = ptr[ii];
-        Real const * bb_s = m_bbox_objs + s * m_2dim;
-        ++m_num_check;
-        dst = max_bbox_distance( bb_s, pnt );
-        if ( dst < minDist ) minDist = dst;
-      }
-
-      integer nn = m_child[id_father];
-      if ( nn > 0 ) { // root == 0, children > 0
-        // push on stack children
-        m_stack[n_stack++] = nn;
-        m_stack[n_stack++] = nn+1;
+      integer id_father = m_stack[--top_stack];
+      Real const * father_bbox = this->m_bbox_tree + id_father * m_2dim;
+      this->pnt_bbox_minmax( pnt, father_bbox, dst2_min, dst2_max );
+      if ( dst2_min <= min_max_distance2 ) {
+        this->get_bbox_indexes_of_a_node( id_father, bb_index );
+        integer nn = m_child[id_father];
+        if ( nn > 0 ) { // root == 0, children > 0
+          // push on stack childrens
+          m_stack[top_stack++] = nn;
+          m_stack[top_stack++] = nn+1;
+        }
       }
     }
-    return 0;
   }
 
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -800,6 +858,15 @@ namespace Utils {
     for ( integer i = 0; i < m_num_tree_nodes; ++i )
       if ( m_num_nodes[i] >= nmin ) ++n;
     return n;
+  }
+
+  // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+  template <typename Real>
+  void
+  AABBtree<Real>::get_root_bbox( Real * bb_min, Real * bb_max ) const {
+    std::copy_n( m_bbox_tree,       m_dim, bb_min );
+    std::copy_n( m_bbox_tree+m_dim, m_dim, bb_max );
   }
 
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

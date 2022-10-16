@@ -18,9 +18,9 @@ cmake_minimum_required( VERSION 3.14 )
 
 project( AABB )
 
-include(./cmake/CMakeLists-common.txt)
+include(../cmake_utils/CMakeLists-common.txt)
 
-project( ${PROJECT_NAME} VERSION ${EB_PROJECT_VERSION} )
+project( ${PROJECT_NAME} VERSION ${UTILS_PROJECT_VERSION} )
 
 find_package( Matlab REQUIRED )
 
@@ -32,17 +32,17 @@ if ( (UNIX OR LINUX) AND NOT APPLE )
   set(CMAKE_SHARED_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 endif()
 
-include(./cmake/CMakeLists-cflags.txt)
-include(./cmake/CMakeLists-utilities.txt)
+include(../cmake_utils/CMakeLists-cflags.txt)
+include(../cmake_utils/CMakeLists-utilities.txt)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
 # Evaluating the suffix to append to target built by this CMake file
-ebertolazzi_artifacts_suffix(ARTIFACTS_STATIC_SUFFIX TRUE)
-if( EB_BUILD_SHARED )
-  ebertolazzi_artifacts_suffix(ARTIFACTS_DYNAMIC_SUFFIX FALSE)
+utils_artifacts_suffix(ARTIFACTS_STATIC_SUFFIX TRUE)
+if( UTILS_BUILD_SHARED )
+  utils_artifacts_suffix(ARTIFACTS_DYNAMIC_SUFFIX FALSE)
 endif()
 
 message( STATUS "Compiler used: ${CMAKE_CXX_COMPILER_ID}" )
@@ -105,7 +105,7 @@ message( STATUS "SOURCES = ${SOURCES}" )
 #                |___/
 #
 # define target
-ebertolazzi_setup_target(
+utils_setup_target(
   ${PROJECT_NAME}
   TRUE # build static
   "${CMAKE_CURRENT_SOURCE_DIR}"
@@ -113,8 +113,8 @@ ebertolazzi_setup_target(
   "${CMAKE_CURRENT_SOURCE_DIR}"
   "${PUBLIC_HEADERS}"
 )
-if ( EB_BUILD_SHARED )
-  ebertolazzi_setup_target(
+if ( UTILS_BUILD_SHARED )
+  utils_setup_target(
     ${PROJECT_NAME}
     FALSE # build dynamic
     "${CMAKE_CURRENT_SOURCE_DIR}"
@@ -129,12 +129,12 @@ endif()
 #    | |/ -_|_-<  _(_-<
 #    |_|\___/__/\__/__/
 #
-if ( EB_ENABLE_TESTS )
+if ( UTILS_ENABLE_TESTS )
 
   enable_testing()
 
   set( EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin )
-  set( LIBS ${EB_NAMESPACE}_${PROJECT_NAME}_Static ${CMAKE_DL_LIBS} )
+  set( LIBS ${UTILS_NAMESPACE}_${PROJECT_NAME}_Static ${CMAKE_DL_LIBS} )
 
   if( UNIX AND NOT APPLE )
     set( THREADS_PREFER_PTHREAD_FLAG ON )
@@ -178,13 +178,16 @@ install(
   PUBLIC_HEADER DESTINATION ${PROJECT_PUBLIC_HEADER_DESTINATION}
 )
 
-ebertolazzi_final_messages()
+utils_final_messages()
+
+add_library( Utils_static STATIC ${SOURCES} )
 
 set( MEX_LIST AABB_tree Segment2D )
 foreach(MEX ${MEX_LIST})
   matlab_add_mex(
     NAME mex_${MEX}
-    SRC src_mex/mex_${MEX}.cc ${SOURCES}
+    SRC src_mex/mex_${MEX}.cc
+    LINK_TO Utils_static
     OUTPUT_NAME ${MEX}MexWrapper
   )
   add_custom_command(

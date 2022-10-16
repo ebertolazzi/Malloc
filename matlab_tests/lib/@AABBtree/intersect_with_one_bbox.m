@@ -23,7 +23,7 @@ function id_list = intersect_with_one_bbox( self, bb_min, bb_max )
 
     if self.bbox_overlap( bb_min, bb_max, father_min, father_max )
       % get rectangles id in parent
-      id_list = [ id_list; self.get_bb_index_by_nodes( id_father ) ];
+      id_list = [ id_list; self.get_bbox_indexes_of_a_node( id_father ) ];
 
       nn = self.child(id_father);
       if nn > 0

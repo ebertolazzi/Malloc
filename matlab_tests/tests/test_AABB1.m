@@ -9,10 +9,13 @@
 
 close all;
 
+rng(1011); 
+
 addpath('../lib');
 
-NN = 100;
-MM = 10;
+NN      = 100;
+MM      = 20;
+aabbnew = true;
 
 % check constructors
 fprintf('Generate lines\n');
@@ -67,8 +70,13 @@ nobj = 2;
 long = 0.8;
 vtol = 0.55;
 
-tr1 = AABBtree(nobj,long,vtol);
-tr1.build(bb_min1,bb_max1);
+if aabbnew
+  tr1 = AABB_tree(nobj,long,vtol);
+else
+  tr1 = AABBtree(nobj,long,vtol);
+end
+
+tr1.build(bb_min1,bb_max1,true);
 tr1.plot('red', 'black');
 tr1.info
 %xlim([0,20]);
@@ -85,8 +93,13 @@ for k=1:MM
   bb_max2(k,:) = B2.get_max().';
 end
 
-tr2 = AABBtree(nobj,long,vtol);
-tr2.build(bb_min2,bb_max2);
+if aabbnew
+  tr2 = AABB_tree(nobj,long,vtol);
+else
+  tr2 = AABBtree(nobj,long,vtol);
+end
+
+tr2.build(bb_min2,bb_max2,true);
 tr2.plot('blue', 'black');
 tr2.info
 %xlim([0,15]);
@@ -100,8 +113,8 @@ subplot(1,2,2);
 
 if false
 
-  [b1min,b1max] = tr1.get_bb_min_max();
-  [b2min,b2max] = tr2.get_bb_min_max();
+  [b1min,b1max] = tr1.get_bboxes_of_the_tree();
+  [b2min,b2max] = tr2.get_bboxes_of_the_tree();
 
   ii = 2;
   ok_list1 = tr1.intersect_with_one_bbox(b2min(ii,:),b2max(ii,:));
@@ -118,28 +131,18 @@ else
 
   id_list = tr1.intersect(tr2);
 
-  [mi1,ma1] = tr1.get_bb_min_max();
-  [mi2,ma2] = tr2.get_bb_min_max();
-  
-  %ok = ~cellfun(@isempty,id_list1);
-  %tr1.plot_bbox( mi1(ok,:), ma1(ok,:), 'red', 'black' );
-
-  %ok = ~cellfun(@isempty,id_list2);
-  %tr2.plot_bbox( mi2(ok,:), ma2(ok,:), 'blue', 'black' );
+  [mi1,ma1] = tr1.get_bb_min_max( true );
+  [mi2,ma2] = tr2.get_bb_min_max( true );
 
   for k=1:length(id_list)
     idx = id_list{k};
     if ~isempty(idx)
-      tr1.plot_bbox( mi1(k,:),     ma1(k,:),     'red',  'black' );
+      tr1.plot_bbox( mi1(k,:),       ma1(k,:),       'red',  'black', false );
       %tr2.plot_bbox( b2min(idx,:), b2max(idx,:), 'blue', 'cyan'  );
-      tr2.plot_bbox( bb_min2(idx,:), bb_max2(idx,:), 'blue', 'cyan'  );
+      tr2.plot_bbox( bb_min2(idx,:), bb_max2(idx,:), 'blue', 'cyan', false );
       %break;
     end
   end
-
-  %ok = ~cellfun(@isempty,id_list2);
-  %[mi,ma] = tr2.get_bb_min_max();
-  %tr2.plot_bbox( mi(ok,:), ma(ok,:), 'blue', 'black' );
 
 end
 
@@ -151,6 +154,4 @@ for k=1:MM
   SEGS2{k}.plot( '-b', 'LineWidth', 1 );
 end
 
-%xlim([0,15]);
 axis equal
-

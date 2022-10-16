@@ -129,7 +129,7 @@ if false
     idx = id_list{k};
     if ~isempty(idx)
       idx_all(idx) = true;
-      id_list2 = tr1.get_bb_index_by_nodes( k );
+      id_list2 = tr1.get_bbox_indexes_of_a_node( k );
       for kk=id_list2
         tr1.plot_bbox( bb_min1(kk,:), bb_max1(kk,:), 'red', 'black' );
       end

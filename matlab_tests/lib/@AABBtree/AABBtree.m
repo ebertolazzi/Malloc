@@ -182,7 +182,7 @@ classdef AABBtree < matlab.mixin.Copyable
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     setup( self, max_num_objects_per_node, bbox_long_edge_ratio, bbox_overlap_tolerance )
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    build( self, bb_min, bb_max )
+    build( self, bb_min, bb_max, varargin )
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ok = bbox_overlap( self, A_min, A_max, B_min, B_max )
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -221,6 +221,10 @@ classdef AABBtree < matlab.mixin.Copyable
     id_list = intersect2( self, aabb )
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ok_list = intersect_with_one_bbox( self, bb_min, bb_max )
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ok_list = min_distance_candidates( self, pnt )
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    [pmin,pmax] = pnt_bbox_minmax( self, pnt, bb_min, bb_max )
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     plot( self, varargin )
     plot_bbox( self, mi, ma, fc, ec )

@@ -26,7 +26,7 @@ function id_list = intersect2( self, aabb )
       nn1 = self.num_nodes(root1);
       nn2 = aabb.num_nodes(root2);
       if nn1 > 0 && nn2 > 0
-        id_list{root1} = [id_list{root1}; aabb.get_bb_index_by_nodes(root2)];
+        id_list{root1} = [id_list{root1}; aabb.get_bbox_indexes_of_a_node(root2)];
       end
 
       id_lr1 = self.child(root1);
