@@ -35,7 +35,7 @@ namespace Utils {
   template <typename Real>
   inline
   bool
-  check_overlap( Real const bb1, Real const bb2, unsigned dim ) {
+  check_overlap( Real const bb1[], Real const bb2[], unsigned dim ) {
     bool overlap = true;
     for ( unsigned i = 0; overlap && i < dim; ++i )
       overlap = ! ( bb1[i] > bb2[i+dim] || bb1[i+dim] < bb2[i] );
@@ -45,7 +45,7 @@ namespace Utils {
   template <typename Real>
   inline
   bool
-  check_overlap_with_point( Real const bb1, Real const pnt, unsigned dim ) {
+  check_overlap_with_point( Real const bb1[], Real const pnt[], unsigned dim ) {
     bool overlap = true;
     for ( unsigned i = 0; overlap && i < dim; ++i )
       overlap = ! ( bb1[i] > pnt[i] || bb1[i+dim] < pnt[i] );
@@ -59,9 +59,6 @@ namespace Utils {
   : m_rmem("AABBtree")
   , m_imem("AABBtree")
   {
-    m_rmem.free();
-    m_imem.free();
-
     allocate( T.m_num_objects, T.m_dim );
 
     std::copy_n( T.m_father,    m_num_tree_nodes,        m_father    );
@@ -81,7 +78,7 @@ namespace Utils {
 
   template <typename Real>
   Real
-  AABBtree<Real>::max_bbox_distance( Real const * bbox, Real const * pnt ) const {
+  AABBtree<Real>::max_bbox_distance( Real const bbox[], Real const pnt[] ) const {
     Real res = 0;
     for ( integer i = 0; i < m_dim; ++i ) {
       Real r1 = pnt[i] - bbox[i];
@@ -170,6 +167,9 @@ namespace Utils {
       dim
     );
 
+    m_rmem.free();
+    m_imem.free();
+
     m_dim         = dim;
     m_2dim        = 2*dim;
     m_num_objects = nbox;
@@ -204,8 +204,8 @@ namespace Utils {
   template <typename Real>
   void
   AABBtree<Real>::add_bboxes(
-    Real const * bbox_min, integer ldim0,
-    Real const * bbox_max, integer ldim1
+    Real const bbox_min[], integer ldim0,
+    Real const bbox_max[], integer ldim1
   ) {
 
     UTILS_ASSERT(
@@ -223,10 +223,8 @@ namespace Utils {
           "AABBtree::add_bboxes, bad bbox N.{} max < min", i
         );
       }
-      std::copy_n( bbox_min, m_dim, bb ); bb += m_dim;
-      std::copy_n( bbox_max, m_dim, bb ); bb += m_dim;
-      bbox_min += ldim0;
-      bbox_max += ldim1;
+      std::copy_n( bbox_min, m_dim, bb ); bb += m_dim; bbox_min += ldim0;
+      std::copy_n( bbox_max, m_dim, bb ); bb += m_dim; bbox_max += ldim1;
     }
   }
 
@@ -235,9 +233,9 @@ namespace Utils {
   template <typename Real>
   void
   AABBtree<Real>::replace_bbox(
-    Real const * bbox_min,
-    Real const * bbox_max,
-    integer      ipos
+    Real const bbox_min[],
+    Real const bbox_max[],
+    integer    ipos
   ) {
     Real * bb = m_bbox_objs + ipos*m_2dim;
     for ( integer j = 0; j < m_dim; ++j ) {
@@ -444,8 +442,8 @@ namespace Utils {
   template <typename Real>
   void
   AABBtree<Real>::intersect_with_one_point(
-    Real const * pnt,
-    SET & bb_index
+    Real const pnt[],
+    AABB_SET & bb_index
   ) const {
 
     m_num_check = 0;
@@ -486,8 +484,8 @@ namespace Utils {
   template <typename Real>
   void
   AABBtree<Real>::intersect_with_one_point_and_refine(
-    Real const * pnt,
-    SET        & bb_index
+    Real const pnt[],
+    AABB_SET & bb_index
   ) const {
 
     m_num_check = 0;
@@ -536,8 +534,8 @@ namespace Utils {
   template <typename Real>
   void
   AABBtree<Real>::intersect_with_one_bbox(
-    Real const * bbox,
-    SET        & bb_index
+    Real const bbox[],
+    AABB_SET & bb_index
   ) const {
     m_num_check = 0;
 
@@ -577,8 +575,8 @@ namespace Utils {
   template <typename Real>
   void
   AABBtree<Real>::intersect_with_one_bbox_and_refine(
-    Real const * bbox,
-    SET        & bb_index
+    Real const bbox[],
+    AABB_SET & bb_index
   ) const {
 
     m_num_check = 0;
@@ -628,7 +626,7 @@ namespace Utils {
   void
   AABBtree<Real>::intersect(
     AABBtree<Real> const & aabb,
-    MAP                  & bb_index
+    AABB_MAP             & bb_index
   ) const {
 
     m_num_check = 0;
@@ -683,7 +681,7 @@ namespace Utils {
   void
   AABBtree<Real>::intersect_and_refine(
     AABBtree<Real> const & aabb,
-    MAP                  & bb_index
+    AABB_MAP             & bb_index
   ) const {
 
     m_num_check = 0;
@@ -721,7 +719,7 @@ namespace Utils {
         for ( integer ii = 0; ii < nn1; ++ii ) {
           integer s1 = ptr1[ii];
           Real const * bb_s1 = m_bbox_objs + s1 * m_2dim;
-          SET & BB = bb_index[s1];
+          AABB_SET & BB = bb_index[s1];
           for ( integer jj = 0; jj < nn2; ++jj ) {
             integer s2 = ptr2[jj];
             Real const * bb_s2 = aabb.m_bbox_objs + s2 * m_2dim;
@@ -754,10 +752,10 @@ namespace Utils {
   template <typename Real>
   void
   AABBtree<Real>::pnt_bbox_minmax(
-    Real const * pnt,
-    Real const * bbox,
-    Real       & dmin2,
-    Real       & dmax2
+    Real const pnt[],
+    Real const bbox[],
+    Real     & dmin2,
+    Real     & dmax2
   ) const {
     Real const * bb_max = bbox+m_dim;
     Real const * bb_min = bbox;
@@ -781,7 +779,10 @@ namespace Utils {
 
   template <typename Real>
   void
-  AABBtree<Real>::min_distance_candidates( Real const * pnt, SET & bb_index ) const {;
+  AABBtree<Real>::min_distance_candidates(
+    Real const pnt[],
+    AABB_SET & bb_index
+  ) const {;
 
     Real dst2_min, dst2_max;
 
@@ -804,7 +805,10 @@ namespace Utils {
       this->pnt_bbox_minmax( pnt, father_bbox, dst2_min, dst2_max );
 
       if ( dst2_min <= min_max_distance2 ) {
-        if ( dst2_max < min_max_distance2 ) min_max_distance2 = dst2_max;
+
+        if ( m_num_nodes[id_father] > 0 && dst2_max < min_max_distance2 )
+          min_max_distance2 = dst2_max;
+
         integer nn = m_child[id_father];
         if ( nn > 0 ) { // root == 0, children > 0
           // push on stack childrens
@@ -838,7 +842,10 @@ namespace Utils {
 
   template <typename Real>
   void
-  AABBtree<Real>::get_bbox_indexes_of_a_node( integer i_pos, SET & bb_index ) const {
+  AABBtree<Real>::get_bbox_indexes_of_a_node(
+    integer    i_pos,
+    AABB_SET & bb_index
+  ) const {
     UTILS_ASSERT(
       i_pos >= 0 && i_pos < m_num_tree_nodes,
       "AABBtree::get_bbox_indexes_of_a_node( i_pos={}, bb_index ) i_pos must be >= 0 and < {}\n",
@@ -864,7 +871,7 @@ namespace Utils {
 
   template <typename Real>
   void
-  AABBtree<Real>::get_root_bbox( Real * bb_min, Real * bb_max ) const {
+  AABBtree<Real>::get_root_bbox( Real bb_min[], Real bb_max[] ) const {
     std::copy_n( m_bbox_tree,       m_dim, bb_min );
     std::copy_n( m_bbox_tree+m_dim, m_dim, bb_max );
   }
@@ -874,8 +881,8 @@ namespace Utils {
   template <typename Real>
   void
   AABBtree<Real>::get_bboxes_of_the_tree(
-    Real * bbox_min, integer ldim0,
-    Real * bbox_max, integer ldim1,
+    Real bbox_min[], integer ldim0,
+    Real bbox_max[], integer ldim1,
     integer nmin
   ) const {
     UTILS_ASSERT(

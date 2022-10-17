@@ -51,9 +51,9 @@ namespace Utils {
   class AABBtree {
   public:
 
-    typedef int integer;
-    typedef set<integer>     SET;
-    typedef map<integer,SET> MAP;
+    typedef int                   integer;
+    typedef set<integer>          AABB_SET;
+    typedef map<integer,AABB_SET> AABB_MAP;
 
   private:
 
@@ -83,7 +83,7 @@ namespace Utils {
     // statistic
     mutable integer m_num_check = 0;
 
-    Real max_bbox_distance( Real const * bbox, Real const * pnt ) const;
+    Real max_bbox_distance( Real const bbox[], Real const pnt[] ) const;
 
   public:
 
@@ -99,23 +99,23 @@ namespace Utils {
 
     void
     add_bboxes(
-      Real const * bb_min, integer ldim0,
-      Real const * bb_max, integer ldim1
+      Real const bb_min[], integer ldim0,
+      Real const bb_max[], integer ldim1
     );
 
     void
     replace_bbox(
-      Real const * bbox_min,
-      Real const * bbox_max,
-      integer      ipos
+      Real const bbox_min[],
+      Real const bbox_max[],
+      integer    ipos
     );
 
     void build();
 
     void
     build(
-      Real const * bb_min, integer ldim0,
-      Real const * bb_max, integer ldim1,
+      Real const bb_min[], integer ldim0,
+      Real const bb_max[], integer ldim1,
       integer nbox,
       integer dim
     ) {
@@ -124,16 +124,16 @@ namespace Utils {
       build();
     }
 
-    void intersect_with_one_point( Real const * pnt, SET & bb_index ) const;
-    void intersect_with_one_bbox( Real const * bbox, SET & bb_index ) const;
-    void intersect( AABBtree<Real> const & aabb, MAP & bb_index ) const;
+    void intersect_with_one_point( Real const pnt[], AABB_SET & bb_index ) const;
+    void intersect_with_one_bbox( Real const bbox[], AABB_SET & bb_index ) const;
+    void intersect( AABBtree<Real> const & aabb, AABB_MAP & bb_index ) const;
 
-    void intersect_with_one_point_and_refine( Real const * pnt, SET & bb_index ) const;
-    void intersect_with_one_bbox_and_refine( Real const * bbox, SET & bb_index ) const;
-    void intersect_and_refine( AABBtree<Real> const & aabb, MAP & bb_index ) const;
+    void intersect_with_one_point_and_refine( Real const pnt[], AABB_SET & bb_index ) const;
+    void intersect_with_one_bbox_and_refine( Real const bbox[], AABB_SET & bb_index ) const;
+    void intersect_and_refine( AABBtree<Real> const & aabb, AABB_MAP & bb_index ) const;
 
-    void min_distance_candidates( Real const * pnt, SET & bb_index ) const;
-    void pnt_bbox_minmax( Real const * pnt, Real const * bbox, Real & dmin, Real & dmax ) const;
+    void min_distance_candidates( Real const pnt[], AABB_SET & bb_index ) const;
+    void pnt_bbox_minmax( Real const pnt[], Real const bbox[], Real & dmin, Real & dmax ) const;
 
     integer dim()            const { return m_dim; }
     integer num_objects()    const { return m_num_objects; }
@@ -142,16 +142,16 @@ namespace Utils {
 
     integer num_tree_nodes( integer nmin ) const;
 
-    void get_root_bbox( Real * bb_min, Real * bb_max ) const;
+    void get_root_bbox( Real bb_min[], Real bb_max[] ) const;
 
     void
     get_bboxes_of_the_tree(
-      Real * bb_min, integer ldim0,
-      Real * bb_max, integer ldim1,
+      Real bb_min[], integer ldim0,
+      Real bb_max[], integer ldim1,
       integer nmin
     ) const;
 
-    void get_bbox_indexes_of_a_node( integer i_pos, SET & bb_index ) const;
+    void get_bbox_indexes_of_a_node( integer i_pos, AABB_SET & bb_index ) const;
 
     string info() const;
   };

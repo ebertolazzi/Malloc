@@ -27,7 +27,9 @@ function id_list = min_distance_candidates( self, pnt )
     dst_min = norm(pmin-pnt);
 
     if dst_min <= min_max_distance
-      min_max_distance = min( min_max_distance, norm(pmax-pnt) );
+      if self.m_num_nodes(id_father) > 0
+        min_max_distance = min( min_max_distance, norm(pmax-pnt) );
+      end
       nn = self.child(id_father);
       if nn > 0
         % push on stack childrens
