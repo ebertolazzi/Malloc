@@ -57,28 +57,31 @@ namespace Utils {
 
   private:
 
-    Malloc<Real>    m_rmem;
-    Malloc<integer> m_imem;
+    Malloc<Real>    m_rmem{"AABBtree_real"};
+    Malloc<integer> m_imem{"AABBtree_integer"};
 
     // AABBtree structure
-    integer m_dim            = 0;
-    integer m_2dim           = 0;
-    integer m_num_objects    = 0;
-    integer m_num_tree_nodes = 0;
+    integer m_dim{0};
+    integer m_2dim{0};
+    integer m_num_objects{0};
+    integer m_num_tree_nodes{0};
 
-    integer * m_father    = nullptr;
-    integer * m_child     = nullptr;
-    integer * m_ptr_nodes = nullptr;
-    integer * m_num_nodes = nullptr;
-    integer * m_id_nodes  = nullptr;
-    integer * m_stack     = nullptr;
-    Real    * m_bbox_tree = nullptr;
-    Real    * m_bbox_objs = nullptr;
+    integer * m_father{nullptr};    // m_nmax
+    integer * m_child{nullptr};     // m_nmax
+    integer * m_ptr_nodes{nullptr}; // m_nmax
+    integer * m_num_nodes{nullptr}; // m_nmax
+    integer * m_id_nodes{nullptr};  // m_num_objects
+    Real    * m_bbox_tree{nullptr}; // m_nmax*m_2dim
+    Real    * m_bbox_objs{nullptr}; // m_num_objects*m_2dim
+
+    mutable vector<integer> m_stack;
+
+    integer m_nmax{0};
 
     // parameters
-    integer m_max_num_objects_per_node = 16;
-    Real    m_bbox_long_edge_ratio     = Real(0.8);
-    Real    m_bbox_overlap_tolerance   = Real(0.1);
+    integer m_max_num_objects_per_node{16};
+    Real    m_bbox_long_edge_ratio{Real(0.8)};
+    Real    m_bbox_overlap_tolerance{Real(0.1)};
 
     // statistic
     mutable integer m_num_check = 0;
@@ -87,7 +90,7 @@ namespace Utils {
 
   public:
 
-    AABBtree() : m_rmem("AABBtree"), m_imem("AABBtree") {}
+    AABBtree() = default;
 
     AABBtree( AABBtree<Real> const & t );
 

@@ -56,18 +56,16 @@ namespace Utils {
 
   template <typename Real>
   AABBtree<Real>::AABBtree( AABBtree<Real> const & T )
-  : m_rmem("AABBtree")
-  , m_imem("AABBtree")
   {
     allocate( T.m_num_objects, T.m_dim );
 
-    std::copy_n( T.m_father,    m_num_tree_nodes,        m_father    );
-    std::copy_n( T.m_child,     m_num_tree_nodes,        m_child     );
-    std::copy_n( T.m_ptr_nodes, m_num_tree_nodes,        m_ptr_nodes );
-    std::copy_n( T.m_num_nodes, m_num_tree_nodes,        m_num_nodes );
-    std::copy_n( T.m_id_nodes,  m_num_objects,           m_id_nodes  );
-    std::copy_n( T.m_bbox_tree, m_num_tree_nodes*m_2dim, m_bbox_tree );
-    std::copy_n( T.m_bbox_objs, m_num_objects*m_2dim,    m_bbox_objs );
+    std::copy_n( T.m_father,    m_nmax,               m_father    );
+    std::copy_n( T.m_child,     m_nmax,               m_child     );
+    std::copy_n( T.m_ptr_nodes, m_nmax,               m_ptr_nodes );
+    std::copy_n( T.m_num_nodes, m_nmax,               m_num_nodes );
+    std::copy_n( T.m_id_nodes,  m_num_objects,        m_id_nodes  );
+    std::copy_n( T.m_bbox_tree, m_nmax*m_2dim,        m_bbox_tree );
+    std::copy_n( T.m_bbox_objs, m_num_objects*m_2dim, m_bbox_objs );
 
     m_max_num_objects_per_node = T.m_max_num_objects_per_node;
     m_bbox_long_edge_ratio     = T.m_bbox_long_edge_ratio;
@@ -173,21 +171,19 @@ namespace Utils {
     m_dim         = dim;
     m_2dim        = 2*dim;
     m_num_objects = nbox;
+    m_nmax        = 2*m_num_objects; // estimate max memory usage
 
-    integer nmax = 2*m_num_objects; // estimate max memory usage
+    m_rmem.allocate( size_t((m_nmax+m_num_objects)*m_2dim) );
+    m_imem.allocate( size_t(4*m_nmax+m_num_objects) );
 
-    m_rmem.allocate( size_t((nmax+m_num_objects)*m_2dim) );
-    m_imem.allocate( size_t(6*nmax+m_num_objects) );
-
-    m_bbox_tree = m_rmem( size_t(nmax*m_2dim) );
+    m_bbox_tree = m_rmem( size_t(m_nmax*m_2dim) );
     m_bbox_objs = m_rmem( size_t(m_num_objects*m_2dim) );
 
-    m_father    = m_imem( size_t(nmax) );
-    m_child     = m_imem( size_t(nmax) );
-    m_ptr_nodes = m_imem( size_t(nmax) );
-    m_num_nodes = m_imem( size_t(nmax) );
+    m_father    = m_imem( size_t(m_nmax) );
+    m_child     = m_imem( size_t(m_nmax) );
+    m_ptr_nodes = m_imem( size_t(m_nmax) );
+    m_num_nodes = m_imem( size_t(m_nmax) );
     m_id_nodes  = m_imem( size_t(m_num_objects) );
-    m_stack     = m_imem( size_t(2*nmax) );
 
     // initialize id nodes, will be reordered during the tree build
     for ( integer i = 0; i < m_num_objects; ++i ) m_id_nodes[i] = i;
@@ -237,6 +233,12 @@ namespace Utils {
     Real const bbox_max[],
     integer    ipos
   ) {
+    UTILS_ASSERT(
+      ipos >= 0 && ipos < m_num_objects,
+      "AABBtree::replace_bbox( bb_min, bb_max, ipos = {})"
+      " ipos must be in [0,{})\n",
+      ipos, m_num_objects
+    );
     Real * bb = m_bbox_objs + ipos*m_2dim;
     for ( integer j = 0; j < m_dim; ++j ) {
       UTILS_ASSERT(
@@ -264,29 +266,38 @@ namespace Utils {
       Real const * pmax = m_bbox_objs+j+m_dim;
       minj = *pmin;
       maxj = *pmax;
-      UTILS_ASSERT0( maxj >= minj, "AABBtree::build, bad bbox N.0 max < min" );
+      UTILS_ASSERT0(
+        maxj >= minj,
+        "AABBtree::build, bad bbox N.0 max < min"
+      );
       for ( integer i = 1; i < m_num_objects; ++i ) {
         pmin += m_2dim;
         pmax += m_2dim;
-        if ( minj > *pmin ) minj = *pmin;
-        if ( maxj < *pmax ) maxj = *pmax;
         UTILS_ASSERT(
           *pmax >= *pmin,
           "AABBtree::build, bad bbox N.{} max < min ({} < {})\n",
           i, *pmax, *pmin
         );
+        if ( minj > *pmin ) minj = *pmin;
+        if ( maxj < *pmax ) maxj = *pmax;
       }
     }
 
     // main loop: divide nodes until all constraints satisfied
-    m_stack[0]       = 0;
-    integer n_stack  = 1;
+    m_stack.clear();
+    m_stack.reserve(2*m_num_objects+1);
+    m_stack.push_back(0);
     m_num_tree_nodes = 1;
 
-    while ( n_stack > 0 ) {
+    while ( !m_stack.empty() ) {
 
       // pop node from stack
-      integer id_father = m_stack[--n_stack];
+      integer id_father = m_stack.back(); m_stack.pop_back();
+      UTILS_ASSERT_DEBUG(
+        id_father < m_nmax,
+        "AABBtree::build, id_father = {} must be less than m_nmax ={}\n",
+        id_father, m_nmax
+      );
 
       // set no childer for the moment
       m_child[id_father] = -1;
@@ -318,6 +329,11 @@ namespace Utils {
       integer n_short = 0;
       while ( n_long + n_short < num ) {
         integer id = ptr[n_long];
+        UTILS_ASSERT_DEBUG(
+          id < m_num_objects,
+          "AABBtree::build, id = {} must be less than m_num_objects ={}\n",
+          id, m_num_objects
+        );
         Real const * id_min = m_bbox_objs + id * m_2dim;
         Real const * id_max = id_min + m_dim;
         Real id_len = id_max[idim] - id_min[idim];
@@ -363,11 +379,22 @@ namespace Utils {
       integer id_left  = m_num_tree_nodes + 0;
       integer id_right = m_num_tree_nodes + 1;
 
+      UTILS_ASSERT_DEBUG(
+        id_right < m_nmax,
+        "AABBtree::build, id_right = {} must be less than m_nmax ={}\n",
+        id_right, m_nmax
+      );
+
       // compute bbox of left and right child
       Real * bb_left_min = m_bbox_tree + id_left * m_2dim;
       Real * bb_left_max = bb_left_min + m_dim;
       for ( integer i = 0; i < n_left; ++i ) {
         integer id = ptr[n_long+i];
+        UTILS_ASSERT_DEBUG(
+          id < m_num_objects,
+          "AABBtree::build, id = {} must be less than m_num_objects ={}\n",
+          id, m_num_objects
+        );
         Real const * bb_id_min = m_bbox_objs + id * m_2dim;
         Real const * bb_id_max = bb_id_min + m_dim;
         if ( i == 0 ) {
@@ -385,6 +412,11 @@ namespace Utils {
       Real * bb_right_max = bb_right_min + m_dim;
       for ( integer i = 0; i < n_right; ++i ) {
         integer id = ptr[n_long+n_left+i];
+        UTILS_ASSERT_DEBUG(
+          id < m_num_objects,
+          "AABBtree::build, id = {} must be less than m_num_objects ={}\n",
+          id, m_num_objects
+        );
         Real const * bb_id_min = m_bbox_objs + id * m_2dim;
         Real const * bb_id_max = bb_id_min + m_dim;
         if ( i == 0 ) {
@@ -430,9 +462,8 @@ namespace Utils {
       m_ptr_nodes[id_right] = iptr + n_long + n_left;
       m_num_nodes[id_right] = n_right;
 
-      // push on stack children
-      m_stack[n_stack++] = id_left;
-      m_stack[n_stack++] = id_right;
+      m_stack.push_back(id_left);
+      m_stack.push_back(id_right);
       m_num_tree_nodes += 2;
     }
   }
@@ -452,11 +483,12 @@ namespace Utils {
     if ( m_num_tree_nodes == 0 ) return;
 
     // descend tree from root
-    m_stack[0] = 0;
-    integer n_stack = 1;
-    while ( n_stack > 0 ) {
+    m_stack.clear();
+    m_stack.reserve(2*m_num_tree_nodes+1);
+    m_stack.push_back(0);
+    while ( !m_stack.empty() ) {
       // pop node from stack
-      integer id_father = m_stack[--n_stack];
+      integer id_father = m_stack.back(); m_stack.pop_back();
 
       // get BBOX
       Real const * bb_father = m_bbox_tree + id_father * m_2dim;
@@ -473,8 +505,8 @@ namespace Utils {
       integer nn = m_child[id_father];
       if ( nn > 0 ) { // root == 0, children > 0
         // push on stack children
-        m_stack[n_stack++] = nn;
-        m_stack[n_stack++] = nn+1;
+        m_stack.push_back(nn);
+        m_stack.push_back(nn+1);
       }
     }
   }
@@ -494,11 +526,12 @@ namespace Utils {
     if ( m_num_tree_nodes == 0 ) return;
 
     // descend tree from root
-    m_stack[0] = 0;
-    integer n_stack = 1;
-    while ( n_stack > 0 ) {
+    m_stack.clear();
+    m_stack.reserve(2*m_num_tree_nodes+1);
+    m_stack.push_back(0);
+    while ( !m_stack.empty() ) {
       // pop node from stack
-      integer id_father = m_stack[--n_stack];
+      integer id_father = m_stack.back(); m_stack.pop_back();
 
       // get BBOX
       Real const * bb_father = m_bbox_tree + id_father * m_2dim;
@@ -523,8 +556,8 @@ namespace Utils {
       integer nn = m_child[id_father];
       if ( nn > 0 ) { // root == 0, children > 0
         // push on stack children
-        m_stack[n_stack++] = nn;
-        m_stack[n_stack++] = nn+1;
+        m_stack.push_back(nn);
+        m_stack.push_back(nn+1);
       }
     }
   }
@@ -543,11 +576,12 @@ namespace Utils {
     if ( m_num_tree_nodes == 0 ) return;
 
     // descend tree from root
-    m_stack[0] = 0;
-    integer n_stack = 1;
-    while ( n_stack > 0 ) {
+    m_stack.clear();
+    m_stack.reserve(2*m_num_tree_nodes+1);
+    m_stack.push_back(0);
+    while ( !m_stack.empty() ) {
       // pop node from stack
-      integer id_father = m_stack[--n_stack];
+      integer id_father = m_stack.back(); m_stack.pop_back();
 
       // get BBOX
       Real const * bb_father = m_bbox_tree + id_father * m_2dim;
@@ -564,8 +598,8 @@ namespace Utils {
       integer nn = m_child[id_father];
       if ( nn > 0 ) { // root == 0, children > 0
         // push on stack children
-        m_stack[n_stack++] = nn;
-        m_stack[n_stack++] = nn+1;
+        m_stack.push_back(nn);
+        m_stack.push_back(nn+1);
       }
     }
   }
@@ -585,11 +619,12 @@ namespace Utils {
     if ( m_num_tree_nodes == 0 ) return;
 
     // descend tree from root
-    m_stack[0] = 0;
-    integer n_stack = 1;
-    while ( n_stack > 0 ) {
+    m_stack.clear();
+    m_stack.reserve(2*m_num_tree_nodes+1);
+    m_stack.push_back(0);
+    while ( !m_stack.empty() ) {
       // pop node from stack
-      integer id_father = m_stack[--n_stack];
+      integer id_father = m_stack.back(); m_stack.pop_back();
 
       // get BBOX
       Real const * bb_father = m_bbox_tree + id_father * m_2dim;
@@ -614,8 +649,8 @@ namespace Utils {
       integer nn = m_child[id_father];
       if ( nn > 0 ) { // root == 0, children > 0
         // push on stack children
-        m_stack[n_stack++] = nn;
-        m_stack[n_stack++] = nn+1;
+        m_stack.push_back(nn);
+        m_stack.push_back(nn+1);
       }
     }
   }
@@ -635,13 +670,15 @@ namespace Utils {
     if ( this->m_num_tree_nodes == 0 || aabb.m_num_tree_nodes == 0 ) return;
 
     // descend tree from root
-    m_stack[0] = 0;
-    m_stack[1] = 0;
+    m_stack.clear();
+    m_stack.reserve(m_num_tree_nodes+aabb.m_num_tree_nodes+2);
+    m_stack.push_back(0);
+    m_stack.push_back(0);
     integer n_stack = 2;
-    while ( n_stack > 1 ) {
+    while ( !m_stack.empty() ) {
       // pop node from stack
-      integer root2  = m_stack[--n_stack];
-      integer sroot1 = m_stack[--n_stack];
+      integer root2  = m_stack.back(); m_stack.pop_back();
+      integer sroot1 = m_stack.back(); m_stack.pop_back();
       integer root1  = sroot1 >= 0 ? sroot1 : -1-sroot1;
 
       // check for intersection
@@ -662,15 +699,21 @@ namespace Utils {
       integer id_lr1 = sroot1 >= 0 ? m_child[root1] : -1;
       integer id_lr2 = aabb.m_child[root2];
 
+      UTILS_ASSERT_DEBUG(
+        n_stack+3 < 2*m_nmax,
+        "AABBtree::intersect, n_stack+2 = {} must be less than 2*m_nmax ={}\n",
+        n_stack+2, 2*m_nmax
+      );
+
       if ( id_lr1 >= 0 ) {
-        m_stack[n_stack++] = id_lr1;   m_stack[n_stack++] = root2;
-        m_stack[n_stack++] = id_lr1+1; m_stack[n_stack++] = root2;
+        m_stack.push_back(id_lr1);   m_stack.push_back(root2);
+        m_stack.push_back(id_lr1+1); m_stack.push_back(root2);
         if ( nn1 > 0 ) {
-          m_stack[n_stack++] = -1-root1; m_stack[n_stack++] = root2;
+          m_stack.push_back(-1-root1); m_stack.push_back(root2);
         }
       } else if ( id_lr2 >= 0 ) {
-        m_stack[n_stack++] = sroot1; m_stack[n_stack++] = id_lr2;
-        m_stack[n_stack++] = sroot1; m_stack[n_stack++] = id_lr2+1;
+        m_stack.push_back(sroot1); m_stack.push_back(id_lr2);
+        m_stack.push_back(sroot1); m_stack.push_back(id_lr2+1);
       }
     }
   }
@@ -690,13 +733,14 @@ namespace Utils {
     if ( this->m_num_tree_nodes == 0 || aabb.m_num_tree_nodes == 0 ) return;
 
     // descend tree from root
-    m_stack[0] = 0;
-    m_stack[1] = 0;
-    integer n_stack = 2;
-    while ( n_stack > 1 ) {
+    m_stack.clear();
+    m_stack.reserve(m_num_tree_nodes+aabb.m_num_tree_nodes+2);
+    m_stack.push_back(0);
+    m_stack.push_back(0);
+    while ( !m_stack.empty() ) {
       // pop node from stack
-      integer root2  = m_stack[--n_stack];
-      integer sroot1 = m_stack[--n_stack];
+      integer root2  = m_stack.back(); m_stack.pop_back();
+      integer sroot1 = m_stack.back(); m_stack.pop_back();
       integer root1  = sroot1 >= 0 ? sroot1 : -1-sroot1;
 
       // check for intersection
@@ -735,14 +779,14 @@ namespace Utils {
       integer id_lr2 = aabb.m_child[root2];
 
       if ( id_lr1 >= 0 ) {
-        m_stack[n_stack++] = id_lr1;   m_stack[n_stack++] = root2;
-        m_stack[n_stack++] = id_lr1+1; m_stack[n_stack++] = root2;
+        m_stack.push_back(id_lr1);   m_stack.push_back(root2);
+        m_stack.push_back(id_lr1+1); m_stack.push_back(root2);
         if ( nn1 > 0 ) {
-          m_stack[n_stack++] = -1-root1; m_stack[n_stack++] = root2;
+          m_stack.push_back(-1-root1); m_stack.push_back(root2);
         }
       } else if ( id_lr2 >= 0 ) {
-        m_stack[n_stack++] = sroot1; m_stack[n_stack++] = id_lr2;
-        m_stack[n_stack++] = sroot1; m_stack[n_stack++] = id_lr2+1;
+        m_stack.push_back(sroot1); m_stack.push_back(id_lr2);
+        m_stack.push_back(sroot1); m_stack.push_back(id_lr2+1);
       }
     }
   }
@@ -793,11 +837,12 @@ namespace Utils {
     Real min_max_distance2 = Utils::Inf<Real>();
 
     // descend tree from root
-    m_stack[0]         = 0;
-    integer top_stack  = 1;
-    while ( top_stack > 0 ) {
+    m_stack.clear();
+    m_stack.reserve(m_num_tree_nodes+1);
+    m_stack.push_back(0);
+    while ( !m_stack.empty() ) {
       // pop node from stack
-      integer id_father = m_stack[--top_stack];
+      integer id_father = m_stack.back(); m_stack.pop_back();
 
       // get BBOX
       // check for intersection
@@ -812,18 +857,18 @@ namespace Utils {
         integer nn = m_child[id_father];
         if ( nn > 0 ) { // root == 0, children > 0
           // push on stack childrens
-          m_stack[top_stack++] = nn;
-          m_stack[top_stack++] = nn+1;
+          m_stack.push_back(nn);
+          m_stack.push_back(nn+1);
         }
       }
     }
 
     // descend tree from root
-    m_stack[0] = 0;
-    top_stack  = 1;
-    while ( top_stack > 0 ) {
+    m_stack.clear();
+    m_stack.push_back(0);
+    while ( !m_stack.empty() ) {
       // pop node from stack
-      integer id_father = m_stack[--top_stack];
+      integer id_father = m_stack.back(); m_stack.pop_back();
       Real const * father_bbox = this->m_bbox_tree + id_father * m_2dim;
       this->pnt_bbox_minmax( pnt, father_bbox, dst2_min, dst2_max );
       if ( dst2_min <= min_max_distance2 ) {
@@ -831,8 +876,8 @@ namespace Utils {
         integer nn = m_child[id_father];
         if ( nn > 0 ) { // root == 0, children > 0
           // push on stack childrens
-          m_stack[top_stack++] = nn;
-          m_stack[top_stack++] = nn+1;
+          m_stack.push_back(nn);
+          m_stack.push_back(nn+1);
         }
       }
     }
