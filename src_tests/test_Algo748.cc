@@ -123,7 +123,7 @@ template <typename FUN>
 void
 do_solve( real_type a, real_type b, FUN f ) {
   Algo748<real_type> solver;
-  real_type res = solver.eval( a, b, f );
+  real_type res = solver.eval2( a, b, f );
   ++ntest;
   fmt::print(
     "#{:<3} iter = {:<3} #nfun = {:<3} x = {:12} f(x) = {}\n",
