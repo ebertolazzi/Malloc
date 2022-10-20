@@ -24,7 +24,7 @@ using namespace std;
 using Utils::Algo748;
 using Utils::m_pi;
 
-typedef double real_type;
+using real_type = double;
 
 static real_type power2( real_type x ) { return x*x; }
 static real_type power3( real_type x ) { return x*x*x; }

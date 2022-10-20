@@ -4,7 +4,7 @@
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
- |         | __/ _   ,_         | __/ _   ,_                                | 
+ |         | __/ _   ,_         | __/ _   ,_                                |
  |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
  |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
  |                           /|                   /|                        |
@@ -22,8 +22,8 @@
 #include <random>
 
 using namespace std;
-typedef int    integer;
-typedef double real_type;
+using integer   = int;
+using real_type = double;
 
 static unsigned seed1 = 2;
 static std::mt19937 generator(seed1);
@@ -35,8 +35,8 @@ rand( real_type xmin, real_type xmax ) {
   return xmin + (xmax-xmin)*random;
 }
 
-typedef Eigen::Matrix<real_type,Eigen::Dynamic,Eigen::Dynamic> dmat_t;
-typedef Eigen::Matrix<real_type,Eigen::Dynamic,1>              dvec_t;
+using dmat_t = Eigen::Matrix<real_type,Eigen::Dynamic,Eigen::Dynamic>;
+using dvec_t = Eigen::Matrix<real_type,Eigen::Dynamic,1>;
 
 template <int N>
 void
@@ -45,7 +45,7 @@ testVV() {
   int     N_TIMES = (1000000/N);
   double  to_ps   = 1000000.0/N_TIMES;
 
-  typedef Eigen::Matrix<real_type,N,1> vecN_t;
+  using vecN_t = Eigen::Matrix<real_type,N,1>;
 
   fmt::print("\nSize N = {}\n",N);
 
@@ -143,7 +143,7 @@ testMM() {
   int     N_TIMES = (10000/N);
   double  to_ps   = 10000.0/N_TIMES;
 
-  typedef Eigen::Matrix<real_type,N,N> matN_t;
+  using matN_t = Eigen::Matrix<real_type,N,N>;
 
   fmt::print("\nSize N = {}\n",N);
 
@@ -239,8 +239,8 @@ testMv() {
   int     N_TIMES = (1000000/N);
   double  to_ps   = 1000000.0/N_TIMES;
 
-  typedef Eigen::Matrix<real_type,N,N> matN_t;
-  typedef Eigen::Matrix<real_type,N,1> vecN_t;
+  using matN_t = Eigen::Matrix<real_type,N,N>;
+  using vecN_t = Eigen::Matrix<real_type,N,1>;
 
   fmt::print("\nSize N = {}\n",N);
 
@@ -341,7 +341,7 @@ testCopy() {
   int     N_TIMES = (1000000/N);
   double  to_ps   = 1000000.0/N_TIMES;
 
-  typedef Eigen::Matrix<real_type,N,N> matN_t;
+  using matN_t = Eigen::Matrix<real_type,N,N>;
 
   fmt::print("\nSize N = {}\n",N);
 

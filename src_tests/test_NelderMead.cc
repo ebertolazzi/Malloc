@@ -28,7 +28,7 @@ using Utils::m_pi;
 using std::abs;
 using std::pow;
 
-typedef double real_type;
+using real_type = double;
 
 static real_type power2( real_type x ) { return x*x; }
 //static real_type power3( real_type x ) { return x*x*x; }

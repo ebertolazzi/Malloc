@@ -22,8 +22,8 @@
 #include <random>
 
 using namespace std;
-typedef int    integer;
-typedef double real_type;
+using integer   = int;
+using real_type = double;
 
 static unsigned seed1 = 2;
 static std::mt19937 generator(seed1);
