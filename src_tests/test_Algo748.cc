@@ -119,6 +119,22 @@ fun13( real_type x, real_type n ) {
   return exp( (n+1)*0.5e3*x )-1.859;
 }
 
+static
+real_type
+fun_penalty( real_type x_in, real_type RHS ) {
+  real_type m_h       = 0.01;
+  real_type m_epsilon = 0.01;
+  real_type m_A  = 1/m_h;
+  real_type m_A1 = (1-m_epsilon)*power2(m_h/(1-m_h));
+  real_type x   = abs(x_in);
+  real_type Xh  = x/m_h;
+  real_type res = 2*m_epsilon*Xh;
+  if ( Xh > 1 ) res += 2*m_A1 * (Xh-1);
+  res /= m_h;
+  if ( x > 1 ) res += 2*m_A * (x-1);
+  return (x_in < 0 ? -res : res) - RHS;
+}
+
 template <typename FUN>
 void
 do_solve( real_type a, real_type b, FUN f ) {
@@ -126,8 +142,8 @@ do_solve( real_type a, real_type b, FUN f ) {
   real_type res = solver.eval2( a, b, f );
   ++ntest;
   fmt::print(
-    "#{:<3} iter = {:<3} #nfun = {:<3} x = {:12} f(x) = {}\n",
-    ntest, solver.used_iter(), solver.num_fun_eval(),
+    "#{:<3} iter = {:<3} #nfun = {:<3} converged={} x = {:12} f(x) = {}\n",
+    ntest, solver.used_iter(), solver.num_fun_eval(), solver.converged(),
     fmt::format("{:.6}",res),
     fmt::format("{:.3}",f(res))
   );
@@ -225,6 +241,10 @@ main() {
   do_solve( -1,   2,      [] ( real_type x ) { return power2(x)-power2(sin(x))-1; } );
   do_solve( -0.5, 1/3.0,  [] ( real_type x ) { return power3(x); } );
   do_solve( -0.5, 1/3.0,  [] ( real_type x ) { return power5(x); } );
+  do_solve( 0.0, 1.0, [] ( real_type x ) { return tan(m_pi*(x*x*x*x*x*x*x*x-0.5)); } );
+  do_solve( -1.0, 1.0, [] ( real_type x ) { return fun_penalty(x,0); } );
+  do_solve( -1.0, 1.0, [] ( real_type x ) { return fun_penalty(x,-10); } );
+  do_solve( -1, 1.1498547501802843, [] ( real_type x ) { return fun_penalty(x,-229.970950036057); } );
 
   return 0;
 }
