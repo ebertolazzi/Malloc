@@ -149,6 +149,19 @@ do_solve( real_type a, real_type b, FUN f ) {
   );
 }
 
+template <typename FUN>
+void
+do_solve2( real_type a, real_type b, real_type amin, real_type bmax, FUN f ) {
+  Algo748<real_type> solver;
+  real_type res = solver.eval2( a, b, amin, bmax, f );
+  ++ntest;
+  fmt::print(
+    "#{:<3} iter = {:<3} #nfun = {:<3} converged={} x = {:12} f(x) = {}\n",
+    ntest, solver.used_iter(), solver.num_fun_eval(), solver.converged(),
+    fmt::format("{:.6}",res),
+    fmt::format("{:.3}",f(res))
+  );
+}
 int
 main() {
 
@@ -244,7 +257,7 @@ main() {
   do_solve( 0.0, 1.0, [] ( real_type x ) { return tan(m_pi*(x*x*x*x*x*x*x*x-0.5)); } );
   do_solve( -1.0, 1.0, [] ( real_type x ) { return fun_penalty(x,0); } );
   do_solve( -1.0, 1.0, [] ( real_type x ) { return fun_penalty(x,-10); } );
-  do_solve( -1, 1.1498547501802843, [] ( real_type x ) { return fun_penalty(x,-229.970950036057); } );
+  do_solve2( -1, 1.1498547501802843, -100, 100, [] ( real_type x ) { return fun_penalty(x,-229.970950036057); } );
 
   return 0;
 }

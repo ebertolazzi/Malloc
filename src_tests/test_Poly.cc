@@ -20,15 +20,53 @@
 #include "Utils_Poly.hh"
 
 using namespace std;
-using Utils::Poly;
 
+using real_type = double;
+using integer   = int;
+using poly      = Utils::Poly<real_type>;
+using sturm     = Utils::Sturm<real_type>;
+
+static
+void
+test1() {
+  poly      poly2solve(7);
+  sturm     mySturm;
+  real_type myT;
+  poly2solve << -3240000, 2592000, -478800, -3360, -9, 0, +1;
+
+  fmt::print( "{}\n", poly2solve );
+  poly2solve.normalize();
+  mySturm.build( poly2solve );
+  integer n_roots = mySturm.separate_roots( 0, 50 );
+  fmt::print( "Number of roots: {}\n", n_roots );
+  mySturm.refine_roots();
+  if ( n_roots > 0 ){
+    fmt::print(
+      "Roots to solve T\n"
+      "{}\n"
+      "Attempt to print roots\n",
+      mySturm.roots()
+    );
+
+    fmt::print( "roots = {}\n", mySturm.roots() );
+
+    myT = mySturm.roots().minCoeff();
+    //std::cout << this->m_T << std::endl;
+  } else {
+    fmt::print( "No roots to solve T\n" );
+    myT = 0;
+  }
+  fmt::print( "Solved T\nT = {}\n", myT );
+}
+
+static
 int
-main() {
+test2() {
 
-  Poly<double> p1( 4 );
-  Poly<double> p2( 3 );
-  Poly<double> p3( 10 );
-  Poly<double> D_p1, I_p1;
+  poly p1( 4 );
+  poly p2( 3 );
+  poly p3( 10 );
+  poly D_p1, I_p1;
 
   p1 << 2, -2, 2, 3;
   p2 << 4, 0, 1;
@@ -69,7 +107,7 @@ main() {
   fmt::print( "p3 *= p1 => {}\n\n", p3 );
 
   // test division
-  Poly<double> P( 6 ), Q(3), S(3), R(2), G;
+  poly P( 6 ), Q(3), S(3), R(2), G;
   Q << 1, 2, 3;
   S << 1, 0, 1;
   R << 3, 2;
@@ -140,7 +178,7 @@ main() {
     Q, G, S, R
   );
 
-  Utils::Sturm<double> STURM;
+  sturm STURM;
 
   P.set_order( 13 );
   // roots of
@@ -199,11 +237,18 @@ main() {
     fmt::print( "P({}) = {}\n", xx, P.eval(xx) );
   }
 
-  Poly<double> const & SP = STURM.get(0);
+  poly const & SP = STURM.get(0);
 
   for ( auto const & xx : STURM.roots() ) {
     fmt::print("P[sturm]({}) = {}\n", xx, SP.eval(xx) );
   }
+}
 
+
+int
+main() {
+  test1();
+  test2();
+  fmt::print( "\n\nAll Done Folks!\n\n" );
   return 0;
 }

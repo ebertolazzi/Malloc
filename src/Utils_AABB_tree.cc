@@ -277,7 +277,8 @@ namespace Utils {
     for ( integer i = 0; i < m_dim; ++i ) {
       Real r1 = pnt[i] - bbox[i];
       Real r2 = pnt[i] - bbox[i+m_dim];
-      res += max(r1*r1,r2*r2);
+      Real mx = max(r1*r1,r2*r2);
+      res += mx*mx;
     }
     return sqrt(res);
   }
@@ -346,6 +347,20 @@ namespace Utils {
       tol
     );
     m_bbox_overlap_tolerance = tol;
+  }
+
+  // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+  template <typename Real>
+  void
+  AABBtree<Real>::set_bbox_min_size_tolerance( Real tol ) {
+    UTILS_ASSERT(
+      tol >= 0,
+      "AABBtree::set_bbox_min_size_tolerance( tol = {} )\n"
+      "tol must be >= 0\n",
+      tol
+    );
+    m_bbox_min_size_tolerance = tol;
   }
 
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -556,6 +571,10 @@ namespace Utils {
         Real mx1 = father_max[i] - father_min[i];
         if ( mx < mx1 ) { mx = mx1; idim = i; }
       }
+
+      // if too small bbox stop splitting
+      if ( mx < m_bbox_min_size_tolerance ) continue;
+
       Real tol_len = m_bbox_long_edge_ratio * mx;
       Real sp      = 0;
 

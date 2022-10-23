@@ -8,34 +8,26 @@
 %=========================================================================%
 close all;
 
-global haxhax;
 addpath('../lib');
-haxhax=axes;
 
 %% Initial guess
-X0 = [0,-1];
-X1 = [0,1];
-X2 = [1,0];
+X0 = [10,10];
+lb = [-20,-20]
+ub = [20,20];
 
-xx    = -0.2:0.1:1.2;
-yy    = -2:0.1:2;
-[X,Y] = meshgrid(xx,yy);
-Z     = test_fun_han(X,Y);
-hold off;
-contour(haxhax,X,Y,Z,200);
-hold on
-contourf(haxhax,X,Y,Z,'LevelList',[1000]);
-axis equal
+conv_tolerance = 1e-8;
 
-solver = NelderMead();
-
-fun = @(x) test_fun_han( x(:,1), x(:,2) );
+HJSolver = HJPatternSearch();
 
 %% My solver no gradient
-solver.setup( fun, 2 );
+HJSolver.setup( @myfun, X0, lb, ub );
 
 tic
-x_sol = solver.run( [X0;X1;X2] );
+x_sol = HJSolver.run;
 mysolver_time = toc;
 
-plot( x_sol(1), x_sol(2),  'o', 'Color', 'blue', 'MarkerFaceColor', 'green', 'MarkerSize', 10 );
+HJSolver.print_info(conv_tolerance)
+
+function res = myfun(x)
+  res = dot(x,x);
+end

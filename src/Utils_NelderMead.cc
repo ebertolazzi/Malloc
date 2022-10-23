@@ -23,6 +23,16 @@
 
 #include "Utils_NelderMead.hh"
 
+//#define UTILS_DEBUG
+
+#ifdef UTILS_DEBUG
+  #define REF(A,...)   A.coeffRef(__VA_ARGS__)
+  #define VALUE(A,...) A.coeff(__VA_ARGS__)
+#else
+  #define REF(A,...)   A(__VA_ARGS__)
+  #define VALUE(A,...) A(__VA_ARGS__)
+#endif
+
 namespace Utils {
 
   // =================================================================
@@ -114,6 +124,23 @@ namespace Utils {
   }
 
   // =================================================================
+  // replace_point
+  // =================================================================
+
+  template <typename Real>
+  void
+  NelderMead<Real>::replace_point(
+    Real           fj,
+    MapVec const & pj,
+    integer        jpos
+  ) {
+    REF(m_f,jpos)           = fj;
+    m_psum                 += pj - m_p.col(jpos);
+    m_p.col(jpos).noalias() = pj;
+    this->dist_update( jpos );
+  }
+
+  // =================================================================
   // spendley
   // =================================================================
 
@@ -122,12 +149,12 @@ namespace Utils {
   NelderMead<Real>::spendley( Real const X0[], Real delta ) {
     Real p = delta * (m_dim-1+sqrt(m_dim+1))/(m_dim*sqrt(2));
     Real q = delta * (sqrt(m_dim+1)-1)/(m_dim*sqrt(2));
-    for ( integer i = 0; i < m_dim; ++i ) m_p.coeffRef(i,0) = X0[i];
-    m_f.coeffRef(0) = this->eval_function( m_p.col(0).data() );
+    for ( integer i = 0; i < m_dim; ++i ) REF(m_p,i,0) = X0[i];
+    REF(m_f,0) = this->eval_function( m_p.col(0).data() );
     for ( integer i = 0; i < m_dim; ++i ) {
-      m_p.col(i+1)         = m_p.col(0).array()+p;
-      m_p.coeffRef(i,i+1) += q;
-      m_f.coeffRef(i+1)    = this->eval_function( m_p.col(i+1).data() );
+      m_p.col(i+1)    = m_p.col(0).array()+p;
+      REF(m_p,i,i+1) += q;
+      REF(m_f,i+1)    = this->eval_function( m_p.col(i+1).data() );
     }
   }
 
@@ -139,17 +166,17 @@ namespace Utils {
   void
   NelderMead<Real>::diamond( Real const X0[], Real delta ) {
     for ( integer i = 0; i < m_dim; ++i ) m_p.row(i).fill(X0[i]);
-    m_f.coeffRef(0) = this->eval_function( X0 );
+    REF(m_f,0) = this->eval_function( X0 );
     for ( integer i = 0; i < m_dim; ++i ) {
-      Real & vi = m_p.coeffRef(i,i+1);
+      Real & vi = REF(m_p,i,i+1);
       Real * cl = m_p.col(i+1).data();
       vi = X0[i]+delta; Real fp = this->eval_function( cl );
       vi = X0[i]-delta; Real fm = this->eval_function( cl );
       if ( fp < fm ) {
-        m_f.coeffRef(i+1) = fp;
+        REF(m_f,i+1) = fp;
         vi = X0[i]+delta;
       } else {
-        m_f.coeffRef(i+1) = fm;
+        REF(m_f,i+1) = fm;
       }
     }
   }
@@ -165,7 +192,7 @@ namespace Utils {
     for ( integer i = 0; i <= m_dim; ++i  ) {
       if ( i != j0 ) {
         m_p_work.col(j).noalias() = m_p.col(i)-m_p.col(j0);
-        m_f_work.coeffRef(j)      = m_f.coeff(i)-m_f.coeff(j0);
+        REF(m_f_work,j)           = VALUE(m_f,i)-VALUE(m_f,j0);
         ++j;
       }
     }
@@ -182,10 +209,10 @@ namespace Utils {
   void
   NelderMead<Real>::dist_init() {
     for ( integer i = 0; i < m_dim; ++i  ) {
-      m_dist.coeffRef(i,i) = 0;
+      REF(m_dist,i,i) = 0;
       for ( integer j = i+1; j <= m_dim; ++j ) {
-        m_dist.coeffRef(i,j) = ( m_p.col(i) - m_p.col(j) ).norm();
-        m_dist.coeffRef(j,i) = m_dist.coeff(i,j);
+        REF(m_dist,i,j) = ( m_p.col(i) - m_p.col(j) ).norm();
+        REF(m_dist,j,i) = VALUE(m_dist,i,j);
       }
     }
     m_diameter = m_dist.maxCoeff();
@@ -201,8 +228,8 @@ namespace Utils {
   NelderMead<Real>::dist_update( integer j ) {
     for ( integer i = 0; i <= m_dim; ++i  ) {
       if ( i != j ) {
-        m_dist.coeffRef(i,j) = ( m_p.col(i) - m_p.col(j) ).norm();
-        m_dist.coeffRef(j,i) = m_dist.coeff(i,j);
+        REF(m_dist,i,j) = ( m_p.col(i) - m_p.col(j) ).norm();
+        REF(m_dist,j,i) = VALUE(m_dist,i,j);
       }
     }
     m_diameter = m_dist.maxCoeff();
@@ -220,8 +247,8 @@ namespace Utils {
     Real c2 = m_sigma;
     for ( integer i = 0; i <= m_dim; ++i ) {
       if ( i != m_low ) {
-        m_p.col(i)      = c1 * m_p.col(i) + c2 * m_p.col(m_low);
-        m_f.coeffRef(i) = this->eval_function( m_p.col(i).data() );
+        m_p.col(i) = c1 * m_p.col(i) + c2 * m_p.col(m_low);
+        REF(m_f,i) = this->eval_function( m_p.col(i).data() );
       }
     }
     m_psum.noalias() = m_p.col(m_dim);
@@ -275,10 +302,10 @@ namespace Utils {
       string const line = "-------------------------------------------------------------------------\n";
       if ( m_verbose > 1 ) res += line;
       res += fmt::format(
-        "#it={:5} #f={:5} {:15} f(x)={:10} grad f(x)={:10} V^(1/d)/D={} [{}/{}]\n",
+        "#it={:5} #f={:5} {:15} f(x)={:10} grad(x)={:10} V^(1/d)/D={} [{}/{}]\n",
         m_iteration_count, m_fun_evaluation_count,
         m_which_step,
-        fmt::format("{:.6}",m_f(m_low)),
+        fmt::format("{:.6}",VALUE(m_f,m_low)),
         fmt::format("{:.6}",m_grad.template lpNorm<Eigen::Infinity>()),
         fmt::format("{:.4}",Vd/m_diameter),
         fmt::format("{:.4}",Vd),
@@ -295,6 +322,7 @@ namespace Utils {
   template <typename Real>
   void
   NelderMead<Real>::message( Real rtol ) const {
+    if ( m_console == nullptr ) return;
     Real Vd = std::pow(m_simplex_volume,m_r_dim);
     static char const *STR[] = {
       "INIT",
@@ -308,10 +336,10 @@ namespace Utils {
       "WORSE"
     };
     string msg = fmt::format(
-      "#it={:<4} #f={:<5} {:<12} f(x)={:<8} grad f(x)={:<8}"
+      "#it={:<4} #f={:<5} {:<12} f(x)={:<10} grad(x)={:<8}"
       " |err|={:<10} V^(1/d)/D={:<10} [{}/{}]\n",
       m_iteration_count, m_fun_evaluation_count, STR[m_which_step],
-      fmt::format("{:.6}",m_f.coeff(m_low)),
+      fmt::format("{:.6}",VALUE(m_f,m_low)),
       fmt::format("{:.6}",m_grad.template lpNorm<Eigen::Infinity>()),
       fmt::format("{:.4}",rtol),
       fmt::format("{:.4}",Vd/m_diameter),
@@ -356,23 +384,23 @@ namespace Utils {
       m_low   = 0;
       m_0high = 1;
       m_high  = 2;
-      if ( m_f.coeff(m_low)   > m_f.coeff(m_0high) ) std::swap( m_low,   m_0high );
-      if ( m_f.coeff(m_low)   > m_f.coeff(m_high)  ) std::swap( m_low,   m_high  );
-      if ( m_f.coeff(m_0high) > m_f.coeff(m_high)  ) std::swap( m_0high, m_high  );
+      if ( VALUE(m_f,m_low)   > VALUE(m_f,m_0high) ) std::swap( m_low,   m_0high );
+      if ( VALUE(m_f,m_low)   > VALUE(m_f,m_high)  ) std::swap( m_low,   m_high  );
+      if ( VALUE(m_f,m_0high) > VALUE(m_f,m_high)  ) std::swap( m_0high, m_high  );
       for ( integer i = 3 ; i <= m_dim; ++i ) {
-        if ( m_f.coeff(i) < m_f.coeff(m_low) ) {
+        if ( VALUE(m_f,i) < VALUE(m_f,m_low) ) {
           m_low = i; // new minima
-        } else if ( m_f.coeff(i) > m_f.coeff(m_high) ) {
+        } else if ( VALUE(m_f,i) > VALUE(m_f,m_high) ) {
           m_0high = m_high;
           m_high  = i;
-        } else if ( m_f.coeff(i) > m_f.coeff(m_0high) ) {
+        } else if ( VALUE(m_f,i) > VALUE(m_f,m_0high) ) {
           m_0high = i;
         }
       }
 
-      Real f0  = m_f.coeff(m_low);
-      Real fn  = m_f.coeff(m_0high);
-      Real fn1 = m_f.coeff(m_high);
+      Real f0  = VALUE(m_f,m_low);
+      Real fn  = VALUE(m_f,m_0high);
+      Real fn1 = VALUE(m_f,m_high);
 
       /*
       // Compute the fractional range from highest to lowest

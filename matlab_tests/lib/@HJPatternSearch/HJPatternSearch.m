@@ -38,6 +38,7 @@ classdef HJPatternSearch < handle
     m_f_old
     m_x_best               % base point
     m_f_best               % best value function (fun evaluated in x_best)
+    m_stencil_failure
 
     m_Vmat                 % direction matrix for exploration
     m_tolerance            % tolerance on the scale h
@@ -56,7 +57,7 @@ classdef HJPatternSearch < handle
         plot( [x0(1),x1(1)], [x0(2),x1(2)], '-', 'Color', 'black', 'LineWidth', 1 );
         plot( x1(1),  x1(2),  'o', 'Color', 'black', 'MarkerFaceColor', 'blue' );
         plot( [x0(1)-h,x0(1)+h], [x0(2),x0(2)], '-', 'Color', 'red', 'LineWidth', 2 );
-        plot( [x0(1),x0(1)], [x0(2)-h,x1(2)+h], '-', 'Color', 'red', 'LineWidth', 2 );
+        plot( [x0(1),x0(1)], [x0(2)-h,x0(2)+h], '-', 'Color', 'red', 'LineWidth', 2 );
         drawnow;
         if self.m_verbose > 2
           input('step');
@@ -74,7 +75,7 @@ classdef HJPatternSearch < handle
     % =================================================================
     function self = HJPatternSearch()
       self.m_max_num_stagnation = 100;
-      self.m_rho                = 0.9;    % Initialize stencil step decreasing factor (must be 0 < rho < 1)
+      self.m_rho                = 0.1;    % Initialize stencil step decreasing factor (must be 0 < rho < 1)
       self.m_tolerance          = 1e-15;  % initialize scale tolerance
       self.m_max_iteration      = 10000;  % Initialize max number of iterations
       self.m_max_fun_evaluation = 100000; % Initialize max number of function evaluations
@@ -139,12 +140,12 @@ classdef HJPatternSearch < handle
     % =================================================================
     % Best Nearby
     % =================================================================
-    stencil_failure = best_nearby( self )
+    best_nearby( self )
 
     % =================================================================
     % Search
     % =================================================================
-    stencil_failure = search( self )
+    search( self )
 
     % =================================================================
     % Run

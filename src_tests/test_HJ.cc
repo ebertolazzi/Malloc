@@ -17,12 +17,12 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include "Utils_NelderMead.hh"
+#include "Utils_HJPatternSearch.hh"
 #include <cmath>
 
 using namespace std;
 
-using Utils::NelderMead;
+using Utils::HJPatternSearch;
 using Utils::m_pi;
 
 using std::abs;
@@ -84,14 +84,16 @@ real_type
 fun3( real_type const X[] ) {
   real_type x = X[0];
   real_type y = X[1];
-  return 100*power2(y-x*x)+power2(1-x);
+  real_type res = 100*power2(y-x*x)+power2(1-x);
+  //fmt::print( "{} {} -> {}\n", x, y, res );
+  return res;
 }
 
 template <typename FUN>
 void
 do_solve( FUN f, real_type const X0[], real_type delta ) {
   Utils::Console console(&std::cout,4);
-  NelderMead<real_type> solver("NMsolver");
+  HJPatternSearch<real_type> solver("HJPatternSearch");
   solver.setup( 2, f, &console );
   solver.set_tolerance( 1e-20);
   solver.run( X0, delta );

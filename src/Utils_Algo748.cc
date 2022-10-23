@@ -42,6 +42,34 @@ namespace Utils {
   :|:             |___/
   \*/
 
+  // =================================================================
+  // set_max_iterations
+  // =================================================================
+
+  template <typename Real>
+  void
+  Algo748<Real>::set_max_iterations( Integer mit ) {
+    UTILS_ASSERT(
+      mit > 0,
+      "Algo748::set_max_iterations({}) argument must be >0\n", mit
+    );
+    m_max_iteration = mit;
+  }
+
+  // =================================================================
+  // set_max_fun_evaluation
+  // =================================================================
+
+  template <typename Real>
+  void
+  Algo748<Real>::set_max_fun_evaluation( Integer mfev ) {
+    UTILS_ASSERT(
+      mfev > 0,
+      "Algo748::set_max_fun_evaluation({}) argument must be >0\n", mfev
+    );
+    m_max_fun_evaluation = mfev;
+  }
+
   template <typename Real>
   void
   Algo748<Real>::set_tolerance( Real B ) {
@@ -184,18 +212,52 @@ namespace Utils {
   template <typename Real>
   Real
   Algo748<Real>::eval( Real a, Real b ) {
-    m_num_iter_done = 0;
-    m_num_fun_eval  = 0;
+    m_iteration_count      = 0;
+    m_fun_evaluation_count = 0;
 
     m_a = a; m_fa = this->evaluate(m_a);
     m_b = b; m_fb = this->evaluate(m_b);
 
+    // check if solution can exists
+    if ( m_fa*m_fb > 0 ) return 0;
+    else                 return eval();
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename Real>
+  Real
+  Algo748<Real>::eval( Real a, Real b, Real amin, Real bmax ) {
+    m_iteration_count      = 0;
+    m_fun_evaluation_count = 0;
+
+    m_a = a; m_fa = this->evaluate(m_a);
+    m_b = b; m_fb = this->evaluate(m_b);
+
+    // try to enlarge interval
+    while ( m_fa*m_fb > 0 ) {
+      if ( Utils::is_finite(m_fa) && m_a > amin ) {
+        m_a -= m_b - m_a;
+        m_fa = this->evaluate(m_a);
+      } else if ( Utils::is_finite(m_fb) && m_b < bmax ) {
+        m_b += m_b - m_a;
+        m_fb = this->evaluate(m_b);
+      } else {
+        break;
+      }
+    }
+    return eval();
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename Real>
+  Real
+  Algo748<Real>::eval() {
+
     // check for trivial solution
     m_converged = m_fa == 0; if ( m_converged ) return m_a;
     m_converged = m_fb == 0; if ( m_converged ) return m_b;
-
-    // check if solution can exists
-    if ( m_fa*m_fb > 0 ) return 0;
 
     // Finds either an exact solution or an approximate solution
     // of the equation f(x)=0 in the interval [a,b].
@@ -210,6 +272,7 @@ namespace Utils {
     // If the diameter of the enclosing interval obtained after
     // those three steps is larger than 0.5*(b0-a0),
     // then an additional bisection step will be taken.
+
     m_e  = NaN<Real>();
     m_fe = NaN<Real>(); // Dumb values
 
@@ -217,7 +280,7 @@ namespace Utils {
     // While f(left) or f(right) are infinite perform bisection
     //
     while ( !( isfinite(m_fa) && isfinite(m_fb) ) ) {
-      ++m_num_iter_done;
+      ++m_iteration_count;
       m_c  = (m_a+m_b)/2;
       m_fc = this->evaluate(m_c);
       m_converged = m_fc == 0;
@@ -262,7 +325,7 @@ namespace Utils {
     // ITERATION STARTS. THE ENCLOSING INTERVAL BEFORE EXECUTING THE
     // ITERATION IS RECORDED AS [A0, B0].
     while ( !m_converged ) {
-      ++m_num_iter_done;
+      ++m_iteration_count;
       Real BA0 = m_b-m_a;
 
       // Calculates the termination criterion.

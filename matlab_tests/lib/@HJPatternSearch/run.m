@@ -30,8 +30,8 @@ function x_sol = run( self, X0, h0 )
     self.m_x_old = self.m_x_best;
     self.m_f_old = self.m_f_best;
 
-    stencil_failure = self.search();
-    if stencil_failure; break; end
+    self.search();
+    if self.m_stencil_failure; break; end
 
     % If iteration limit is reached,stop.
     if self.m_iteration_count >= self.m_max_iteration; break; end

@@ -2,7 +2,7 @@
 % Explore
 % =================================================================
 
-function stencil_failure = best_nearby( self )
+function best_nearby( self )
   % EXPLORE This method explore all points on the stencil center at
   % x_temporary = x_center and updates the current iteration x to the current
   % best point x_current_best. If the current best point x_current_best is worse than the
@@ -10,13 +10,13 @@ function stencil_failure = best_nearby( self )
   % (x = x_best) and stencil failure flag stencil_failure will be set to zero.
 
   % Initialize
-  stencil_failure = true;
+  self.m_stencil_failure = true;
 
   % ----------------------------------------------------------------------------------------
   % Cycle on all stencil directions
 
   for j = 1:self.m_dim
-    s_dirh = self.m_search_sign(j) * self.m_h * self.m_Vmat(j,:);
+    s_dirh = (self.m_search_sign(j) * self.m_h) * self.m_Vmat(j,:);
     p      = self.m_x_best + s_dirh;
     fp     = self.eval_function(p);
     if fp >= self.m_f_best
@@ -34,9 +34,9 @@ function stencil_failure = best_nearby( self )
     % the remaining directions j
     if fp < self.m_f_best
       self.m_plot( self.m_x_best, p, self.m_h );
-      self.m_x_best   = p;     % new current best point
-      self.m_f_best   = fp;    % new best value function
-      stencil_failure = false; % update stencil failure flag
+      self.m_x_best          = p;     % new current best point
+      self.m_f_best          = fp;    % new best value function
+      self.m_stencil_failure = false; % update stencil failure flag
     end
   end
 end

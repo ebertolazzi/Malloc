@@ -82,6 +82,7 @@ namespace Utils {
     integer m_max_num_objects_per_node{16};
     Real    m_bbox_long_edge_ratio{Real(0.8)};
     Real    m_bbox_overlap_tolerance{Real(0.1)};
+    Real    m_bbox_min_size_tolerance{Real(0)};
 
     // statistic
     mutable integer m_num_check = 0;
@@ -123,6 +124,7 @@ namespace Utils {
     void set_max_num_objects_per_node( integer n );
     void set_bbox_long_edge_ratio( Real ratio );
     void set_bbox_overlap_tolerance( Real tol );
+    void set_bbox_min_size_tolerance( Real tol );
 
     void allocate( integer nbox, integer dim );
 
