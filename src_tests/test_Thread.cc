@@ -67,7 +67,7 @@ main() {
   std::vector<std::thread> threads_tab;
   for ( int i = 0; i < 100; ++i ) {
     //Utils::sleep_for_milliseconds(1);
-    threads_tab.push_back(std::thread(do_test));
+    threads_tab.emplace_back(do_test);
   }
   for ( auto & t : threads_tab ) t.join();
   std::cout << "Test WorkerLoop\n\n";

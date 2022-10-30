@@ -104,23 +104,23 @@ do_solve( FUN f, real_type const X0[], real_type delta ) {
 
 int
 main() {
-  if ( false ) {
+  #if 0
     real_type X0[2]{-1.1,-27.0};
     real_type delta = 1;
     std::function<real_type(real_type const[])> F(fun1);
     do_solve( F, X0, delta );
-  }
-  if ( false ) {
+  #endif
+  #if 0
     real_type X0[2]{1,1};
     real_type delta = 1;
     std::function<real_type(real_type const[])> F(fun2);
     do_solve( F, X0, delta );
-  }
-  if ( true ) {
+  #endif
+  #if 1
     real_type X0[2]{-1,1};
     real_type delta = 0.1;
     std::function<real_type(real_type const[])> F(fun3);
     do_solve( F, X0, delta );
-  }
+  #endif
   return 0;
 }
