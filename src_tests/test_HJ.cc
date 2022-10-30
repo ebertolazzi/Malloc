@@ -35,6 +35,7 @@ static real_type power2( real_type x ) { return x*x; }
 //static real_type power4( real_type x ) { return power2(power2(x)); }
 //static real_type power5( real_type x ) { return power4(x)*x; }
 
+#if 0
 static
 real_type
 fun1( real_type const X[] ) {
@@ -52,7 +53,9 @@ fun1( real_type const X[] ) {
   if ( power2(x+6)+pow(abs(y+1),1.5)  < 15      ) return Utils::Inf<real_type>();
   return pow(abs(y-x),2.07) + pow(abs(x*y),1.07);
 }
+#endif
 
+#if 0
 static
 real_type
 fun2( real_type const X[] ) {
@@ -78,6 +81,7 @@ fun2( real_type const X[] ) {
   }
   return abs(x-100)/100 + abs(y-101);
 }
+#endif
 
 static
 real_type
@@ -104,23 +108,23 @@ do_solve( FUN f, real_type const X0[], real_type delta ) {
 
 int
 main() {
-  if ( false ) {
+  #if 0
     real_type X0[2]{-1.1,-27.0};
     real_type delta = 1;
     std::function<real_type(real_type const[])> F(fun1);
     do_solve( F, X0, delta );
-  }
-  if ( false ) {
+  #endif
+  #if 0
     real_type X0[2]{1,1};
     real_type delta = 1;
     std::function<real_type(real_type const[])> F(fun2);
     do_solve( F, X0, delta );
-  }
-  if ( true ) {
+  #endif
+  #if 1
     real_type X0[2]{-1,1};
     real_type delta = 0.1;
     std::function<real_type(real_type const[])> F(fun3);
     do_solve( F, X0, delta );
-  }
+  #endif
   return 0;
 }

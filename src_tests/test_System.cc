@@ -41,7 +41,7 @@ main() {
     Utils::get_MAC_address( mac_addr );
     for ( auto & s: mac_addr )
       fmt::print( "get_MAC_address {} -> {}\n", s.first, s.second );
-      
+
     vector<string> addr;
     Utils::get_IP_address( addr );
     for ( auto & s: addr )
@@ -60,7 +60,7 @@ main() {
       "C:/tools/msys64/usr/bin/dir.exe",
       nullptr
     };
-    
+
     for ( char const ** pp = files; *pp != nullptr; ++pp ) {
       fmt::print(
         "dir/file: {:5}/{:5}: \"{}\"\n",

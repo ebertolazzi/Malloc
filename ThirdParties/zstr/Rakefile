@@ -12,7 +12,7 @@ task :install_common do
   FileUtils.rm_f    '../../src/Utils/zstr'
   FileUtils.mkdir_p '../../src/Utils/zstr'
   # copy file
-  [ "strict_fstream.hpp", "zstr_make_unique_polyfill.h" ].each do |fname|
+  [ "zstr_make_unique_polyfill.h" ].each do |fname|
     FileUtils.cp 'zstr-master/src/'+fname, '../../src/Utils/zstr/'+fname
   end
   # filter file
@@ -49,6 +49,15 @@ task :install_common do
       line.gsub!('virtual ~ofstreambuf()','~ofstreambuf() override');
       line.gsub!('virtual ~basic_ostream()','~basic_ostream() override');
       line.gsub!('virtual ~basic_istream()','~basic_istream() override');
+      line.gsub!('const char * what() const noexcept { return _msg.c_str(); }',
+                 'const char * what() const noexcept override { return _msg.c_str(); }');
+      out.puts line
+    end
+  end
+  File.open('../../src/Utils/zstr/strict_fstream.hpp', 'w') do |out|
+    File.open('zstr-master/src/strict_fstream.hpp', 'r').each do |line|
+      line.gsub!('const char * what() const noexcept { return _msg.c_str(); }',
+                 'const char * what() const noexcept override { return _msg.c_str(); }');
       out.puts line
     end
   end
@@ -58,10 +67,9 @@ task :install_osx   => :install_common do end
 task :install_linux => :install_common do end
 task :install_mingw => :install_common do end
 task :install_win   => :install_common do end
-    
+
 task :clean       do end
 task :clean_osx   do end
 task :clean_linux do end
 task :clean_mingw do end
 task :clean_win   do end
-    

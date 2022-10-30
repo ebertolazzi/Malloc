@@ -78,7 +78,7 @@ main() {
     DIR.coeffRef(0) = cos(theta);
     DIR.coeffRef(1) = sin(theta);
     Pb.noalias()    = Pa + len*DIR;
-    S_set_1.push_back(Segment2D<real_type>(Pa,Pb));
+    S_set_1.emplace_back(Pa,Pb);
 
     Point2D<real_type> pmin, pmax;
     S_set_1.back().bbox( pmin, pmax );
@@ -110,7 +110,7 @@ main() {
     DIR.coeffRef(0) = cos(theta);
     DIR.coeffRef(1) = sin(theta);
     Pb.noalias() = Pa + len*DIR;
-    S_set_2.push_back(Segment2D<real_type>(Pa,Pb));
+    S_set_2.emplace_back(Pa,Pb);
 
     Point2D<real_type> pmin, pmax;
     S_set_2.back().bbox( pmin, pmax );

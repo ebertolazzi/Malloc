@@ -580,7 +580,7 @@ namespace Utils {
     while ( true ) {
       divide( m_sturm[ns-1], m_sturm[ns], M, R );
       if ( R.order() <= 0 ) break;
-      m_sturm.push_back(-R);
+      m_sturm.emplace_back(-R);
       ++ns;
     }
     // divide by GCD

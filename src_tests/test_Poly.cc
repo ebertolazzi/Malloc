@@ -60,7 +60,7 @@ test1() {
 }
 
 static
-int
+void
 test2() {
 
   poly p1( 4 );
