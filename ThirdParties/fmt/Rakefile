@@ -21,10 +21,9 @@ task :install_osx   => :install_common do end
 task :install_linux => :install_common do end
 task :install_mingw => :install_common do end
 task :install_win   => :install_common do end
-  
+
 task :clean       do end
 task :clean_osx   do end
 task :clean_linux do end
 task :clean_mingw do end
 task :clean_win   do end
-  
