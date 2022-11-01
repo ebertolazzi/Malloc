@@ -302,9 +302,9 @@ namespace Utils {
       string const line = "-------------------------------------------------------------------------\n";
       if ( m_verbose > 1 ) res += line;
       res += fmt::format(
-        "#it={:5} #f={:5} {:15} f(x)={:10} grad(x)={:10} V^(1/d)/D={} [{}/{}]\n",
+        "#it={:5} #f={:5} {:15} f(x)={:12} grad(x)={:12} V^(1/d)/D={} [{}/{}]\n",
         m_iteration_count, m_fun_evaluation_count,
-        m_which_step,
+        to_string(m_which_step),
         fmt::format("{:.6}",VALUE(m_f,m_low)),
         fmt::format("{:.6}",m_grad.template lpNorm<Eigen::Infinity>()),
         fmt::format("{:.4}",Vd/m_diameter),
@@ -324,21 +324,10 @@ namespace Utils {
   NelderMead<Real>::message( Real rtol ) const {
     if ( m_console == nullptr ) return;
     Real Vd = std::pow(m_simplex_volume,m_r_dim);
-    static char const *STR[] = {
-      "INIT",
-      "REFLECT",
-      "EXPAND_FE",
-      "EXPAND_FR",
-      "CONTRACT_O",
-      "CONTRACT_I",
-      "SHRINK",
-      "RESTART",
-      "WORSE"
-    };
     string msg = fmt::format(
-      "#it={:<4} #f={:<5} {:<12} f(x)={:<10} grad(x)={:<8}"
+      "#it={:<4} #f={:<5} {:<12} f(x)={:<12} grad(x)={:<12}"
       " |err|={:<10} V^(1/d)/D={:<10} [{}/{}]\n",
-      m_iteration_count, m_fun_evaluation_count, STR[m_which_step],
+      m_iteration_count, m_fun_evaluation_count, to_string(m_which_step),
       fmt::format("{:.6}",VALUE(m_f,m_low)),
       fmt::format("{:.6}",m_grad.template lpNorm<Eigen::Infinity>()),
       fmt::format("{:.4}",rtol),
@@ -370,7 +359,7 @@ namespace Utils {
     this->dist_init();
     m_psum.noalias() = m_p.col(m_dim);
     for ( integer i = 0 ; i < m_dim; ++i ) m_psum.noalias() += m_p.col(i);
-    m_which_step = NM_INIT;
+    m_which_step = NM_move::INIT;
 
     for (; m_iteration_count <= m_max_iteration; ++m_iteration_count ) {
 
@@ -417,7 +406,7 @@ namespace Utils {
         this->dist_init();
         m_psum.noalias() = m_p.col(m_dim);
         for ( integer i = 0 ; i < m_dim; ++i ) m_psum.noalias() += m_p.col(i);
-        m_which_step = NM_RESTART;
+        m_which_step = NM_move::RESTART;
         continue;
       }
 
@@ -431,31 +420,31 @@ namespace Utils {
       if ( fr < f0 ) {
         Real fe = this->expand( m_pe );
         if ( fe < fr ) {
-          m_which_step = NM_EXPAND_FE;
+          m_which_step = NM_move::EXPAND_FE;
           this->replace_point( fe, m_pe, m_high );
         } else {
-          m_which_step = NM_EXPAND_FR;
+          m_which_step = NM_move::EXPAND_FR;
           this->replace_point( fr, m_pr, m_high );
         }
       } else if ( fr < fn ) {
-        m_which_step = NM_REFLECT;
+        m_which_step = NM_move::REFLECT;
         this->replace_point( fr, m_pr, m_high );
       } else if ( fr < fn1 ) {
         Real fc = this->outside( m_pc );
         if ( fc < fr ) {
-          m_which_step = NM_CONTRACT_O;
+          m_which_step = NM_move::CONTRACT_O;
           this->replace_point( fc, m_pc, m_high );
         } else {
-          m_which_step = NM_REFLECT;
+          m_which_step = NM_move::REFLECT;
           this->replace_point( fr, m_pr, m_high );
         }
       } else {
         Real fc = this->inside( m_pc );
         if ( fc < fn1 ) {
-          m_which_step = NM_CONTRACT_I;
+          m_which_step = NM_move::CONTRACT_I;
           this->replace_point( fc, m_pc, m_high );
         } else {
-          m_which_step = NM_SHRINK;
+          m_which_step = NM_move::SHRINK;
           this->shrink();
         }
       }
