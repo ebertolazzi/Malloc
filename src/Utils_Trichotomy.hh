@@ -95,8 +95,8 @@ namespace Utils {
 
   public:
 
-    Trichotomy() = default;
-    ~Trichotomy() = default;
+    Trichotomy() UTILS_DEFAULT;
+    ~Trichotomy() UTILS_DEFAULT;
 
     Real
     eval( Real a, Real b, Trichotomy_base_fun<Real> * fun ) {
