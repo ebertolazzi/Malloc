@@ -33,6 +33,34 @@ namespace Utils {
 
   using std::isfinite;
 
+  // =================================================================
+  // set_max_iterations
+  // =================================================================
+
+  template <typename Real>
+  void
+  Trichotomy<Real>::set_max_iterations( Integer mit ) {
+    UTILS_ASSERT(
+      mit > 0,
+      "Trichotomy::set_max_iterations({}) argument must be >0\n", mit
+    );
+    m_max_iteration = mit;
+  }
+
+  // =================================================================
+  // set_max_fun_evaluation
+  // =================================================================
+
+  template <typename Real>
+  void
+  Trichotomy<Real>::set_max_fun_evaluation( Integer mfev ) {
+    UTILS_ASSERT(
+      mfev > 0,
+      "Trichotomy::set_max_fun_evaluation({}) argument must be >0\n", mfev
+    );
+    m_max_fun_evaluation = mfev;
+  }
+
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

@@ -131,6 +131,9 @@ namespace Utils {
     Real    tolerance()    const { return m_tolerance; }
     bool    converged()    const { return m_converged; }
 
+    void set_max_iterations( Integer mit );
+    void set_max_fun_evaluation( Integer mfev );
+
   };
 
   #ifndef UTILS_OS_WINDOWS
