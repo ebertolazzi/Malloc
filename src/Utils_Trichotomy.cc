@@ -122,10 +122,10 @@ namespace Utils {
   Trichotomy<Real>::minimize() {
     m_num_iter_done = 0;
     m_converged     = false;
-    while ( m_num_iter_done++ < m_max_iter ) {
+    while ( m_num_iter_done++ < m_max_iteration ) {
       m_converged = bracketing();
       if ( m_converged ) break;
-      if ( m_num_fun_eval >= m_max_fun_eval ) break;
+      if ( m_num_fun_eval >= m_max_fun_evaluation ) break;
     }
     return m_x3;
   }

@@ -70,8 +70,8 @@ namespace Utils {
 
     Integer m_num_iter_done{0};
     Integer m_num_fun_eval{0};
-    Integer m_max_iter{100};
-    Integer m_max_fun_eval{1000};
+    Integer m_max_iteration{100};
+    Integer m_max_fun_evaluation{1000};
     Real    m_tolerance{pow(machine_eps<Real>(),Real(2./3.))};
 
     bool m_converged{false};
