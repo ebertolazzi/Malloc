@@ -96,7 +96,7 @@ fun3( real_type const X[] ) {
 template <typename FUN>
 void
 do_solve( FUN f, real_type const X0[], real_type delta ) {
-  Utils::Console console(&std::cout,4);
+  Utils::Console console(&cout,4);
   HJPatternSearch<real_type> solver("HJPatternSearch");
   solver.setup( 2, f, &console );
   solver.set_tolerance( 1e-20);
@@ -126,5 +126,8 @@ main() {
     std::function<real_type(real_type const[])> F(fun3);
     do_solve( F, X0, delta );
   #endif
+
+  cout << "\nAll Done Folks!\n";
+
   return 0;
 }

@@ -91,10 +91,21 @@ fun3( real_type const X[] ) {
   return 100*power2(y-x*x)+power2(1-x);
 }
 
+static
+real_type
+fun4( real_type const X[] ) {
+  real_type x = X[0];
+  real_type y = X[1];
+  real_type e = 1e-8;
+  real_type w = 1-x*x-y*y;
+  if ( w > 0 ) return x+y+e/w;
+  else         return Utils::Inf<real_type>();
+}
+
 template <typename FUN>
 void
 do_solve( FUN f, real_type const X0[], real_type delta ) {
-  Utils::Console console(&std::cout,4);
+  Utils::Console console(&cout,4);
   NelderMead<real_type> solver("NMsolver");
   solver.setup( 2, f, &console );
   solver.set_tolerance( 1e-20);
@@ -107,22 +118,39 @@ do_solve( FUN f, real_type const X0[], real_type delta ) {
 int
 main() {
   #if 0
+  {
     real_type X0[2]{-1.1,-27.0};
     real_type delta = 1;
     std::function<real_type(real_type const[])> F(fun1);
     do_solve( F, X0, delta );
+  }
   #endif
   #if 0
+  {
     real_type X0[2]{1,1};
     real_type delta = 1;
     std::function<real_type(real_type const[])> F(fun2);
     do_solve( F, X0, delta );
+  }
   #endif
   #if 1
+  {
     real_type X0[2]{-1,1};
     real_type delta = 0.1;
     std::function<real_type(real_type const[])> F(fun3);
     do_solve( F, X0, delta );
+  }
   #endif
+  #if 1
+  {
+    real_type X0[2]{0,0};
+    real_type delta = 0.01;
+    std::function<real_type(real_type const[])> F(fun4);
+    do_solve( F, X0, delta );
+  }
+  #endif
+
+  cout << "\nAll Done Folks!\n";
+
   return 0;
 }

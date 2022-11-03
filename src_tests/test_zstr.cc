@@ -23,6 +23,8 @@
 #include <fstream>
 #include <string>
 
+using std::cout;
+
 int
 main() {
   try {
@@ -43,23 +45,23 @@ main() {
     }
     // READ
     {
-      std::cout << "read compressed file----------------\n";
+      cout << "read compressed file----------------\n";
       std::ifstream file("test.txt.gz",std::ios::binary);
       zstr::istream gzfile(file);
       while( gzfile.good() ) {
         std::string line;
         std::getline( gzfile, line );
         Utils::to_upper(line);
-        std::cout << line << '\n';
+        cout << line << '\n';
       }
       file.close();
-      std::cout << "done--------------------------------\n";
+      cout << "done--------------------------------\n";
     }
   } catch ( std::exception const & exc ) {
-    std::cout << "Error: " << exc.what() << '\n';
+    cout << "Error: " << exc.what() << '\n';
   } catch ( ... ) {
-    std::cout << "Unknown error\n";
+    cout << "Unknown error\n";
   }
-  std::cout << "All done folks\n\n";
+  cout << "All done folks\n\n";
   return 0;
 }

@@ -90,5 +90,7 @@ main() {
   do_solve1(  4.0, 0.1, [](real_type x) { return x*x; });
   do_solve1( -4.0, 0.1, [](real_type x) { return x*x; });
 
+  cout << "All done folks!\n\n";
+
   return 0;
 }

@@ -1,11 +1,13 @@
 #include <iostream>
 #include "Utils.hh"
 
+using std::cout;
+
 int
 main() {
   Utils::Table::Style style;
   Utils::Table::Table table;
-  std::cout << "Starting table test ...\n\n";
+  cout << "Starting table test ...\n\n";
   try {
 
     std::vector<std::vector<std::string>> rows{
@@ -34,7 +36,8 @@ main() {
   } catch ( std::exception const & e ) {
     std::cerr << e.what() << std::endl;
   }
-  std::cout << table;
-  std::cout << "\nStopping table test ...\n";
+  cout << table;
+  cout << "\nStopping table test ...\n";
+  cout << "\nAll Done Folks!\n";
   return 0;
 }

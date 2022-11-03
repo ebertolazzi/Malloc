@@ -51,7 +51,7 @@ test1() {
     fmt::print( "roots = {}\n", mySturm.roots() );
 
     myT = mySturm.roots().minCoeff();
-    //std::cout << this->m_T << std::endl;
+    //cout << this->m_T << std::endl;
   } else {
     fmt::print( "No roots to solve T\n" );
     myT = 0;

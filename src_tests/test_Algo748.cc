@@ -259,5 +259,7 @@ main() {
   do_solve( -1.0, 1.0, [] ( real_type x ) { return fun_penalty(x,-10); } );
   do_solve2( -1, 1.1498547501802843, -100, 100, [] ( real_type x ) { return fun_penalty(x,-229.970950036057); } );
 
+  cout << "\nAll Done Folks!\n";
+
   return 0;
 }

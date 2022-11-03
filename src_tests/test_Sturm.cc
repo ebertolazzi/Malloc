@@ -42,7 +42,7 @@ test1() {
   Utils::Sturm<double>::Integer n_roots = S.separate_roots( a, b );
 
   S.refine_roots();
-  std::cout << S;
+  cout << S;
 
   fmt::print( "N.roots = {}\nCheck\n", n_roots );
   for ( auto & x : S.roots() ) {
@@ -76,7 +76,7 @@ test2() {
   Utils::Sturm<double>::Integer n_roots = S.separate_roots( a, b );
 
   S.refine_roots();
-  std::cout << S;
+  cout << S;
 
   fmt::print( "N.roots = {}\nCheck\n", n_roots );
   for ( auto & x : S.roots() ) {
@@ -111,7 +111,7 @@ test3() {
   Utils::Sturm<double>::Integer n_roots = S.separate_roots( a, b );
 
   S.refine_roots();
-  std::cout << S;
+  cout << S;
 
   fmt::print( "N.roots = {}\nCheck\n", n_roots );
   for ( auto & x : S.roots() ) {
@@ -170,7 +170,7 @@ test4() {
   Utils::Sturm<double>::Integer n_roots = S.separate_roots( a, b );
 
   S.refine_roots();
-  std::cout << S;
+  cout << S;
 
   fmt::print( "N.roots = {}\nCheck\n", n_roots );
   for ( auto & x : S.roots() ) {
@@ -198,7 +198,7 @@ test5() {
   Utils::Sturm<double>::Integer n_roots = S.separate_roots( a, b );
 
   S.refine_roots();
-  std::cout << S;
+  cout << S;
 
   fmt::print( "N.roots = {}\nCheck\n", n_roots );
   for ( auto & x : S.roots() ) {
@@ -227,7 +227,7 @@ test6() {
   Utils::Sturm<double>::Integer n_roots = S.separate_roots( a, b );
 
   S.refine_roots();
-  std::cout << S;
+  cout << S;
 
   fmt::print( "N.roots = {}\nCheck\n", n_roots );
   for ( auto & x : S.roots() ) {
@@ -257,7 +257,7 @@ test7() {
   Utils::Sturm<double>::Integer n_roots = S.separate_roots( a, b );
 
   S.refine_roots();
-  std::cout << S;
+  cout << S;
 
   fmt::print( "N.roots = {}\nCheck\n", n_roots );
   for ( auto & x : S.roots() ) {
@@ -271,18 +271,20 @@ int
 main() {
 
   test1();
-  std::cout << "\n\n\n\n\n\n\n";
+  cout << "\n\n\n\n\n\n\n";
   test2();
-  std::cout << "\n\n\n\n\n\n\n";
+  cout << "\n\n\n\n\n\n\n";
   test3();
-  std::cout << "\n\n\n\n\n\n\n";
+  cout << "\n\n\n\n\n\n\n";
   test4();
-  std::cout << "\n\n\n\n\n\n\n";
+  cout << "\n\n\n\n\n\n\n";
   test5();
-  std::cout << "\n\n\n\n\n\n\n";
+  cout << "\n\n\n\n\n\n\n";
   test6();
-  std::cout << "\n\n\n\n\n\n\n";
+  cout << "\n\n\n\n\n\n\n";
   test7();
+
+  cout << "\nAll Done Folks!\n";
 
   return 0;
 }

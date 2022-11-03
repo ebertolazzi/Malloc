@@ -20,6 +20,8 @@
 #include "Utils.hh"
 #include "threadpool/threadpool.hh"
 
+using std::cout;
+
 static std::atomic<unsigned> accumulator;
 
 class Counter {
@@ -104,7 +106,7 @@ test_TP( int NN, int nt, int sz, char const * name ) {
     name, accumulator, t_launch, t_wait, t_join, t_launch+t_wait
   );
 
-  pool.info(std::cout);
+  pool.info(cout);
 }
 
 int
@@ -167,6 +169,8 @@ main( int argc, char *argv[] ) {
     Utils::ThreadPool5 TP5(16); // 0%
     Utils::sleep_for_seconds(4);
   }
+
+  cout << "All done folks!\n\n";
 
   return 0;
 }

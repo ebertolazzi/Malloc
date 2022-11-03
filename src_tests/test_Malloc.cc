@@ -19,6 +19,8 @@
 
 #include "Utils.hh"
 
+using std::cout;
+
 static
 void
 mem_info( char const msg[] ) {
@@ -64,6 +66,6 @@ main() {
   mem_info("C");
   do_test2();
   mem_info("main OUT");
-  std::cout << "All done folks!\n\n";
+  cout << "All done folks!\n\n";
   return 0;
 }

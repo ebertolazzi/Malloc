@@ -4,7 +4,7 @@
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
- |         | __/ _   ,_         | __/ _   ,_                                | 
+ |         | __/ _   ,_         | __/ _   ,_                                |
  |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
  |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
  |                           /|                   /|                        |
@@ -114,7 +114,7 @@ enumerateWinTerms() {
   test_colors(clog, winTerm::Ansi);
   test_colors(cerr, winTerm::Ansi);
   cout << "-------------------------------------------------------------\n\n";
-  
+
   cout << endl;
   cout << "_________________________________________________________________";
   cout << "\n\n"
@@ -147,5 +147,8 @@ main() {
        << style::reset << bg::reset << fg::reset << endl;
   setControlMode(control::Off);
   enumerateWinTerms();
+
+  cout << "\nAll Done Folks!\n";
+
   return 0;
 }

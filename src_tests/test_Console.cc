@@ -19,73 +19,51 @@
 
 #include "Utils.hh"
 
-using std::cout;
+#include <string>
+#include <iostream>
 
-class Counter {
-  Utils::BinarySearch<int> bs;
-public:
-  Counter() {
-    bool ok ;
-    int * pdata = bs.search( std::this_thread::get_id(), ok );
-    *pdata = 0;
-  }
+using namespace std;
+using namespace rang;
 
-  void
-  inc() {
-    bool ok;
-    int * pdata = bs.search( std::this_thread::get_id(), ok );
-    if ( !ok ) std::cerr << "Counter::inc failed thread\n";
-    ++(*pdata);
-  }
-
-  void
-  print() {
-    bool ok;
-    int * pdata = bs.search( std::this_thread::get_id(), ok );
-    if ( !ok ) std::cerr << "Counter::inc failed thread\n";
-    fmt::print( "thread {}, counter = {}\n", std::this_thread::get_id(), *pdata );
-  }
-};
-
-static
-void
-do_test() {
-  Counter c;
-  for ( int i = 0; i < 10000000; ++i ) {
-    //Utils::sleep_for_milliseconds(1);
-    c.inc();
-  }
-  c.print();
-}
-
-static
-void
-do_passa( int ii ) {
-  cout << "passa ii=" << ii << '\n';
-}
+static Utils::Console C(&std::cout,4);
 
 int
 main() {
-  std::vector<std::thread> threads_tab;
-  for ( int i = 0; i < 100; ++i ) {
-    //Utils::sleep_for_milliseconds(1);
-    threads_tab.emplace_back(do_test);
-  }
-  for ( auto & t : threads_tab ) t.join();
-  cout << "Test WorkerLoop\n\n";
 
-  Utils::WorkerLoop wl;
-  for ( int i = 0; i < 100; ++i ) {
-    std::function<void()> exe = [i]() -> void { cout << "passing i=" << i << '\n'; };
-    wl.exec( exe );
-    wl.run( do_passa, i );
-  }
-  cout << "WorkerLoop done\n\n";
-  wl.exec();
-  wl.exec();
-  wl.exec();
-  wl.exec();
-  wl.wait();
-  cout << "All done folks!\n\n";
+  C.message  ( "message\n" );
+  C.semaphore( 0, "semphore 0\n" );
+  C.semaphore( 1, "semphore 1\n" );
+  C.semaphore( 2, "semphore 2\n" );
+  C.colors   ( 0, "colors 0\n" );
+  C.colors   ( 1, "colors 1\n" );
+  C.colors   ( 2, "colors 2\n" );
+  C.colors   ( 3, "colors 3\n" );
+  C.colors   ( 4, "colors 4\n" );
+  C.colors   ( 5, "colors 5\n" );
+  C.colors   ( 6, "colors 6\n" );
+  C.warning  ( "warning\n" );
+  C.error    ( "error\n" );
+  C.fatal    ( "fatal\n" );
+
+  C.black   ( "black\n"   );
+  C.red     ( "red\n"     );
+  C.green   ( "green\n"   );
+  C.yellow  ( "yellow\n"  );
+  C.blue    ( "blue\n"    );
+  C.magenta ( "magenta\n" );
+  C.cyan    ( "cyan\n"    );
+  C.gray    ( "gray\n"    );
+
+  C.black_reversed   ( "black_reversed\n"   );
+  C.red_reversed     ( "red_reversed\n"     );
+  C.green_reversed   ( "green_reversed\n"   );
+  C.yellow_reversed  ( "yellow_reversed\n"  );
+  C.blue_reversed    ( "blue_reversed\n"    );
+  C.magenta_reversed ( "magenta_reversed\n" );
+  C.cyan_reversed    ( "cyan_reversed\n"    );
+  C.gray_reversed    ( "gray_reversed\n"    );
+
+  cout << "\nAll Done Folks!\n";
+
   return 0;
 }

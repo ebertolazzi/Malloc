@@ -24,6 +24,7 @@
 #include <vector>
 #include <map>
 
+using std::cout;
 using std::string;
 using std::vector;
 using std::map;
@@ -71,10 +72,10 @@ main() {
     }
 
   } catch ( std::exception const & exc ) {
-    std::cout << "Error: " << exc.what() << '\n';
+    cout << "Error: " << exc.what() << '\n';
   } catch ( ... ) {
-    std::cout << "Unknown error\n";
+    cout << "Unknown error\n";
   }
-  std::cout << "All done folks\n\n";
+  cout << "All done folks\n\n";
   return 0;
 }
