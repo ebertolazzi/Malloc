@@ -44,7 +44,7 @@ namespace Utils { \
   template Poly<REAL> operator * ( REAL a, Poly<REAL> const & b ); \
   template Poly<REAL> operator * ( Poly<REAL> const & a, REAL b ); \
   template void divide( Poly<REAL> const & p, Poly<REAL> const & q, Poly<REAL> & M, Poly<REAL> & R ); \
-  template void GCD( Poly<REAL> const & p, Poly<REAL> const & q, Poly<REAL> & g ); \
+  template void GCD( Poly<REAL> const & p, Poly<REAL> const & q, Poly<REAL> & g, REAL epsi ); \
 }
 #endif
 
@@ -160,12 +160,14 @@ namespace Utils {
   template <typename Real>
   void
   Poly<Real>::purge( Real epsi ) {
-    Real MX = this->cwiseAbs().maxCoeff();
-    if ( MX < 1 ) MX = 1;
-    Real EPS = epsi*MX;
-    for ( Integer i = 0; i < m_order; ++i ) {
-      Real & ai = this->coeffRef(i);
-      if ( std::abs( ai ) <= EPS ) ai = 0;
+    if ( m_order > 0 ) {
+      Real MX = this->cwiseAbs().maxCoeff();
+      if ( MX < 1 ) MX = 1;
+      Real EPS = epsi*MX;
+      for ( Integer i = 0; i < m_order; ++i ) {
+        Real & ai = this->coeffRef(i);
+        if ( std::abs( ai ) <= EPS ) ai = 0;
+      }
     }
     adjust_degree();
   }
@@ -485,7 +487,7 @@ namespace Utils {
     Poly<Real>       & R
   ) {
 
-    static Real epsi = pow(std::numeric_limits<Real>::epsilon(),Real(0.75));
+    // static Real epsi = pow(std::numeric_limits<Real>::epsilon(),Real(0.75));
 
     using Integer = typename Poly<Real>::Integer;
 
@@ -503,28 +505,35 @@ namespace Utils {
     //
     R = P;
     Real lcQ = Q.leading_coeff();
-    Integer dd       = R.order() - Q.order();
-    Integer R_degree = R.degree();
-    M.set_order(dd+1);
+    Integer dd = R.order() - Q.order();
+    if ( dd < 0 ) {
+      // P = Q +R
+      M.set_scalar(1);
+      R = P-Q;
+    } else {
+      Integer R_degree = R.degree();
+      M.set_order(dd+1);
 
-    UTILS_ASSERT0(
-      !is_zero(lcQ),
-      "Poly::divide(p,q,M,R), leading coefficient of q(x) is 0!"
-    );
+      UTILS_ASSERT0(
+        !is_zero(lcQ),
+        "Poly::divide(p,q,M,R), leading coefficient of q(x) is 0!"
+      );
 
-    while ( dd >= 0 && R_degree >= 0 ) {
-      Real lcR = R(R_degree);
-      Real bf  = lcR/lcQ;
-      M.coeffRef(dd) = bf;
-      R.segment(dd,Q.degree()).noalias() -= bf*Q.head(Q.degree());
-      R.coeffRef(R_degree) = 0;
-      --R_degree;
-      --dd;
+      while ( dd >= 0 && R_degree >= 0 ) {
+        Real lcR = R(R_degree);
+        Real bf  = lcR/lcQ;
+        M.coeffRef(dd) = bf;
+        R.segment(dd,Q.degree()).noalias() -= bf*Q.head(Q.degree());
+        R.coeffRef(R_degree) = 0;
+        --R_degree;
+        --dd;
+      }
+
+      // don not purge remainder
+      // this can be done externally
+      // R.purge(epsi);
+      R.adjust_degree();
     }
-
-    // adjust degree or remainder
-    R.purge(epsi);
-    // R.adjust_degree();
 
     // scale back polinomials
     //
@@ -551,12 +560,14 @@ namespace Utils {
   GCD(
     Poly<Real> const & p,
     Poly<Real> const & q,
-    Poly<Real>       & g
+    Poly<Real>       & g,
+    Real               epsi
   ) {
     if ( q.order() > 0 ) {
       Poly<Real> M, R;
       divide( p, q, M, R );
-      GCD( q, R, g );
+      R.purge( epsi );
+      GCD( q, R, g, epsi );
     } else {
       g = p;
     }
@@ -585,11 +596,11 @@ namespace Utils {
     }
     // divide by GCD
     for ( Integer i = 0; i < ns; ++i ) {
-      divide( m_sturm[i], m_sturm[ns], M, R );
+      divide( m_sturm[i], m_sturm.back(), M, R );
       M.normalize();
       m_sturm[i] = M;
     }
-    m_sturm[ns].set_scalar(1);
+    m_sturm.back().set_scalar(1);
   }
 
   /*

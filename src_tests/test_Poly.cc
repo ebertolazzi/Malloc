@@ -136,7 +136,7 @@ test2() {
   Q.set_degree( 3 );
   Q << 3, -5, 1, 1;
 
-  Utils::GCD( P, Q, G );
+  Utils::GCD( P, Q, G, 1e-20 );
   G.make_monic();
 
   fmt::print(

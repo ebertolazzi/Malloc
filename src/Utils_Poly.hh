@@ -315,7 +315,8 @@ namespace Utils {
   GCD(
     Poly<Real> const & p,
     Poly<Real> const & q,
-    Poly<Real>       & g
+    Poly<Real>       & g,
+    Real               epsi = 1e-20
   );
 
   /*
