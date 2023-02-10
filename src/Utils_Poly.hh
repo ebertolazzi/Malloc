@@ -190,8 +190,8 @@ namespace Utils {
     vector<Poly_t>   m_sturm;
     vector<Interval> m_intervals;
     dvec_t           m_roots;
-    Real             m_a = 0;
-    Real             m_b = 0;
+    Real             m_a{0};
+    Real             m_b{0};
 
   public:
 
