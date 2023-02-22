@@ -89,22 +89,25 @@ namespace Utils {
     m_dim_factorial = 1;
     for ( integer i = 2; i <= n+1; ++i ) m_dim_factorial *= i;
 
-    m_dim_regular_simplex_volume = (sqrt(n+1)/m_dim_factorial)/std::pow(Real(2),Real(n)/2);
+    m_dim_regular_simplex_volume = (sqrt(Real(n+1))/Real(m_dim_factorial))/std::pow(Real(2),Real(n)/2);
 
     integer ntot = (3*n+10)*n+2;
     m_base_value.reallocate( ntot );
 
-    new (&this->m_f)      MapVec( m_base_value( size_t(n+1) ),         n+1      );
-    new (&this->m_p)      MapMat( m_base_value( size_t(n*(n+1)) ),     n,   n+1 );
-    new (&this->m_p_work) MapMat( m_base_value( size_t(n*n) ),         n,   n   );
-    new (&this->m_dist)   MapMat( m_base_value( size_t((n+1)*(n+1)) ), n+1, n+1 );
+    size_t N  = size_t(n);
+    size_t N1 = size_t(n+1);
 
-    new (&this->m_psum)   MapVec( m_base_value( size_t(n) ), n );
-    new (&this->m_f_work) MapVec( m_base_value( size_t(n) ), n );
-    new (&this->m_grad)   MapVec( m_base_value( size_t(n) ), n );
-    new (&this->m_pr)     MapVec( m_base_value( size_t(n) ), n );
-    new (&this->m_pe)     MapVec( m_base_value( size_t(n) ), n );
-    new (&this->m_pc)     MapVec( m_base_value( size_t(n) ), n );
+    new (&this->m_f)      MapVec( m_base_value( N1 ),    n+1      );
+    new (&this->m_p)      MapMat( m_base_value( N*N1 ),  n,   n+1 );
+    new (&this->m_p_work) MapMat( m_base_value( N*N ),   n,   n   );
+    new (&this->m_dist)   MapMat( m_base_value( N1*N1 ), n+1, n+1 );
+
+    new (&this->m_psum)   MapVec( m_base_value( N ), n );
+    new (&this->m_f_work) MapVec( m_base_value( N ), n );
+    new (&this->m_grad)   MapVec( m_base_value( N ), n );
+    new (&this->m_pr)     MapVec( m_base_value( N ), n );
+    new (&this->m_pe)     MapVec( m_base_value( N ), n );
+    new (&this->m_pc)     MapVec( m_base_value( N ), n );
 
     m_base_value.must_be_empty("NelderMead<Real>::allocate");
   }
@@ -147,8 +150,10 @@ namespace Utils {
   template <typename Real>
   void
   NelderMead<Real>::spendley( Real const X0[], Real delta ) {
-    Real p = delta * (m_dim-1+sqrt(m_dim+1))/(m_dim*sqrt(2));
-    Real q = delta * (sqrt(m_dim+1)-1)/(m_dim*sqrt(2));
+    Real t1 = sqrt( Real(m_dim+1) ) - Real(1);
+    Real t2 = Real(m_dim)*sqrt(Real(2));
+    Real p  = delta * (m_dim+t1)/t2;
+    Real q  = delta * t1/t2;
     for ( integer i = 0; i < m_dim; ++i ) REF(m_p,i,0) = X0[i];
     REF(m_f,0) = this->eval_function( m_p.col(0).data() );
     for ( integer i = 0; i < m_dim; ++i ) {
