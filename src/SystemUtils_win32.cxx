@@ -31,6 +31,37 @@ namespace Utils {
   /*
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   */
+  bool
+  get_environment( char const ename[], string & res ) {
+    #ifdef UTILS_OS_MINGW
+      char const * RES = getenv(ename);
+      if ( RES != nullptr ) return false;
+      res = string{RES};
+      return true;
+    #else
+      char buffer[1024];
+      DWORD var_size = GetEnvironmentVariable(ename,buffer,1024);
+      res = string{buffer};
+      return var_size != 0;
+    #endif
+  }
+
+  /*
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  */
+  void
+  set_environment( char const ename[], char const newval[], bool overwrite ) {
+    #ifdef UTILS_OS_MINGW
+      int res = setenv( ename, newval, overwrite ? 1 : 0 );
+      UTILS_ASSERT( res == 0, "set_environment({},{},{}) faled\n", ename, newval, overwrite );
+    #else
+      SetEnvironmentVariable( ename, newval );
+    #endif
+  }
+
+  /*
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  */
   // Fetches the MAC address
   void
   get_MAC_address( map<string,string> & addr ) {
