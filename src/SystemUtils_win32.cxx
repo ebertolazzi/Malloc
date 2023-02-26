@@ -35,7 +35,7 @@ namespace Utils {
   get_environment( char const ename[], string & res ) {
     #ifdef UTILS_OS_MINGW
       char const * RES = getenv(ename);
-      if ( RES != nullptr ) return false;
+      if ( RES == nullptr ) return false;
       res = string{RES};
       return true;
     #else

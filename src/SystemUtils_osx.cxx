@@ -33,7 +33,7 @@ namespace Utils {
   bool
   get_environment( char const ename[], string & res ) {
     char const * RES = getenv(ename);
-    if ( RES != nullptr ) return false;
+    if ( RES == nullptr ) return false;
     res = string{RES};
     return true;
   }
