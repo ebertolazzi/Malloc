@@ -156,7 +156,7 @@ namespace Utils {
     */
     ++m_iteration_count; // augment counter
     // Print info
-    if ( m_verbose > 0 && m_console->get_level() >= 3 ) {
+    if ( m_verbose > 0 && m_console != nullptr && m_console->get_level() >= 3 ) {
       string line = "-------------------------------------------------------------------------";
       string msg = fmt::format(
         "Iteration={} f(x_best)/#f/|h| = {:.6} / {} / {:.6}\n",
