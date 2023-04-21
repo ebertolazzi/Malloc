@@ -18,7 +18,7 @@
 \*--------------------------------------------------------------------------*/
 
 #include "Utils.hh"
-#include "Eigen/Core"
+#include "Utils_eigen.hh"
 #include <random>
 
 using namespace std;
