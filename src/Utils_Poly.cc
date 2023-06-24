@@ -638,7 +638,8 @@ namespace Utils {
   */
   template <typename Real>
   typename Sturm<Real>::Integer
-  Sturm<Real>::separate_roots( Real a, Real b ) {
+  Sturm<Real>::separate_roots( Real a_in, Real b_in ) {
+    Real a{a_in}, b{b_in};
     m_a = a;
     m_b = b;
     bool on_root_a, on_root_b;
@@ -724,6 +725,18 @@ namespace Utils {
       []( Interval const & Sa, Interval const & Sb ) { return Sa.a < Sb.a; }
     );
     return n_roots;
+  }
+
+  /*
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  */
+  template <typename Real>
+  typename Sturm<Real>::Integer
+  Sturm<Real>::separate_roots() {
+    // Cauchy's bounds for roots
+    Real an  = m_sturm[0].leading_coeff();
+    Real bnd = 1+m_sturm[0].cwiseAbs().maxCoeff()/abs(an);
+    return separate_roots( -bnd, bnd );
   }
 
   /*
