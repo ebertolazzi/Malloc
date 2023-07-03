@@ -687,16 +687,18 @@ namespace Utils {
             vc = sign_variations( c, eps, on_root_c );
           }
         }
-      } else if ( I.a == c || I.b == c ) {
+      }
+      if ( on_root_c || I.a == c || I.b == c ) {
         m_intervals[n_seg] = I; // intervallo degenerato, radice multipla
         ++i_pos;                // lo tratto doppio
         continue;
       }
-      UTILS_ASSERT(
-        !on_root_c,
-        "Sturm<Real>::separate_roots(a={},b={},eps={}), failed\n",
-        m_a, m_b, eps
-      );
+      // DA RIVEDERE
+      //UTILS_ASSERT(
+      //  !on_root_c,
+      //  "Sturm<Real>::separate_roots(a={},b={},eps={}), failed\n",
+      //  m_a, m_b, eps
+      //);
       if ( I.va == vc ) { // LO <- c
         I.a  = c;
         I.va = vc;
