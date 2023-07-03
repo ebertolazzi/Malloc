@@ -135,7 +135,7 @@ namespace Utils {
     //! \f$ p(x) = \sum_{i=0}^n a_i x^i \f$ i.e. the number
     //! of sign change of the sequance \f$ [a_0,a_1,\ldots,a_n] \f$.
     //!
-    Integer sign_variations( Real eps ) const;
+    Integer sign_variations() const;
 
     //!
     //! Change the polynomial in such a way
@@ -173,6 +173,8 @@ namespace Utils {
       Real    b;
       Integer va;
       Integer vb;
+      bool    a_on_root;
+      bool    b_on_root;
     };
 
     class Algo748_fun : public Algo748_base_fun<Real> {
@@ -215,21 +217,21 @@ namespace Utils {
     //!
     //! Conpute the sign variations of the stored Sturm sequence at \f$ x \f$.
     //!
-    Integer sign_variations( Real x, Real eps, bool & on_root ) const;
+    Integer sign_variations( Real x, bool & on_root ) const;
 
     //!
     //! Given an interval \f$ [a,b] \f$
     //! compute the subintervals containing a single root.
     //! Return the numbers of intervals (roots) found.
     //!
-    Integer separate_roots( Real a, Real b, Real eps = machine_eps<Real>() );
+    Integer separate_roots( Real a, Real b );
 
     //!
     //! Compute an interval \f$ [a,b] \f$ that contains all
     //! the real roots and compute the subintervals containing a single root.
     //! Return the numbers of intervals (roots) found.
     //!
-    Integer separate_roots( Real eps = machine_eps<Real>() );
+    Integer separate_roots();
 
     Integer n_roots() const { return Integer(m_intervals.size()); }
     Real a() const { return m_a; }
