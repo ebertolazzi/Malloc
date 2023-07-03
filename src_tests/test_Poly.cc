@@ -225,7 +225,7 @@ test2() {
 
   for ( auto const & xx : x ) {
     bool on_root;
-    int s0 = STURM.sign_variations( xx, on_root );
+    int s0 = STURM.sign_variations( xx, Utils::machine_eps<double>(), on_root );
     fmt::print( "x = {:<10}, sign var = {}\n", xx, s0 );
   }
 

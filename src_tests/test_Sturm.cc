@@ -267,6 +267,39 @@ test7() {
 
 
 
+static
+void
+test8() {
+
+  Poly<double> P( 9 );
+
+  P << 2.5678136684000492,
+       0.032475277665839394,
+       -3.1571112216028204E-7,
+       -0.0022292180160741193,
+       -0.024136475795403782,
+       -0.00015262768831012657,
+       1.5016498823759532E-9,
+       0.000010476904806128173,
+       0.000056718431225789833;
+
+  Utils::Sturm<double> S;
+  //P.normalize();
+  S.build( P );
+
+  fmt::print("p(x) = {}\n",P.to_string() );
+  Utils::Sturm<double>::Integer n_roots = S.separate_roots();
+
+  S.refine_roots();
+  cout << S;
+
+  fmt::print( "N.roots = {}\nCheck\n", n_roots );
+  for ( auto & x : S.roots() ) {
+    fmt::print( "P({}) = {}\n", x, P.eval(x) );
+  }
+}
+
+
 int
 main() {
 
@@ -283,6 +316,8 @@ main() {
   test6();
   cout << "\n\n\n\n\n\n\n";
   test7();
+  cout << "\n\n\n\n\n\n\n";
+  test8();
 
   cout << "\nAll Done Folks!\n";
 

@@ -187,15 +187,15 @@ namespace Utils {
   */
   template <typename Real>
   typename Poly<Real>::Integer
-  Poly<Real>::sign_variations() const {
+  Poly<Real>::sign_variations( Real eps ) const {
     Integer sign_var  = 0;
     Integer last_sign = 0;
     for ( Integer i=0; i < m_order; ++i ) {
       Real v = this->coeff(i);
-      if ( v > 0 ) {
+      if ( v > eps ) {
         if ( last_sign == -1 ) ++sign_var;
         last_sign = 1;
-      } else if ( v < 0 ) {
+      } else if ( v < -eps ) {
         if ( last_sign == 1 ) ++sign_var;
         last_sign = -1;
       }
@@ -608,24 +608,24 @@ namespace Utils {
   */
   template <typename Real>
   typename Sturm<Real>::Integer
-  Sturm<Real>::sign_variations( Real x, bool & on_root ) const {
+  Sturm<Real>::sign_variations( Real x, Real eps, bool & on_root ) const {
     Integer sign_var  = 0;
     Integer last_sign = 0;
     Integer npoly     = Integer(m_sturm.size());
     Real    v         = m_sturm[0].eval(x);
     on_root = false;
-    if      ( v > 0 ) last_sign = 1;
-    else if ( v < 0 ) last_sign = -1;
+    if      ( v >  eps ) last_sign = 1;
+    else if ( v < -eps ) last_sign = -1;
     else {
       on_root   = true;
       last_sign = 0;
     }
     for ( Integer i = 1; i < npoly; ++i ) {
       v = m_sturm[i].eval(x);
-      if ( v > 0 ) {
+      if ( v > eps ) {
         if ( last_sign == -1 ) ++sign_var;
         last_sign = 1;
-      } else if ( v < 0 ) {
+      } else if ( v < -eps ) {
         if ( last_sign == 1 ) ++sign_var;
         last_sign = -1;
       }
@@ -638,23 +638,23 @@ namespace Utils {
   */
   template <typename Real>
   typename Sturm<Real>::Integer
-  Sturm<Real>::separate_roots( Real a_in, Real b_in ) {
+  Sturm<Real>::separate_roots( Real a_in, Real b_in, Real eps ) {
     Real a{a_in}, b{b_in};
     m_a = a;
     m_b = b;
     bool on_root_a, on_root_b;
-    Integer va = sign_variations(a,on_root_a);
-    Integer vb = sign_variations(b,on_root_b);
+    Integer va = sign_variations( a, eps, on_root_a );
+    Integer vb = sign_variations( b, eps, on_root_b );
 
     while ( on_root_a ) {
       // on root, move interval a
       a -= Real(1e-8)*(b-a);
-      va = sign_variations(a,on_root_a);
+      va = sign_variations( a, eps, on_root_a);
     }
     while ( on_root_b ) {
       // on root, move interval a
       b += Real(1e-8)*(b-a);
-      vb = sign_variations(b,on_root_b);
+      vb = sign_variations( b, eps, on_root_b );
     }
 
     Integer n_roots = std::abs( va - vb );
@@ -676,22 +676,26 @@ namespace Utils {
       // refine segment
       Real    c  = (I.a+I.b)/2;
       bool    on_root_c;
-      Integer vc = sign_variations(c,on_root_c);
+      Integer vc = sign_variations( c, eps, on_root_c );
 
       if ( on_root_c ) {
         for ( Integer iter = 2; iter <= 20 && on_root_c; ++iter ) {
           c  = (I.a*iter+I.b)/(1+iter);
-          vc = sign_variations(c,on_root_c);
+          vc = sign_variations( c, eps, on_root_c );
           if ( on_root_c ) {
             c  = (I.a+I.b*iter)/(1+iter);
-            vc = sign_variations(c,on_root_c);
+            vc = sign_variations( c, eps, on_root_c );
           }
         }
+      } else if ( I.a == c || I.b == c ) {
+        m_intervals[n_seg] = I; // intervallo degenerato, radice multipla
+        ++i_pos;                // lo tratto doppio
+        continue;
       }
       UTILS_ASSERT(
         !on_root_c,
-        "Sturm<Real>::separate_roots(a={},b={}), failed\n",
-        m_a, m_b
+        "Sturm<Real>::separate_roots(a={},b={},eps={}), failed\n",
+        m_a, m_b, eps
       );
       if ( I.va == vc ) { // LO <- c
         I.a  = c;
@@ -732,11 +736,11 @@ namespace Utils {
   */
   template <typename Real>
   typename Sturm<Real>::Integer
-  Sturm<Real>::separate_roots() {
+  Sturm<Real>::separate_roots( Real eps ) {
     // Cauchy's bounds for roots
     Real an  = m_sturm[0].leading_coeff();
     Real bnd = 1+m_sturm[0].cwiseAbs().maxCoeff()/abs(an);
-    return separate_roots( -bnd, bnd );
+    return separate_roots( -bnd, bnd, eps );
   }
 
   /*
