@@ -63,7 +63,12 @@ main() {
   C.cyan_reversed    ( "cyan_reversed\n"    );
   C.gray_reversed    ( "gray_reversed\n"    );
 
-  cout << "\nAll Done Folks!\n";
+  for ( int i = 0; i < 100; ++i ) {
+    cout << Utils::progress_bar( i/100.0, 70 ) << '\r' << std::flush;
+    Utils::sleep_for_milliseconds(100);
+  }
+
+  cout << "\n\nAll Done Folks!\n";
 
   return 0;
 }
