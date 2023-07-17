@@ -378,6 +378,8 @@ namespace Utils {
   }
 
   string progress_bar( double progress, int width );
+  void   progress_bar( ostream &, double progress, int width, char const * msg );
+  void   progress_bar2( ostream &, double progress, int width, char const * msg );
 
 }
 

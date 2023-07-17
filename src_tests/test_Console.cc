@@ -63,9 +63,23 @@ main() {
   C.cyan_reversed    ( "cyan_reversed\n"    );
   C.gray_reversed    ( "gray_reversed\n"    );
 
-  for ( int i = 0; i < 100; ++i ) {
+  for ( int i = 0; i <= 100; ++i ) {
     cout << Utils::progress_bar( i/100.0, 70 ) << '\r' << std::flush;
-    Utils::sleep_for_milliseconds(100);
+    Utils::sleep_for_milliseconds(50);
+  }
+
+  std::cout << "\n\n";
+
+  for ( int i = 0; i <= 100; ++i ) {
+    Utils::progress_bar( std::cout, i/100.0, 70, "working" );
+    Utils::sleep_for_milliseconds(50);
+  }
+
+  std::cout << "\n\n";
+
+  for ( int i = 0; i <= 100; ++i ) {
+    Utils::progress_bar2( std::cout, i/100.0, 70, "working" );
+    Utils::sleep_for_milliseconds(50);
   }
 
   cout << "\n\nAll Done Folks!\n";
