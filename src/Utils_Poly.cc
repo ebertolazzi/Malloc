@@ -670,7 +670,7 @@ namespace Utils {
         I1.a_on_root = I1.b_on_root = true;
         m_intervals.push_back(I1);
       }
-      return m_intervals.size();
+      return Integer(m_intervals.size());
     }
 
     // search intervals
@@ -742,7 +742,7 @@ namespace Utils {
       m_intervals.end(),
       []( Interval const & Sa, Interval const & Sb ) { return Sa.a < Sb.a; }
     );
-    return m_intervals.size();
+    return Integer(m_intervals.size());
   }
 
   /*
