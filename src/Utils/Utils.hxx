@@ -185,7 +185,12 @@
 #include "ThreadPoolBase.hxx"
 #include "ThreadPool0.hxx"
 #include "ThreadPool1.hxx"
-#include "ThreadPool2.hxx"
+
+#ifndef UTILS_OS_WINDOWS
+  // removed due to problem with windows
+  #include "ThreadPool2.hxx"
+#endif
+
 #include "ThreadPool3.hxx"
 #include "ThreadPool4.hxx"
 #include "ThreadPool5.hxx"
