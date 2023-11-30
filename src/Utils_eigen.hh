@@ -49,6 +49,9 @@
 namespace fmt {
   template <typename TYPE, int ROW, int COL>
   struct formatter<Eigen::Matrix<TYPE,ROW,COL>> : ostream_formatter {};
+
+  template <typename PlainObjectType, int MapOptions, typename StrideType>
+  struct formatter<Eigen::Map<PlainObjectType,MapOptions,StrideType>> : ostream_formatter {};
 }
 
 #ifdef __clang__

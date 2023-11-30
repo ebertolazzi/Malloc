@@ -24,3 +24,4 @@ ThirdParties/zstr/zstr-master
 cmake-build-debug
 *.mexmaci64
 Xcode
+ThirdParties/fmt/fmt-10.1.0
