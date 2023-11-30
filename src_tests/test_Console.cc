@@ -25,6 +25,9 @@
 using namespace std;
 using namespace rang;
 
+#ifdef __clang__
+[[clang::no_destroy]]
+#endif
 static Utils::Console C(&std::cout,4);
 
 int

@@ -30,10 +30,10 @@ using std::pow;
 
 using real_type = double;
 
-static real_type power2( real_type x ) { return x*x; }
-//static real_type power3( real_type x ) { return x*x*x; }
-//static real_type power4( real_type x ) { return power2(power2(x)); }
-//static real_type power5( real_type x ) { return power4(x)*x; }
+static inline real_type power2( real_type x ) { return x*x; }
+//static inline real_type power3( real_type x ) { return x*x*x; }
+//static inline real_type power4( real_type x ) { return power2(power2(x)); }
+//static inline real_type power5( real_type x ) { return power4(x)*x; }
 
 #if 0
 static

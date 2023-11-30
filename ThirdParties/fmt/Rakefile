@@ -3,7 +3,7 @@ require "fileutils"
 
 require_relative "../../cmake_utils/Rakefile_common.rb"
 
-VER = "9.1.0"
+VER = "10.1.0"
 
 desc "install FMT"
 task :install_common do

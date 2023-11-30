@@ -103,7 +103,7 @@ test_TP( int NN, int nt, int sz, char const * name ) {
 
   fmt::print(
     "\n[{}] result {} [LAUNCH: {}ms, WAIT {}ms, JOIN {}ms] {}ms\n",
-    name, accumulator, t_launch, t_wait, t_join, t_launch+t_wait
+    name, accumulator.load(), t_launch, t_wait, t_join, t_launch+t_wait
   );
 
   pool.info(cout);
@@ -131,7 +131,7 @@ main( int argc, char *argv[] ) {
   tm.toc();
   fmt::print(
     "[No Thread]   result {} [{:.6} ms, AVE = {:.6} mus]\n",
-    accumulator, tm.elapsed_ms(), 1000*tm.elapsed_ms()/NN
+    accumulator.load(), tm.elapsed_ms(), (1000*tm.elapsed_ms())/NN
   );
 
   test_TP<Utils::ThreadPool0>( NN, nt, sz, "ThreadPool0 [fake]");
