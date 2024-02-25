@@ -51,10 +51,10 @@ namespace Utils {
     \*/
 
     unsigned const                   m_maxpart;
-    bool                             m_shutting_down;
-    unsigned                         m_idle_workers;
-    unsigned                         m_total_workers;
-    bool                             m_wakeup_is_pending;
+    bool                             m_shutting_down{false};
+    unsigned                         m_idle_workers{0};
+    unsigned                         m_total_workers{0};
+    bool                             m_wakeup_is_pending{false};
     tp::FixedCapacityQueue<Function> m_queue;
     std::mutex                       m_pop_mutex;
     std::mutex                       m_push_mutex;
@@ -137,10 +137,6 @@ namespace Utils {
 
     HQueue( unsigned queue_size, unsigned maxpart )
     : m_maxpart(maxpart)
-    , m_shutting_down(false)
-    , m_idle_workers(0)
-    , m_total_workers(0)
-    , m_wakeup_is_pending(false)
     , m_queue(queue_size)
     { }
 
