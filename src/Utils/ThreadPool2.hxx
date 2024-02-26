@@ -337,123 +337,6 @@ namespace Utils {
   };
 
   /**
-   * A thread pool reading its tasks from a generic queue.
-   *
-   * \tparam class Queue
-   *         The queue delivering the tasks.
-   *
-   *	Class Queue must provide the following members:
-   *
-   *	- void work()
-   *    Gets tasks and works until the end of
-   *    the queue is reached.
-   *
-   *	- void shutdown()
-   *    Causes the queue to tell the threads
-   *    asking for work to return.
-   *
-   */
-  class GenericThreadPool {
-
-    HQueue<QueueElement> *   m_queue;
-    std::vector<std::thread> m_worker_threads;
-
-  public:
-
-    // Copying and moving are not supported.
-    GenericThreadPool( GenericThreadPool const & )             = delete;
-    GenericThreadPool( GenericThreadPool && )                  = delete;
-    GenericThreadPool& operator = (GenericThreadPool const & ) = delete;
-    GenericThreadPool& operator = (GenericThreadPool && )      = delete;
-
-    /**
-     * Generic thread pool.
-     *
-     * As soon as the pool is created the threads start running
-     * tasks from the queue until the queue is empty. When the
-     * queue is empty the threads return and are ready to be
-     * collected by join() or by the destructor.
-     *
-     * \param queue
-     *        The queue delivering the tasks.
-     *
-     * \param thread_count
-     *        The number of threads to use.
-     *        If the thread count is not specified it defaults
-     *        to the number of available hardware threads
-     *        std::thread::hardware_concurrency().
-     *
-     */
-    GenericThreadPool( HQueue<QueueElement> * queue, int thread_count )
-    : m_queue(queue)
-    , m_worker_threads(thread_count)
-    {
-      for ( std::thread & w : m_worker_threads )
-        w = std::thread( std::bind( &HQueue<QueueElement>::work, m_queue, false ) );
-    }
-
-    /**
-     * Wait for all threads to finish and collect them.
-     *
-     * Leaves the thread pool ready for destruction.
-     */
-    void
-    join() {
-      // Instead of hanging around, help the workers!
-      // Never wait for work, return instead.
-      m_queue->work( false );
-      for ( std::thread & w : m_worker_threads )
-        { if (w.joinable()) w.join(); }
-    }
-
-    /**
-     * Destroy the thread pool.
-     *
-     * Generally a destructor should not wait for a long time,
-     * and it should not throw any exceptions. Unfortunately
-     * threads are not abortable in C++.  The only way to make
-     * sure the threads have terminated is to wait for them to
-     * return by themselves.  If we would allow the
-     * destruction of the thread pool before the threads have
-     * returned, the threads would continue to access the
-     * memory of the destroyed thread pool, potentially
-     * clobbering other objects residing in the recycled
-     * memory.  We could allocate parts of the memory with
-     * new, and leave it behind for the threads after the
-     * thread pool is destructed.  But even then, the user
-     * supplied functions run by the threads might access
-     * memory that gets destroyed if the function that
-     * constructed the thread pool terminates.  The danger of
-     * undetected and undebuggable memory corruption is just
-     * too big.
-     *
-     * With regard to the exceptions rethrown in the
-     * destructor, it is better to signal the exception than
-     * to ignore it silently.
-     *
-     * If it is not acceptable for the destructor to wait or
-     * to throw an exception, just call join() before the pool
-     * is destructed.  After join() the destructor is
-     * guaranteed to run fast and without exceptions.
-     *
-     * If it should really be necessary to keep threads
-     * running after the function that created the thread pool
-     * returns, just create the thread pool on the heap with
-     * new. And if you want to make sure nobody destroys the
-     * thread pool, feel free to throw away the handle.
-     */
-    ~GenericThreadPool() {
-      // Abort processing if destructor runs during exception handling.
-      if ( std::uncaught_exception() ) m_queue->shutdown();
-      join(); // Running threads would continue to access the destructed pool.
-    }
-
-    unsigned
-    thread_count() const
-    { return unsigned(m_worker_threads.size()); }
-  };
-
-  /**
    * Implementation of virtual thread pool.
    *
    * Implements the functionality of the virtual thread
@@ -470,10 +353,12 @@ namespace Utils {
   class ThreadPool2 : public ThreadPoolBase  {
 
     using QUEUE = HQueue<QueueElement>;
-    using POOL  = GenericThreadPool;
+
+    //using POOL  = GenericThreadPool;
 
     QUEUE m_queue;
-    POOL  m_pool;
+    std::vector<std::thread> m_worker_threads;
+    //POOL  m_pool;
 
   public:
 
@@ -484,8 +369,10 @@ namespace Utils {
       unsigned maxpart      = 0
     )
     : m_queue( queue_size == 0 ? 50 * (thread_count+1) : queue_size, maxpart == 0 ? 3 * (thread_count+1) : maxpart )
-    , m_pool( &m_queue, thread_count )
+    , m_worker_threads( thread_count )
     {
+      for ( std::thread & w : m_worker_threads )
+        w = std::thread( std::bind( &HQueue<QueueElement>::work, &m_queue, false ) );
     }
 
     void
@@ -529,7 +416,12 @@ namespace Utils {
     join() override {
       wait();
       m_queue.shutdown();
-      m_pool.join();
+      // Instead of hanging around, help the workers!
+      // Never wait for work, return instead.
+      // m_pool.join();
+      m_queue.work( false );
+      for ( std::thread & w : m_worker_threads )
+        { if (w.joinable()) w.join(); }
     }
 
     /**
@@ -542,7 +434,7 @@ namespace Utils {
      * destructor).
      */
 
-    unsigned thread_count()   const override { return m_pool.thread_count(); }
+    unsigned thread_count()   const override { return unsigned(m_worker_threads.size()); }
     unsigned queue_capacity() const          { return m_queue.queue_capacity(); }
     unsigned maxpart()        const          { return m_queue.maxpart(); }
 
@@ -562,14 +454,22 @@ namespace Utils {
       if ( queue_size == 0 ) queue_size = 50 * (thread_count+1);
       if ( maxpart    == 0 ) maxpart    = 3 * (thread_count+1);
       new (&m_queue) QUEUE( queue_size, maxpart );
-      new (&m_pool)  POOL( &m_queue, thread_count );
-      //m_queue = new QUEUE( queue_size, maxpart );
-      //m_pool  = new POOL( &m_queue, thread_count );
+
+      m_worker_threads.clear();
+      m_worker_threads.resize( thread_count );
+      for ( std::thread & w : m_worker_threads )
+        w = std::thread( std::bind( &HQueue<QueueElement>::work, &m_queue, false ) );
     }
 
     char const * name() const override { return "ThreadPool2"; }
 
-    virtual ~ThreadPool2() { join(); }
+    virtual
+    ~ThreadPool2() {
+      // Abort processing if destructor runs during exception handling.
+      if ( std::uncaught_exception() ) m_queue.shutdown();
+      join(); // Running threads would continue to access the destructed pool.
+    }
+
   };
 
 }
