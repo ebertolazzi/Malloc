@@ -34,6 +34,84 @@ namespace Utils {
   class HQueue {
 
     /*\
+     |   ___ _            _  ___                    _ _         ___
+     |  | __(_)_ _____ __| |/ __|__ _ _ __  __ _ __(_) |_ _  _ / _ \ _  _ ___ _  _ ___
+     |  | _|| \ \ / -_) _` | (__/ _` | '_ \/ _` / _| |  _| || | (_) | || / -_) || / -_)
+     |  |_| |_/_\_\___\__,_|\___\__,_| .__/\__,_\__|_|\__|\_, |\__\_\\_,_\___|\_,_\___|
+     |                               |_|                  |__/
+    \*/
+    /*\
+        If we would use a deque, we would have to protect
+        against overlapping accesses to the front and the
+        back. The standard containers do not allow this. Use a
+        vector instead.  With a vector it is possible to access
+        both ends of the queue at the same time, as push()ing
+        and pop()ing does not modify the container itself but
+        only its elements.
+    \*/
+    class FixedCapacityQueue {
+
+      union Fun {
+        Function m_fun; // Only used between pop_ptr and push_ptr
+        Fun() noexcept { }
+        Fun( Fun const & ) noexcept { }
+        Fun( Fun && ) noexcept { }
+        ~Fun() noexcept { }
+      };
+
+      std::vector<Fun> m_fun_vec;
+      unsigned m_size     = 0;
+      unsigned m_capacity = 0;
+      unsigned m_push_ptr = 0;
+      unsigned m_pop_ptr  = 0;
+
+    public:
+
+      FixedCapacityQueue( FixedCapacityQueue const & )              = delete;
+      FixedCapacityQueue( FixedCapacityQueue && )                   = delete;
+      FixedCapacityQueue& operator = ( FixedCapacityQueue const & ) = delete;
+      FixedCapacityQueue& operator = ( FixedCapacityQueue && )      = delete;
+
+      explicit
+      FixedCapacityQueue( unsigned capacity )
+      : m_fun_vec( size_t( capacity+1 ) )
+      , m_size( capacity+1 )
+      , m_capacity( capacity )
+      { }
+
+      void
+      push( Function && f ) {
+        new (&m_fun_vec[m_push_ptr].m_fun) Function(std::forward<Function>(f));
+        if ( ++m_push_ptr == m_size ) m_push_ptr = 0;
+      }
+
+      Function
+      pop() {
+        Function r = std::move(m_fun_vec[m_pop_ptr].m_fun);
+        m_fun_vec[m_pop_ptr].m_fun.~Function();
+        if ( ++m_pop_ptr == m_size ) m_pop_ptr = 0;
+        return r;
+      }
+
+      unsigned size()     const { return ((m_push_ptr + m_size) - m_pop_ptr) % m_size; }
+      bool     empty()    const { return m_push_ptr == m_pop_ptr; }
+      bool     is_full()  const { return this->size() >= m_capacity; }
+      unsigned capacity() const { return m_capacity; }
+
+      void
+      reserve( unsigned capacity ) {
+        assert(empty()); // Copying / moving of Fun not supported.
+        if ( capacity != m_capacity ) {
+          m_size     = capacity+1;
+          m_capacity = capacity;
+          m_fun_vec.resize( m_size );
+        }
+      }
+
+      ~FixedCapacityQueue() { while (!empty()) pop(); }
+    };
+
+    /*\
       This queue requires attention for protection against
       concurrent access. Protect against:
 
@@ -50,16 +128,16 @@ namespace Utils {
         queue full, while at the same time the queues fill level decreases.
     \*/
 
-    unsigned const                   m_maxpart;
-    bool                             m_shutting_down{false};
-    unsigned                         m_idle_workers{0};
-    unsigned                         m_total_workers{0};
-    bool                             m_wakeup_is_pending{false};
-    tp::FixedCapacityQueue<Function> m_queue;
-    std::mutex                       m_pop_mutex;
-    std::mutex                       m_push_mutex;
-    std::condition_variable          m_waiting_workers_cond;
-    std::condition_variable          m_waiters_cond;
+    unsigned const          m_maxpart;
+    bool                    m_shutting_down{false};
+    unsigned                m_idle_workers{0};
+    unsigned                m_total_workers{0};
+    bool                    m_wakeup_is_pending{false};
+    FixedCapacityQueue      m_queue;
+    std::mutex              m_pop_mutex;
+    std::mutex              m_push_mutex;
+    std::condition_variable m_waiting_workers_cond;
+    std::condition_variable m_waiters_cond;
 
     /**
      * Get tasks and execute them. Return as soon as the queue
@@ -80,7 +158,7 @@ namespace Utils {
           this->m_waiters_cond.notify_all();
       });
 
-      tp::FixedCapacityQueue<Function> function_queue(1);
+      FixedCapacityQueue function_queue(1);
 
       for (;;) {
         std::unique_lock<std::mutex> lock(m_pop_mutex);
@@ -234,7 +312,28 @@ namespace Utils {
     /**
      * Destroy the task object
      */
-    virtual ~VirtualTask() UTILS_DEFAULT;
+    virtual ~VirtualTask() = default;
+  };
+
+  /**
+   * Store pointers into the queue. Decorate the pointers
+   * with an operator() to make them callable as needed by
+   * ThreadPool.
+   */
+  class QueueElement {
+    VirtualTask * m_task;
+
+  public:
+
+    QueueElement()                                     = delete;
+    QueueElement( QueueElement const & )               = delete;
+    QueueElement & operator = ( QueueElement const & ) = delete;
+    QueueElement & operator = ( QueueElement && )      = delete;
+
+    QueueElement( VirtualTask * t ) : m_task(t) { }
+    QueueElement( QueueElement && x ) noexcept : m_task(x.m_task) { x.m_task = nullptr; }
+    void operator()() { (*m_task)(); m_task = nullptr; }
+    ~QueueElement() { if (m_task) delete m_task; }
   };
 
   /**
@@ -254,11 +353,10 @@ namespace Utils {
    *    asking for work to return.
    *
    */
-  template<class Queue>
   class GenericThreadPool {
 
     std::mutex               m_mutex;
-    Queue *                  m_queue;
+    HQueue<QueueElement> *   m_queue;
     std::vector<std::thread> m_worker_threads;
 
     //! The main function of the thread.
@@ -290,7 +388,7 @@ namespace Utils {
      *        std::thread::hardware_concurrency().
      *
      */
-    GenericThreadPool( Queue * queue, int thread_count )
+    GenericThreadPool( HQueue<QueueElement> * queue, int thread_count )
     : m_queue(queue)
     , m_worker_threads(thread_count)
     {
@@ -366,27 +464,6 @@ namespace Utils {
   };
 
   /**
-   * Store pointers into the queue. Decorate the pointers
-   * with an operator() to make them callable as needed by
-   * ThreadPool.
-   */
-  class QueueElement {
-    VirtualTask * m_task;
-
-  public:
-
-    QueueElement()                                     = delete;
-    QueueElement( QueueElement const & )               = delete;
-    QueueElement & operator = ( QueueElement const & ) = delete;
-    QueueElement & operator = ( QueueElement && )      = delete;
-
-    QueueElement( VirtualTask * t ) : m_task(t) { }
-    QueueElement( QueueElement && x ) noexcept : m_task(x.m_task) { x.m_task = nullptr; }
-    void operator()() { (*m_task)(); m_task = nullptr; }
-    ~QueueElement() { if (m_task) delete m_task; }
-  };
-
-  /**
    * Implementation of virtual thread pool.
    *
    * Implements the functionality of the virtual thread
@@ -403,7 +480,7 @@ namespace Utils {
   class ThreadPool2 : public ThreadPoolBase  {
 
     using QUEUE = HQueue<QueueElement>;
-    using POOL  = GenericThreadPool<QUEUE>;
+    using POOL  = GenericThreadPool;
 
     QUEUE * m_queue;
     POOL  * m_pool;
@@ -503,7 +580,8 @@ namespace Utils {
     virtual
     ~ThreadPool2() {
       wait(); join();
-      delete m_pool; delete m_queue;
+      delete m_pool;
+      delete m_queue;
     }
   };
 

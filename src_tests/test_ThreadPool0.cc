@@ -18,7 +18,6 @@
 \*--------------------------------------------------------------------------*/
 
 #include "Utils.hh"
-#include "threadpool/threadpool.hh"
 
 using std::cout;
 

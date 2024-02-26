@@ -19,25 +19,31 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <random>
 
 #include "Utils_eigen.hh"
 
 using mat     = Eigen::MatrixXd;
 using integer = Eigen::Index;
 
+std::random_device rd;  // a seed source for the random number engine
+std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
+//std::uniform_int_distribution<> distrib(20,30);
+std::uniform_int_distribution<> distrib(2,25);
+
 class BlockMult {
 
   std::mutex mtx;
-  Utils::ThreadPool0 Pool0{12};
-  Utils::ThreadPool1 Pool1{12};
-  Utils::ThreadPool2 Pool2{12};
-  Utils::ThreadPool3 Pool3{12};
-  Utils::ThreadPool4 Pool4{12};
-  Utils::ThreadPool5 Pool5{12};
+  Utils::ThreadPool0 Pool0{5};
+  Utils::ThreadPool1 Pool1{5};
+  Utils::ThreadPool2 Pool2{5};
+  Utils::ThreadPool3 Pool3{5};
+  Utils::ThreadPool4 Pool4{5};
+  Utils::ThreadPool5 Pool5{5};
 
-  std::vector<integer> i_block;
-  std::vector<integer> j_block;
-  std::vector<integer> k_block;
+  std::vector<integer> const * m_i_block;
+  std::vector<integer> const * m_j_block;
+  std::vector<integer> const * m_k_block;
 
   // (n x m) * (m x p)
   void
@@ -54,13 +60,13 @@ public:
 
   bool
   multiply(
-    integer     nthp,
-    mat const & A,
-    mat const & B,
-    mat       & C,
-    integer     n,
-    integer     m,
-    integer     p
+    integer                    ntp,
+    mat const                  & A,
+    mat const                  & B,
+    mat                        & C,
+    std::vector<integer> const & i_block,
+    std::vector<integer> const & j_block,
+    std::vector<integer> const & k_block
   );
 
   ~BlockMult() {}
@@ -77,10 +83,10 @@ BlockMult::Compute_C_block(
   integer     i,
   integer     j
 ) {
-  auto II = Eigen::seqN( i_block[i-1], i_block[i]-i_block[i-1] );
-  auto JJ = Eigen::seqN( j_block[j-1], j_block[j]-j_block[j-1] );
-  for ( size_t k{1}; k < k_block.size(); ++k ) {
-    auto KK = Eigen::seqN( k_block[k-1], k_block[k]-k_block[k-1] );
+  auto II = Eigen::seqN( (*m_i_block)[i-1], (*m_i_block)[i]-(*m_i_block)[i-1] );
+  auto JJ = Eigen::seqN( (*m_j_block)[j-1], (*m_j_block)[j]-(*m_j_block)[j-1] );
+  for ( size_t k{1}; k < m_k_block->size(); ++k ) {
+    auto KK = Eigen::seqN( (*m_k_block)[k-1], (*m_k_block)[k]-(*m_k_block)[k-1] );
     C(II,JJ) += A(II,KK)*B(KK,JJ);
   }
 }
@@ -89,13 +95,13 @@ BlockMult::Compute_C_block(
 
 bool
 BlockMult::multiply(
-  integer     ntp,
-  mat const & A,
-  mat const & B,
-  mat       & C,
-  integer     n,
-  integer     m,
-  integer     p
+  integer                    ntp,
+  mat const                  & A,
+  mat const                  & B,
+  mat                        & C,
+  std::vector<integer> const & i_block,
+  std::vector<integer> const & j_block,
+  std::vector<integer> const & k_block
 ) {
 
   if ( A.cols() != B.rows())  {
@@ -106,53 +112,19 @@ BlockMult::multiply(
     return false;
   }
 
-  // get dimensions
-  integer N{A.rows()};
-  integer M{B.cols()};
-  integer P{A.cols()};
-
-  if ( n > N )  {
-    fmt::print( "Invalid matrix multiplication. Found n = {} > N = {}\n", n, N );
-    return false;
-  }
-  if ( m > M )  {
-    fmt::print( "Invalid matrix multiplication. Found m = {} > M = \n", m, M );
-    return false;
-  }
-  if ( p > P )  {
-    fmt::print( "Invalid matrix multiplication. Found p = {} > P = {}\n", p, P );
-    return false;
-  }
-
-  i_block.clear(); i_block.reserve(n+1); i_block.emplace_back(0);
-  k_block.clear(); k_block.reserve(p+1); k_block.emplace_back(0);
-  j_block.clear(); j_block.reserve(m+1); j_block.emplace_back(0);
-
-  {
-    integer dn{int(N/n)};
-    while ( i_block.back() < N ) i_block.emplace_back( i_block.back() + dn );
-    i_block.back() = N;
-  }
-
-  {
-    integer dm{int(M/m)};
-    while ( j_block.back() < M ) j_block.emplace_back( j_block.back() + dm );
-    j_block.back() = M;
-  }
-
-  {
-    integer dp{int(P/p)};
-    while ( k_block.back() < P ) k_block.emplace_back( k_block.back() + dp );
-    k_block.back() = P;
-  }
+  m_i_block = &i_block;
+  m_j_block = &j_block;
+  m_k_block = &k_block;
 
   C.setZero();
+
+  //#define USE_RUN
 
   switch ( ntp ) {
   case 0:
     for ( integer i{1}; i < integer(i_block.size()); ++i ) {
       for ( integer j{1}; j < integer(j_block.size()); ++j ) {
-        #if 0
+        #ifdef USE_RUN
         Pool0.run( &BlockMult::Compute_C_block, this, std::ref(A), std::ref(B), std::ref(C), i, j );
         #else
         auto fun = [this, &A, &B, &C, i, j]() -> void { this->Compute_C_block( A, B, C, i, j ); };
@@ -165,7 +137,7 @@ BlockMult::multiply(
   case 1:
     for ( integer i{1}; i < integer(i_block.size()); ++i ) {
       for ( integer j{1}; j < integer(j_block.size()); ++j ) {
-        #if 0
+        #ifdef USE_RUN
         Pool1.run( &BlockMult::Compute_C_block, this, std::ref(A), std::ref(B), std::ref(C), i, j );
         #else
         auto fun = [this, &A, &B, &C, i, j]() -> void { this->Compute_C_block( A, B, C, i, j ); };
@@ -178,7 +150,7 @@ BlockMult::multiply(
   case 2:
     for ( integer i{1}; i < integer(i_block.size()); ++i ) {
       for ( integer j{1}; j < integer(j_block.size()); ++j ) {
-        #if 0
+        #ifdef USE_RUN
         Pool2.run( &BlockMult::Compute_C_block, this, std::ref(A), std::ref(B), std::ref(C), i, j );
         #else
         auto fun = [this, &A, &B, &C, i, j]() -> void { this->Compute_C_block( A, B, C, i, j ); };
@@ -191,7 +163,7 @@ BlockMult::multiply(
   case 3:
     for ( integer i{1}; i < integer(i_block.size()); ++i ) {
       for ( integer j{1}; j < integer(j_block.size()); ++j ) {
-        #if 0
+        #ifdef USE_RUN
         Pool3.run( &BlockMult::Compute_C_block, this, std::ref(A), std::ref(B), std::ref(C), i, j );
         #else
         auto fun = [this, &A, &B, &C, i, j]() -> void { this->Compute_C_block( A, B, C, i, j ); };
@@ -204,7 +176,7 @@ BlockMult::multiply(
   case 4:
     for ( integer i{1}; i < integer(i_block.size()); ++i ) {
       for ( integer j{1}; j < integer(j_block.size()); ++j ) {
-        #if 0
+        #ifdef USE_RUN
         Pool4.run( &BlockMult::Compute_C_block, this, std::ref(A), std::ref(B), std::ref(C), i, j );
         #else
         auto fun = [this, &A, &B, &C, i, j]() -> void { this->Compute_C_block( A, B, C, i, j ); };
@@ -217,7 +189,7 @@ BlockMult::multiply(
   case 5:
     for ( integer i{1}; i < integer(i_block.size()); ++i ) {
       for ( integer j{1}; j < integer(j_block.size()); ++j ) {
-        #if 0
+        #ifdef USE_RUN
         Pool5.run( &BlockMult::Compute_C_block, this, std::ref(A), std::ref(B), std::ref(C), i, j );
         #else
         auto fun = [this, &A, &B, &C, i, j]() -> void { this->Compute_C_block( A, B, C, i, j ); };
@@ -235,32 +207,31 @@ BlockMult::multiply(
 
 int
 main() {
-
+  Utils::TicToc tm;
   Eigen::initParallel();
-  std::cout << "Eigen Test" << std::endl;
+  fmt::print("Eigen Test\n");
   double mean   = 0.0;
   double stdDev = 0.0;
   Eigen::MatrixXd M1, M2, M3a, M3b;
-  int n_runs = 100;
+  int n_runs = 3;
   Eigen::VectorXd times(n_runs);
   Eigen::VectorXd stdDev_vec(n_runs);
-  int n_size = 300;
-  int p_size = 200;
-  int m_size = 500;
-  int N = 10;
-  int P = 10;
-  int M = 10;
-  M1.resize(n_size,p_size);
-  M2.resize(p_size,m_size);
-  M3a.resize(n_size,m_size);
-  M3b.resize(n_size,m_size);
+  int N = 800;
+  int P = 400;
+  int M = 1200;
+  int n = N/40;
+  int p = P/30;
+  int m = M/50;
+  M1.resize(N,P);
+  M2.resize(P,M);
+  M3a.resize(N,M);
+  M3b.resize(N,M);
 
-  M1 = Eigen::MatrixXd::Random(n_size,p_size);
-  M2 = Eigen::MatrixXd::Random(p_size,m_size);
+  M1 = Eigen::MatrixXd::Random(N,P);
+  M2 = Eigen::MatrixXd::Random(P,M);
 
   fmt::print("Standard Product\n");
   for ( int i{0}; i < n_runs; i++) {
-    Utils::TicToc tm;
     tm.tic();
     M3a = M1 * M2;
     tm.toc();
@@ -268,25 +239,44 @@ main() {
   }
   mean   = times.mean();
   stdDev = (((times.array() - mean) * (times.array() - mean)).sqrt()).sum()/((double)(n_runs-1));
-  fmt::print( "time: {}ms {}ms (sdev)\n\n\n", mean, stdDev );
+  fmt::print( "time: {:8.4}ms {:8.4}ms (sdev)\n\n\n", mean, stdDev );
+
+  std::vector<integer> i_block;
+  std::vector<integer> j_block;
+  std::vector<integer> k_block;
+
+  i_block.clear(); i_block.reserve(n+1); i_block.emplace_back(0);
+  k_block.clear(); k_block.reserve(p+1); k_block.emplace_back(0);
+  j_block.clear(); j_block.reserve(m+1); j_block.emplace_back(0);
+
+  {
+    while ( i_block.back() < N ) i_block.emplace_back( i_block.back() + distrib(gen) );
+    i_block.back() = N;
+  }
+
+  {
+    while ( j_block.back() < M ) j_block.emplace_back( j_block.back() + distrib(gen) );
+    j_block.back() = M;
+  }
+
+  {
+    while ( k_block.back() < P ) k_block.emplace_back( k_block.back() + distrib(gen) );
+    k_block.back() = P;
+  }
 
   for ( int nptp{0}; nptp <= 5; ++nptp ) {
-    fmt::print("Block Product #{}\n",nptp);
     BlockMult BM;
     for ( int i{0}; i < n_runs; ++i ) {
-      Utils::TicToc tm;
       tm.tic();
-      BM.multiply( nptp, M1, M2, M3b, N, P, M );
+      BM.multiply( nptp, M1, M2, M3b, i_block, j_block, k_block );
       tm.toc();
       times(i) = tm.elapsed_ms();
     }
     mean   = times.mean();
     stdDev = (((times.array() - mean) * (times.array() - mean)).sqrt()).sum()/((double)(n_runs-1));
-    fmt::print( "time (#{}): {}ms {}ms (sdev)\n", nptp, mean, stdDev );
     fmt::print(
-      "Check if the results are the same\n"
-      "M3a - M3b: {}\n\n\n",
-      (M3a- M3b).norm()
+      "time (#{}): {:8.4}ms {:8.4}ms (sdev) Check M3a - M3b: {:8.4}\n\n",
+      nptp, mean, stdDev, (M3a-M3b).norm()
     );
   }
 

@@ -18,7 +18,6 @@
 \*--------------------------------------------------------------------------*/
 
 #include "Utils.hh"
-#include "threadpool/threadpool.hh"
 
 using std::cout;
 
@@ -138,7 +137,7 @@ main( int argc, char *argv[] ) {
 
   test_TP<Utils::ThreadPool1>( NN, nt, sz, "ThreadPool1");
 
-  //test_TP<Utils::ThreadPool2>( NN, nt, sz, "ThreadPool2");
+  test_TP<Utils::ThreadPool2>( NN, nt, sz, "ThreadPool2");
 
   test_TP<Utils::ThreadPool3>( NN, nt, sz, "ThreadPool3");
 
@@ -153,9 +152,9 @@ main( int argc, char *argv[] ) {
     Utils::ThreadPool1 TP1(16); // 0%
     Utils::sleep_for_seconds(4);
 
-    //fmt::print("ThreadPool2\n");
-    //Utils::ThreadPool2 TP2(16); // 0%
-    //Utils::sleep_for_seconds(4);
+    fmt::print("ThreadPool2\n");
+    Utils::ThreadPool2 TP2(16); // 0%
+    Utils::sleep_for_seconds(4);
 
     fmt::print("ThreadPool3\n");
     Utils::ThreadPool3 TP3(16); // 100%

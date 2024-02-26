@@ -76,7 +76,7 @@ namespace threadpool {
     std::exception_ptr       m_pending_exception;
     Queue *                  m_queue;
     std::vector<std::thread> m_worker_threads;
-    bool                     m_ignore_thread_pool_exceptions = true;
+    bool                     m_ignore_thread_pool_exceptions{true};
 
     //! The main function of the thread.
     void work() { help(false); }
@@ -432,8 +432,8 @@ namespace threadpool {
 
 } // End of namespace threadpool
 
-#include "threadpool_parallel_for_each.hxx"
-#include "threadpool_parallel_transform.hxx"
-#include "threadpool_make_iterator.hxx"
+//#include "threadpool_parallel_for_each.hxx"
+//#include "threadpool_parallel_transform.hxx"
+//#include "threadpool_make_iterator.hxx"
 
 #endif // !defined(THREADPOOL_THREADPOOL_H)
