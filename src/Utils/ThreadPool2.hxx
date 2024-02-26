@@ -355,12 +355,8 @@ namespace Utils {
    */
   class GenericThreadPool {
 
-    std::mutex               m_mutex;
     HQueue<QueueElement> *   m_queue;
     std::vector<std::thread> m_worker_threads;
-
-    //! The main function of the thread.
-    void work() { do_work(false); }
 
   public:
 
@@ -393,16 +389,8 @@ namespace Utils {
     , m_worker_threads(thread_count)
     {
       for ( std::thread & w : m_worker_threads )
-        w = std::thread( std::bind( &GenericThreadPool::work, this ) );
+        w = std::thread( std::bind( &HQueue<QueueElement>::work, m_queue, false ) );
     }
-
-    /**
-     * Help with the work.
-     *
-     * \param return_if_idle
-     *        Never wait for work, return instead.
-     */
-    void do_work( bool return_if_idle ) { m_queue->work( return_if_idle ); }
 
     /**
      * Wait for all threads to finish and collect them.
@@ -411,7 +399,9 @@ namespace Utils {
      */
     void
     join() {
-      work(); // Instead of hanging around, help the workers!
+      // Instead of hanging around, help the workers!
+      // Never wait for work, return instead.
+      m_queue->work( false );
       for ( std::thread & w : m_worker_threads )
         { if (w.joinable()) w.join(); }
     }
@@ -482,8 +472,8 @@ namespace Utils {
     using QUEUE = HQueue<QueueElement>;
     using POOL  = GenericThreadPool;
 
-    QUEUE * m_queue;
-    POOL  * m_pool;
+    QUEUE m_queue;
+    POOL  m_pool;
 
   public:
 
@@ -492,20 +482,19 @@ namespace Utils {
       unsigned thread_count = std::thread::hardware_concurrency(),
       unsigned queue_size   = 0,
       unsigned maxpart      = 0
-    ) {
-      if ( queue_size == 0 ) queue_size = 50 * (thread_count+1);
-      if ( maxpart    == 0 ) maxpart    = 3 * (thread_count+1);
-      m_queue = new QUEUE( queue_size, maxpart );
-      m_pool  = new POOL( m_queue, thread_count );
+    )
+    : m_queue( queue_size == 0 ? 50 * (thread_count+1) : queue_size, maxpart == 0 ? 3 * (thread_count+1) : maxpart )
+    , m_pool( &m_queue, thread_count )
+    {
     }
 
     void
     run_task( std::unique_ptr<VirtualTask>&& t )
-    { m_queue->put(t.release()); }
+    { m_queue.put(t.release()); }
 
     void
     run_task( VirtualTask * t )
-    { m_queue->put(t); }
+    { m_queue.put(t); }
 
     void
     exec( std::function<void()> && fun ) override {
@@ -521,8 +510,8 @@ namespace Utils {
 
     void
     wait() override {
-      m_pool->do_work(true); // Help out instead of sitting around idly.
-      m_queue->wait();
+      m_queue.work(true); // Help out instead of sitting around idly.
+      m_queue.wait();
     }
 
     /**
@@ -539,8 +528,8 @@ namespace Utils {
     void
     join() override {
       wait();
-      m_queue->shutdown();
-      m_pool->join();
+      m_queue.shutdown();
+      m_pool.join();
     }
 
     /**
@@ -553,9 +542,9 @@ namespace Utils {
      * destructor).
      */
 
-    unsigned thread_count()   const override { return m_pool->thread_count(); }
-    unsigned queue_capacity() const          { return m_queue->queue_capacity(); }
-    unsigned maxpart()        const          { return m_queue->maxpart(); }
+    unsigned thread_count()   const override { return m_pool.thread_count(); }
+    unsigned queue_capacity() const          { return m_queue.queue_capacity(); }
+    unsigned maxpart()        const          { return m_queue.maxpart(); }
 
     void
     resize( unsigned thread_count ) override {
@@ -568,21 +557,19 @@ namespace Utils {
       unsigned queue_size,
       unsigned maxpart
     ) {
-      this->~ThreadPool2();
+      //wait(); // gia fatto in join
+      join();
       if ( queue_size == 0 ) queue_size = 50 * (thread_count+1);
       if ( maxpart    == 0 ) maxpart    = 3 * (thread_count+1);
-      m_queue = new QUEUE( queue_size, maxpart );
-      m_pool  = new POOL( m_queue, thread_count );
+      new (&m_queue) QUEUE( queue_size, maxpart );
+      new (&m_pool)  POOL( &m_queue, thread_count );
+      //m_queue = new QUEUE( queue_size, maxpart );
+      //m_pool  = new POOL( &m_queue, thread_count );
     }
 
     char const * name() const override { return "ThreadPool2"; }
 
-    virtual
-    ~ThreadPool2() {
-      wait(); join();
-      delete m_pool;
-      delete m_queue;
-    }
+    virtual ~ThreadPool2() { join(); }
   };
 
 }
