@@ -36,27 +36,6 @@ namespace Utils {
   };
 
   /**
-   * Store pointers into the queue. Decorate the pointers
-   * with an operator() to make them callable as needed by
-   * ThreadPool.
-   */
-  class QueueElement {
-    VirtualTask * m_task;
-
-  public:
-
-    QueueElement()                                     = delete;
-    QueueElement( QueueElement const & )               = delete;
-    QueueElement & operator = ( QueueElement const & ) = delete;
-    QueueElement & operator = ( QueueElement && )      = delete;
-
-    QueueElement( VirtualTask * t ) : m_task(t) { }
-    QueueElement( QueueElement && x ) noexcept : m_task(x.m_task) { x.m_task = nullptr; }
-    void operator()() { (*m_task)(); m_task = nullptr; }
-    ~QueueElement() { if (m_task) delete m_task; }
-  };
-
-  /**
    * Queue for functions with signature void()
    *
    * This queue is dependent on template parameter Function. Only one type of functions can be queued.
@@ -71,6 +50,27 @@ namespace Utils {
    */
   class HQueue {
 
+    /**
+     * Store pointers into the queue. Decorate the pointers
+     * with an operator() to make them callable as needed by
+     * ThreadPool.
+     */
+    class QueueElement {
+      VirtualTask * m_task;
+
+    public:
+
+      QueueElement()                                     = delete;
+      QueueElement( QueueElement const & )               = delete;
+      QueueElement & operator = ( QueueElement const & ) = delete;
+      QueueElement & operator = ( QueueElement && )      = delete;
+
+      QueueElement( VirtualTask * t ) : m_task(t) { }
+      QueueElement( QueueElement && x ) noexcept : m_task(x.m_task) { x.m_task = nullptr; }
+      void operator()() { (*m_task)(); m_task = nullptr; }
+      ~QueueElement() { if (m_task) delete m_task; }
+    };
+
     /*\
      |   ___ _            _  ___                    _ _         ___
      |  | __(_)_ _____ __| |/ __|__ _ _ __  __ _ __(_) |_ _  _ / _ \ _  _ ___ _  _ ___
@@ -79,11 +79,11 @@ namespace Utils {
      |                               |_|                  |__/
     \*/
     /*\
-        If we would use a deque, we would have to protect against overlapping accesses to
-        the front and the back. The standard containers do not allow this.
-        Use a vector instead.  With a vector it is possible to access both ends of the
-        queue at the same time, as push()ing and pop()ing does not modify the container
-        itself but only its elements.
+     * If we would use a deque, we would have to protect against overlapping accesses to
+     * the front and the back. The standard containers do not allow this.
+     * Use a vector instead.  With a vector it is possible to access both ends of the
+     * queue at the same time, as push()ing and pop()ing does not modify the container
+     * itself but only its elements.
     \*/
     class FixedCapacityQueue {
 
@@ -252,14 +252,6 @@ namespace Utils {
     ThreadPool2( unsigned thread_count = std::thread::hardware_concurrency() );
 
     void
-    run_task( std::unique_ptr<VirtualTask>&& t )
-    { m_queue.put(t.release()); }
-
-    void
-    run_task( VirtualTask * t )
-    { m_queue.put(t); }
-
-    void
     exec( std::function<void()> && fun ) override {
       class WrappedFunction : public VirtualTask {
         std::function<void()> m_f;
@@ -268,7 +260,7 @@ namespace Utils {
         WrappedFunction( std::function<void()> && f ) : m_f(std::move(f)) { }
         virtual void operator()() override { m_f(); delete this; }
       };
-      run_task(new WrappedFunction( std::move(fun) ) );
+      m_queue.put( new WrappedFunction( std::move(fun) ) );
     }
 
     void wait() override;
