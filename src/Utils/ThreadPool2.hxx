@@ -14,18 +14,57 @@
 namespace Utils {
 
   /**
+   * VirtualTask type for thread pool
+   *
+   * The thread pool wraps functions into object of type VirtualTask and enqueues them.
+   * The actual tasks can be heterogenous and must only support the VirtualTask interface.
+   */
+  class VirtualTask {
+  public:
+    /**
+     * The payload, users function to be run.
+     *
+     * Operator() is run from the thread pool.
+     * Is responsible for deleting the task object once it is done.
+     */
+    virtual void operator()() = 0;
+
+    /**
+     * Destroy the task object
+     */
+    virtual ~VirtualTask() = default;
+  };
+
+  /**
+   * Store pointers into the queue. Decorate the pointers
+   * with an operator() to make them callable as needed by
+   * ThreadPool.
+   */
+  class QueueElement {
+    VirtualTask * m_task;
+
+  public:
+
+    QueueElement()                                     = delete;
+    QueueElement( QueueElement const & )               = delete;
+    QueueElement & operator = ( QueueElement const & ) = delete;
+    QueueElement & operator = ( QueueElement && )      = delete;
+
+    QueueElement( VirtualTask * t ) : m_task(t) { }
+    QueueElement( QueueElement && x ) noexcept : m_task(x.m_task) { x.m_task = nullptr; }
+    void operator()() { (*m_task)(); m_task = nullptr; }
+    ~QueueElement() { if (m_task) delete m_task; }
+  };
+
+  /**
    * Queue for functions with signature void()
    *
-   * This queue is dependent on template parameter
-   * Function. Only one type of functions can be queued. For
-   * example if this queue is instantiated for a lambda
-   * function, only this exact lambda function can be
-   * queued, since each lambda function has its own type
-   * separate from all other lambda functions.
+   * This queue is dependent on template parameter Function. Only one type of functions can be queued.
+   * For example if this queue is instantiated for a lambda function, only this exact lambda function
+   * can be queued, since each lambda function has its own type separate from all other lambda functions.
    *
-   * To make this queue more flexible, instantiate it either
-   * with std::function<void()>, or use the virtual thread
-   * pool VirtualThreadPool.
+   * To make this queue more flexible, instantiate it either with std::function<void()>,
+   * or use the virtual thread pool VirtualThreadPool.
    *
    * \tparam Function
    *         The function type to queue.
@@ -41,13 +80,11 @@ namespace Utils {
      |                               |_|                  |__/
     \*/
     /*\
-        If we would use a deque, we would have to protect
-        against overlapping accesses to the front and the
-        back. The standard containers do not allow this. Use a
-        vector instead.  With a vector it is possible to access
-        both ends of the queue at the same time, as push()ing
-        and pop()ing does not modify the container itself but
-        only its elements.
+        If we would use a deque, we would have to protect against overlapping accesses to
+        the front and the back. The standard containers do not allow this.
+        Use a vector instead.  With a vector it is possible to access both ends of the
+        queue at the same time, as push()ing and pop()ing does not modify the container
+        itself but only its elements.
     \*/
     class FixedCapacityQueue {
 
@@ -293,50 +330,6 @@ namespace Utils {
   };
 
   /**
-   * VirtualTask type for thread pool
-   *
-   * The thread pool wraps functions into object of type
-   * VirtualTask and enqueues them. The actual tasks can be
-   * heterogenous and must only support the VirtualTask interface.
-   */
-  class VirtualTask {
-  public:
-    /**
-     * The payload, users function to be run.
-     *
-     * Operator() is run from the thread pool.
-     * Is responsible for deleting the task object once it is done.
-     */
-    virtual void operator()() = 0;
-
-    /**
-     * Destroy the task object
-     */
-    virtual ~VirtualTask() = default;
-  };
-
-  /**
-   * Store pointers into the queue. Decorate the pointers
-   * with an operator() to make them callable as needed by
-   * ThreadPool.
-   */
-  class QueueElement {
-    VirtualTask * m_task;
-
-  public:
-
-    QueueElement()                                     = delete;
-    QueueElement( QueueElement const & )               = delete;
-    QueueElement & operator = ( QueueElement const & ) = delete;
-    QueueElement & operator = ( QueueElement && )      = delete;
-
-    QueueElement( VirtualTask * t ) : m_task(t) { }
-    QueueElement( QueueElement && x ) noexcept : m_task(x.m_task) { x.m_task = nullptr; }
-    void operator()() { (*m_task)(); m_task = nullptr; }
-    ~QueueElement() { if (m_task) delete m_task; }
-  };
-
-  /**
    * Implementation of virtual thread pool.
    *
    * Implements the functionality of the virtual thread
@@ -397,29 +390,22 @@ namespace Utils {
 
     void
     wait() override {
-      m_queue.work(true); // Help out instead of sitting around idly.
+      m_queue.work( true ); // Help out instead of sitting around idly.
       m_queue.wait();
     }
 
     /**
-     * Discard all tasks from the queue that have not yet
-     * started and wait for all threads to return.
-     *
-     * Also throws an exception if one of the tasks has
-     * encountered an uncatched exception.
-     *
-     * Leaves the pool in a shutdown state not ready to run
-     * tasks, but ready for destruction.
+     * Discard all tasks from the queue that have not yet started and wait for all threads to return.
+     * Also throws an exception if one of the tasks has encountered an uncatched exception.
+     * Leaves the pool in a shutdown state not ready to run tasks, but ready for destruction.
      */
 
     void
     join() override {
-      wait();
+      m_queue.work( true ); // Help out instead of sitting around idly.
+      m_queue.wait();
       m_queue.shutdown();
-      // Instead of hanging around, help the workers!
-      // Never wait for work, return instead.
-      // m_pool.join();
-      m_queue.work( false );
+      m_queue.work( false ); // Instead of hanging around, help the workers!
       for ( std::thread & w : m_worker_threads )
         { if (w.joinable()) w.join(); }
     }
@@ -427,21 +413,16 @@ namespace Utils {
     /**
      * Destroy the thread pool.
      *
-     * Does the equivalent of wait() and join() before the
-     * thread pool is destructed. This means, the destructor
-     * can hang a long time and can throw an exception (unless
-     * wait() or join() have been called before the
-     * destructor).
+     * Does the equivalent of wait() and join() before the thread pool is destructed.
+     * This means, the destructor can hang a long time and can throw an exception
+     * (unless wait() or join() have been called before the destructor).
      */
 
     unsigned thread_count()   const override { return unsigned(m_worker_threads.size()); }
     unsigned queue_capacity() const          { return m_queue.queue_capacity(); }
     unsigned maxpart()        const          { return m_queue.maxpart(); }
 
-    void
-    resize( unsigned thread_count ) override {
-      this->resize( thread_count, 0, 0 );
-    }
+    void resize( unsigned thread_count ) override { this->resize( thread_count, 0, 0 ); }
 
     void
     resize(
@@ -449,10 +430,10 @@ namespace Utils {
       unsigned queue_size,
       unsigned maxpart
     ) {
-      //wait(); // gia fatto in join
       join();
       if ( queue_size == 0 ) queue_size = 50 * (thread_count+1);
       if ( maxpart    == 0 ) maxpart    = 3 * (thread_count+1);
+
       new (&m_queue) QUEUE( queue_size, maxpart );
 
       m_worker_threads.clear();
