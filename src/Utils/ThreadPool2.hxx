@@ -69,7 +69,6 @@ namespace Utils {
    * \tparam Function
    *         The function type to queue.
    */
-  template <class Function>
   class HQueue {
 
     /*\
@@ -89,7 +88,7 @@ namespace Utils {
     class FixedCapacityQueue {
 
       union Fun {
-        Function m_fun; // Only used between pop_ptr and push_ptr
+        QueueElement m_fun; // Only used between pop_ptr and push_ptr
         Fun() noexcept { }
         Fun( Fun const & ) noexcept { }
         Fun( Fun && ) noexcept { }
@@ -117,15 +116,15 @@ namespace Utils {
       { }
 
       void
-      push( Function && f ) {
-        new (&m_fun_vec[m_push_ptr].m_fun) Function(std::forward<Function>(f));
+      push( QueueElement && f ) {
+        new (&m_fun_vec[m_push_ptr].m_fun) QueueElement(std::forward<QueueElement>(f));
         if ( ++m_push_ptr == m_size ) m_push_ptr = 0;
       }
 
-      Function
+      QueueElement
       pop() {
-        Function r = std::move(m_fun_vec[m_pop_ptr].m_fun);
-        m_fun_vec[m_pop_ptr].m_fun.~Function();
+        QueueElement r{ std::move(m_fun_vec[m_pop_ptr].m_fun) };
+        m_fun_vec[m_pop_ptr].m_fun.~QueueElement();
         if ( ++m_pop_ptr == m_size ) m_pop_ptr = 0;
         return r;
       }
@@ -135,17 +134,9 @@ namespace Utils {
       bool     is_full()  const { return this->size() >= m_capacity; }
       unsigned capacity() const { return m_capacity; }
 
-      void
-      reserve( unsigned capacity ) {
-        assert(empty()); // Copying / moving of Fun not supported.
-        if ( capacity != m_capacity ) {
-          m_size     = capacity+1;
-          m_capacity = capacity;
-          m_fun_vec.resize( m_size );
-        }
-      }
+      void reserve( unsigned capacity );
 
-      ~FixedCapacityQueue() { while (!empty()) pop(); }
+      ~FixedCapacityQueue();
     };
 
     /*\
@@ -177,63 +168,9 @@ namespace Utils {
     std::condition_variable m_waiters_cond;
 
     /**
-     * Get tasks and execute them. Return as soon as the queue
-     * shrinks to `return_if_idle` tasks.
+     * Get tasks and execute them. Return as soon as the queue shrinks to `return_if_idle` tasks.
      */
-    void
-    help(int return_if_idle) {
-
-      unsigned min_queue_size = return_if_idle < 0 ? 0 : return_if_idle;
-
-      // Increment total worker count, decrement again on scope exit
-      { std::lock_guard<std::mutex> lock(m_push_mutex); ++m_total_workers; }
-
-      // execute at exit
-      auto x1 = at_scope_exit([this](){
-        std::lock_guard<std::mutex> lock(this->m_push_mutex);
-        if (--this->m_total_workers == this->m_idle_workers)
-          this->m_waiters_cond.notify_all();
-      });
-
-      FixedCapacityQueue function_queue(1);
-
-      for (;;) {
-        std::unique_lock<std::mutex> lock(m_pop_mutex);
-        unsigned queue_size;
-
-        // Try to get the next task(s)
-        while ((queue_size = m_queue.size()) <= min_queue_size) {
-          if ( int(queue_size) <= return_if_idle) return;
-          if ( queue_size > 0 ) break;
-          // The queue is empty, wait for more tasks to be put()
-          lock.unlock();
-          {
-            std::unique_lock<std::mutex> lock2(m_push_mutex);
-            while (m_queue.empty() && !m_shutting_down) {
-              if ( ++m_idle_workers == m_total_workers ) m_waiters_cond.notify_all();
-              m_waiting_workers_cond.wait(lock2); // Wait for task to be queued
-              m_wakeup_is_pending = false;
-              --m_idle_workers;
-            }
-          }
-          if (m_shutting_down) return;
-          lock.lock();
-        }
-
-        // There is at least one task in the queue and the back is locked.
-
-        unsigned stride = (m_maxpart == 0) ? 1 : queue_size / m_maxpart;
-        if (stride <= 0) stride = 1;
-        if (stride > function_queue.capacity()) function_queue.reserve(2 * stride);
-        while (stride--) function_queue.push(m_queue.pop());
-        lock.unlock();
-
-        if ( m_idle_workers && !m_wakeup_is_pending && queue_size )
-          m_waiting_workers_cond.notify_one();
-
-        while (!function_queue.empty()) function_queue.pop()();
-      }
-    }
+    void help( int return_if_idle );
 
     /**
      * Help, and shut down if an exception escapes.
@@ -281,7 +218,7 @@ namespace Utils {
 
       // Enqueue function.
       if ( m_shutting_down ) {
-        Function fun(std::forward<C>(c)); // Run Function destructor
+        QueueElement fun(std::forward<C>(c)); // Run Function destructor
       } else {
         // Here we have exclusive access to the head of the queue.
         m_queue.push(std::forward<C>(c));
@@ -293,36 +230,8 @@ namespace Utils {
       }
     }
 
-    void
-    shutdown() {
-      std::unique_lock<std::mutex> push_lock(m_push_mutex);
-      std::unique_lock<std::mutex> pop_lock(m_pop_mutex);
-      m_shutting_down = true;
-      while (!m_queue.empty()) m_queue.pop();
-      m_waiting_workers_cond.notify_all();
-      m_waiters_cond.notify_all();
-    }
-
-    void
-    wait() {
-      if ( std::uncaught_exception() ) shutdown();
-      std::exception_ptr e;
-      std::unique_lock<std::mutex> lock(m_push_mutex);
-      while ( !m_queue.empty() || m_idle_workers != m_total_workers ) {
-        while ( !m_queue.empty() ) {
-          lock.unlock();
-          try {
-            try_help(0);
-          } catch (...) {
-            if (e == nullptr) e = std::current_exception();
-          }
-          lock.lock();
-        }
-        while ( m_idle_workers != m_total_workers ) m_waiters_cond.wait(lock);
-      }
-      if (e != nullptr && !std::uncaught_exception())
-        std::rethrow_exception(std::move(e));
-    }
+    void shutdown();
+    void wait();
 
     unsigned queue_capacity() const { return m_queue.capacity(); }
     unsigned maxpart()        const { return m_maxpart; }
@@ -330,43 +239,17 @@ namespace Utils {
   };
 
   /**
-   * Implementation of virtual thread pool.
-   *
-   * Implements the functionality of the virtual thread
-   * pool. Only provides an interface to run a generic
-   * VirtualTask. The convenience functions to run
-   * different types of callable objects should be implemented
-   * in a subclass.
-   *
-   * The template parameter is not used, only serves to make
-   * this a class template which can be instantiated in multiple
-   * compilation units without giving multiply defined symbol
-   * errors.
+   * Implementation of thread pool.
    */
   class ThreadPool2 : public ThreadPoolBase  {
 
-    using QUEUE = HQueue<QueueElement>;
-
-    //using POOL  = GenericThreadPool;
-
-    QUEUE m_queue;
+    HQueue                   m_queue;
     std::vector<std::thread> m_worker_threads;
-    //POOL  m_pool;
 
   public:
 
     explicit
-    ThreadPool2(
-      unsigned thread_count = std::thread::hardware_concurrency(),
-      unsigned queue_size   = 0,
-      unsigned maxpart      = 0
-    )
-    : m_queue( queue_size == 0 ? 50 * (thread_count+1) : queue_size, maxpart == 0 ? 3 * (thread_count+1) : maxpart )
-    , m_worker_threads( thread_count )
-    {
-      for ( std::thread & w : m_worker_threads )
-        w = std::thread( std::bind( &HQueue<QueueElement>::work, &m_queue, false ) );
-    }
+    ThreadPool2( unsigned thread_count = std::thread::hardware_concurrency() );
 
     void
     run_task( std::unique_ptr<VirtualTask>&& t )
@@ -388,11 +271,7 @@ namespace Utils {
       run_task(new WrappedFunction( std::move(fun) ) );
     }
 
-    void
-    wait() override {
-      m_queue.work( true ); // Help out instead of sitting around idly.
-      m_queue.wait();
-    }
+    void wait() override;
 
     /**
      * Discard all tasks from the queue that have not yet started and wait for all threads to return.
@@ -400,15 +279,7 @@ namespace Utils {
      * Leaves the pool in a shutdown state not ready to run tasks, but ready for destruction.
      */
 
-    void
-    join() override {
-      m_queue.work( true ); // Help out instead of sitting around idly.
-      m_queue.wait();
-      m_queue.shutdown();
-      m_queue.work( false ); // Instead of hanging around, help the workers!
-      for ( std::thread & w : m_worker_threads )
-        { if (w.joinable()) w.join(); }
-    }
+    void join() override;
 
     /**
      * Destroy the thread pool.
@@ -423,33 +294,11 @@ namespace Utils {
     unsigned maxpart()        const          { return m_queue.maxpart(); }
 
     void resize( unsigned thread_count ) override { this->resize( thread_count, 0, 0 ); }
-
-    void
-    resize(
-      unsigned thread_count,
-      unsigned queue_size,
-      unsigned maxpart
-    ) {
-      join();
-      if ( queue_size == 0 ) queue_size = 50 * (thread_count+1);
-      if ( maxpart    == 0 ) maxpart    = 3 * (thread_count+1);
-
-      new (&m_queue) QUEUE( queue_size, maxpart );
-
-      m_worker_threads.clear();
-      m_worker_threads.resize( thread_count );
-      for ( std::thread & w : m_worker_threads )
-        w = std::thread( std::bind( &HQueue<QueueElement>::work, &m_queue, false ) );
-    }
+    void resize( unsigned thread_count, unsigned queue_size, unsigned maxpart );
 
     char const * name() const override { return "ThreadPool2"; }
 
-    virtual
-    ~ThreadPool2() {
-      // Abort processing if destructor runs during exception handling.
-      if ( std::uncaught_exception() ) m_queue.shutdown();
-      join(); // Running threads would continue to access the destructed pool.
-    }
+    virtual ~ThreadPool2();
 
   };
 
