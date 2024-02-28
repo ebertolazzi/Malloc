@@ -101,7 +101,7 @@ namespace Utils {
       npts > 1 && last_interval >= 0 && last_interval < n,
       "In search_interval( npts={}, X, x={}, last_interval={}, closed={}, can_extend={})\n"
       "npts musrt be >= 2 and last_interval must be in [0,npts-2]\n",
-      npts, last_interval, closed, can_extend
+      npts, x, last_interval, closed, can_extend
     );
 
     // checl range
@@ -118,7 +118,7 @@ namespace Utils {
         can_extend || (x >= xl && x <= xr),
         "In search_interval( npts={}, X, x={}, last_interval={}, closed={}, can_extend={})\n"
         "out of range: [{},{}]\n",
-        npts, last_interval, closed, can_extend, xl, xr
+        npts, x, last_interval, closed, can_extend, xl, xr
       );
     }
 
@@ -153,7 +153,7 @@ namespace Utils {
       last_interval >= 0 && last_interval < n,
       "In search_interval( npts={}, X, x={}, last_interval={}, closed={}, can_extend={})\n"
       "computed last_interval of range: [{},{}]\n",
-      npts, last_interval, closed, can_extend, xl, xr
+      npts, x, last_interval, closed, can_extend, xl, xr
     );
 
   }
